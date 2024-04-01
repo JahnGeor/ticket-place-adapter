@@ -1,0 +1,6 @@
+[submodule "module/server"]
+	path = module/server
+	url = https://github.com/JahnGeor/ticket-place-server-app
+[submodule "module/client"]
+	path = module/client
+	url = https://github.com/JahnGeor/ticket-place-client-app
