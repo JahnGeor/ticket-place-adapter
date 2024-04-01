@@ -3,5 +3,7 @@
 /build/data/config/server/
 /build/logs/
 /build/drivers/kkt/
-/build/Ticket_Place_Server_App.exe
+/build/ticket-place-server.exe
+/build/ticket-place-server-x64.exe
+/build/ticket-place-server
 /.idea/
