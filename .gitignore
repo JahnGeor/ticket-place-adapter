@@ -1,0 +1,7 @@
+/.app/
+/build/data/config/client/
+/build/data/config/server/
+/build/logs/
+/build/drivers/kkt/
+/build/Ticket_Place_Server_App.exe
+/.idea/
