@@ -7,3 +7,4 @@
 /build/ticket-place-server-x64.exe
 /build/ticket-place-server
 /.idea/
+.DS_Store
