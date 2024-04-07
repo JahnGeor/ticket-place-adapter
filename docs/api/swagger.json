@@ -1,0 +1,350 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Приложение-адаптер для клиентского приложения Ticket Place",
+        "title": "Ticket Place",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Егор Ишуткин",
+            "email": "jahngeor@kidesoft.ru"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "2.0"
+    },
+    "host": "localhost:8660",
+    "basePath": "/api/v2",
+    "paths": {
+        "/atol/close": {
+            "get": {
+                "tags": [
+                    "Работа с ККТ"
+                ],
+                "summary": "Закрыть соединение с кассой (выключить)",
+                "responses": {}
+            }
+        },
+        "/atol/close_shift": {
+            "get": {
+                "tags": [
+                    "Работа с ККТ"
+                ],
+                "summary": "Закрыть смену",
+                "responses": {}
+            }
+        },
+        "/atol/open": {
+            "get": {
+                "tags": [
+                    "Работа с ККТ"
+                ],
+                "summary": "Открыть соединение с кассой (включить)",
+                "responses": {}
+            }
+        },
+        "/atol/open_shift": {
+            "get": {
+                "tags": [
+                    "Работа с ККТ"
+                ],
+                "summary": "Открыть смену",
+                "responses": {}
+            }
+        },
+        "/atol/shift_status": {
+            "get": {
+                "tags": [
+                    "Работа с ККТ"
+                ],
+                "summary": "Статус смены",
+                "responses": {}
+            }
+        },
+        "/setting/": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновить настройки по пользователю",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Настройки"
+                ],
+                "summary": "Обновить настройки",
+                "parameters": [
+                    {
+                        "description": "Данные настроек",
+                        "name": "setting",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Settings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Создать настройку по пользователю",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Настройки"
+                ],
+                "summary": "Создать настройку",
+                "parameters": [
+                    {
+                        "description": "Данные настроек",
+                        "name": "setting",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Settings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удалить настройки по пользователю",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Настройки"
+                ],
+                "summary": "Удалить настройки",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UserID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/setting/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получить настройки по пользователю",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Настройки"
+                ],
+                "summary": "Получить настройки",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UserID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/Settings"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/system/ping": {
+            "get": {
+                "tags": [
+                    "Системное"
+                ],
+                "summary": "Пинг",
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "Settings": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "kkt_auto_reconnect": {
+                    "type": "boolean"
+                },
+                "kkt_driver_path": {
+                    "type": "string"
+                },
+                "page_orientation": {
+                    "type": "string"
+                },
+                "page_size": {
+                    "type": "string"
+                },
+                "print_check": {
+                    "type": "boolean"
+                },
+                "print_ticket": {
+                    "type": "boolean"
+                },
+                "printer_name": {
+                    "type": "string"
+                },
+                "server_request_interval": {
+                    "type": "string"
+                },
+                "server_request_timeout": {
+                    "type": "string"
+                },
+                "update_automatically": {
+                    "type": "boolean"
+                },
+                "update_repository_url": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "fiber.Error": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
