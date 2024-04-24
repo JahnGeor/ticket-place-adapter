@@ -2,7 +2,7 @@
 /build/data/config/client/
 /build/data/config/server/
 /build/logs/
-/build/drivers/kkt/
+/build/data/driver/
 /build/ticket-place-server.exe
 /build/ticket-place-server-x64.exe
 /build/ticket-place-server
