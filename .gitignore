@@ -1,10 +1,10 @@
 /.app/
-/build/data/config/client/
-/build/data/config/server/
-/build/logs/
-/build/drivers/
-/build/ticket-place-server.exe
-/build/ticket-place-server-x64.exe
-/build/ticket-place-server
+/release/data/config/client/
+/release/data/config/server/
+/release/logs/
+/release/drivers/
+/release/ticket-place-server.exe
+/release/ticket-place-server-x64.exe
+/release/ticket-place-server
 /.idea/
 .DS_Store
