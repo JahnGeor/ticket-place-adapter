@@ -18,6 +18,8 @@ public class Main extends Application {
     Logger logger = org.apache.logging.log4j.LogManager.getLogger(Main.class);
     @Override
     public void start(Stage stage) throws Exception {
+        H2DBRepository.builder().create("jdbc:h2:file:./target/ticketplace").migrate().build();
+
         logger.error("Application started");
 
         setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());

@@ -5,6 +5,7 @@ module ru.kidesoft.ticketplace.client {
     requires com.h2database;
     requires java.sql;
     requires flyway.core;
+    requires com.google.gson;
     requires org.kordamp.ikonli.javafx;
     requires atlantafx.base;
     requires org.kordamp.ikonli.fluentui;
