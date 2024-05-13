@@ -22,6 +22,9 @@ import org.kordamp.ikonli.fluentui.FluentUiRegularMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
+import ru.kidesoft.ticketplace.client.domain.executor.Executor;
+import ru.kidesoft.ticketplace.client.domain.executor.handler.impl.DefaultHandler;
+import ru.kidesoft.ticketplace.client.domain.interactor.impl.PrinterUsecase;
 import ru.kidesoft.ticketplace.client.main.StageSetting;
 import ru.kidesoft.ticketplace.client.view.controller.Controller;
 import ru.kidesoft.ticketplace.client.view.controller.ControllerType;
@@ -130,7 +133,7 @@ public class MainController extends Controller {
 
     @FXML
     void printXReportAction(ActionEvent event) {
-
+        Executor.builder().withPresenter(this).load().execute(PrinterUsecase::printXReport);
     }
 
     @FXML

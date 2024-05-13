@@ -1,10 +1,21 @@
+import com.sun.source.doctree.SystemPropertyTree
+
 plugins {
   id 'java'
   id 'application'
   id 'org.javamodularity.moduleplugin' version '1.8.12'
   id 'org.openjfx.javafxplugin' version '0.0.13'
   id 'org.beryx.jlink' version '2.25.0'
-  
+  id "org.flywaydb.flyway" version "10.12.0"
+}
+
+run {
+  System.getProperties().forEach((key, value) -> System.out.println(key + " : " + value));
+  systemProperties(System.getProperties())
+}
+
+flyway {
+  configFiles = ['./data/config/flyway.conf']
 }
 
 group 'ru.kidesoft.ticketplace'
@@ -21,7 +32,7 @@ ext {
 sourceCompatibility = '17'
 targetCompatibility = '17'
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
   options.encoding = 'UTF-8'
 }
 
@@ -36,17 +47,20 @@ javafx {
 }
 
 dependencies {
-  implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.5'
+  implementation('org.flywaydb:flyway-core:10.12.0') // 'org.flywaydb:flyway-core:10.12.0'
+  implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
+  implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
   implementation('org.controlsfx:controlsfx:11.1.2')
   implementation('org.kordamp.ikonli:ikonli-javafx:12.3.1')
   implementation('org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1')
   implementation('io.github.mkpaz:atlantafx-base:2.0.1')
   implementation('org.kordamp.ikonli:ikonli-fluentui-pack:12.3.1')
   implementation('org.kordamp.ikonli:ikonli-materialdesign2-pack:12.3.1')
-
+  implementation 'com.h2database:h2:2.2.224'
   implementation('com.jfoenix:jfoenix:9.0.10')
   testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
 }
 
 test {
@@ -58,10 +72,15 @@ jlink {
   launcher {
     name = 'app'
   }
+
 }
 
 jlinkZip {
   group = 'distribution'
 }
 
-tasks.register('createDB')
+processResources {
+  filesMatching("/ru/kidesoft/ticketplace/application.properties") {
+    expand( project.properties )
+  }
+}
