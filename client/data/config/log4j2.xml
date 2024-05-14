@@ -1,0 +1,58 @@
+<Configuration name="MainLog" status="warn">
+    <Properties>
+        <Property name="LOG_DIR">logs/client</Property>
+    </Properties>
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="%highlight{%d{YYYY-MM-dd HH:mm:ss} [%t] -> %l %-5level: %msg%throwable%n}{TRACE=bright_white}"
+                           disableAnsi="false"/>
+        </Console>
+
+        <RollingFile
+                name="LogToFile"
+                fileName="${LOG_DIR}/app.log"
+                filePattern="${LOG_DIR}/app.%d{yyyy-MM-dd}.log.gz"
+                ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>%d{YYYY-MM-dd HH:mm:ss} [%t] %l %-5level: %msg {%throwable}%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5">
+                <Delete basePath="${LOG_DIR}" maxDepth="2">
+                    <IfFileName glob="*/app.*.log.gz" />
+                    <IfLastModified age="P30D" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+
+        <RollingFile
+                name="FlywayLogToFile"
+                fileName="${LOG_DIR}/flyway.log"
+                filePattern="${LOG_DIR}/flyway.%d{yyyy-MM-dd}.log.gz"
+                ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>%d{YYYY-MM-dd HH:mm:ss} [%t] %l %-5level: %msg {%throwable}%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5">
+                <Delete basePath="${LOG_DIR}" maxDepth="2">
+                    <IfFileName glob="*/app.*.log.gz" />
+                    <IfLastModified age="P30D" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="ru.kidesoft.ticketplace" level="trace" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="LogToFile"/>
+        </Logger>
+        <Logger name="org.flywaydb.core" level="trace" additivity="false">
+            <AppenderRef ref="FlywayLogToFile"/>
+        </Logger>
+    </Loggers>
+</Configuration>

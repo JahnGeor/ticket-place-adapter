@@ -7,29 +7,26 @@ import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.MenuBar;
-import javafx.scene.image.Image;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import ru.kidesoft.ticketplace.client.domain.executor.ThrowableLambda;
+import ru.kidesoft.ticketplace.client.domain.presenter.ControllerType;
+import ru.kidesoft.ticketplace.client.domain.presenter.SceneManager;
 import ru.kidesoft.ticketplace.client.view.controller.impl.BaseController;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Manager {
-    private static Stage primaryStage;
-    private static List<Controller> controllers = new ArrayList<>();
-    public static Class<? extends Controller> activeControllerClass = BaseController.class;
+public class Manager implements SceneManager {
+    private Stage primaryStage;
+    private List<Controller> controllers = new ArrayList<>();
+    public Class<? extends Controller> activeControllerClass = BaseController.class;
 
-    public static void initialize(Stage stage, ControllerType... controllerType) throws Exception {
-        Manager.primaryStage = stage;
+    public Manager initialize(Stage stage, ControllerType... controllerType) throws Exception {
+        this.primaryStage = stage;
 
 
         for (ControllerType type : controllerType) {
@@ -39,26 +36,28 @@ public class Manager {
 
         var baseLoader = ControllerType.BASE.getLoader();
 
-        baseLoader.setController(Manager.getController(ControllerType.BASE));
+        baseLoader.setController(this.getController(ControllerType.BASE));
 
         var scene = new Scene(baseLoader.load());
 
-        Manager.primaryStage.setHeight(415);
+        this.primaryStage.setHeight(415);
 
         stage.setScene(scene);
         stage.sizeToScene();
         activeControllerClass = ControllerType.BASE.getControllerClass();
+
+        return this;
     }
 
-    public static void addController(Controller controller) {
+    public void addController(Controller controller) {
         controllers.add(controller);
     }
 
-    public static void removeController(Controller controller) {
+    public void removeController(Controller controller) {
         controllers.remove(controller);
     }
 
-    public static Controller getController(ControllerType type) throws NullPointerException {
+    public Controller getController(ControllerType type) throws NullPointerException {
         for (Controller controller : controllers) {
             if (controller.getClass() == type.getControllerClass()) {
                 return controller;
@@ -120,7 +119,7 @@ public class Manager {
         playAnimation(previous, next, centerChildren, kfNext, kfPrev);
     }
 
-    public static void openScene(ControllerType type) {
+    public void openScene(ControllerType type) throws Exception {
 
         try {
 
@@ -172,5 +171,17 @@ public class Manager {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public <T> void setUserData(ThrowableLambda.ThrowableSupplier<T> runnable) throws Exception {
+        Object o = runnable.get();
+
+        if (o != null) {
+            primaryStage.setUserData(o);
+        }
+
+        else throw new NullPointerException("User data is null");
+    }
+
 
 }

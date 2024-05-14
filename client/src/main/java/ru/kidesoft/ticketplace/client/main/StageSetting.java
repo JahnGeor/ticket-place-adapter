@@ -1,5 +1,6 @@
 package ru.kidesoft.ticketplace.client.main;
 
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import ru.kidesoft.ticketplace.client.view.controller.Manager;
@@ -7,8 +8,6 @@ import ru.kidesoft.ticketplace.client.view.controller.Manager;
 import java.util.Objects;
 
 public class StageSetting {
-
-
     private Stage stage;
     public static final Image iconImage = new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/ru/kidesoft/ticketplace/assets/img/icon.png")));
     public static final Image logoImage = new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/ru/kidesoft/ticketplace/assets/img/logo.png")));
@@ -37,5 +36,9 @@ public class StageSetting {
         });
 
         return this;
+    }
+
+    public static void exit() {
+        Platform.exit();
     }
 }

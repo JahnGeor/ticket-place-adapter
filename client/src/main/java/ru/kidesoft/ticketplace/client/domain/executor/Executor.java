@@ -2,8 +2,9 @@ package ru.kidesoft.ticketplace.client.domain.executor;
 
 import ru.kidesoft.ticketplace.client.domain.executor.handler.Handler;
 import ru.kidesoft.ticketplace.client.domain.executor.handler.extendedHandler.ExtendedHandler;
-import ru.kidesoft.ticketplace.client.domain.executor.handler.impl.DefaultHandler;
 import ru.kidesoft.ticketplace.client.domain.presenter.Presenter;
+
+import java.util.Optional;
 
 public class Executor {
     private Handler handler;
@@ -18,16 +19,16 @@ public class Executor {
         this.presenter = presenter;
     }
 
-     public <T, R> R execute(ThrowableLambda.CheckedFunction<T, R> func, T t) {
+     public <T, R> Optional<R> execute(ThrowableLambda.ThrowableFunction<T, R> func, T t) {
         try {
-            return func.apply(t);
+            return Optional.ofNullable(func.apply(t));
         } catch (Exception e) {
             handler.handle(e);
-            return null;
+            return Optional.empty();
         }
      }
 
-     public void execute(ThrowableLambda.CheckedRunnable func) {
+     public void execute(ThrowableLambda.ThrowableRunnable func) {
         try {
             func.call();
         }  catch (Exception e) {
@@ -35,5 +36,21 @@ public class Executor {
         }
      }
 
+    public <R> Optional<R> execute(ThrowableLambda.ThrowableSupplier<R> func) {
+        try {
+            return Optional.ofNullable(func.get());
+        }  catch (Exception e) {
+            ExtendedHandler.aExtendedHandler().setHandler(handler).setException(e).setPresenter(presenter).handle();
+            return Optional.empty();
+        }
+    }
+
+    public <T> void execute(ThrowableLambda.ThrowableConsumer<T> func, T t) {
+        try {
+            func.call(t);
+        }  catch (Exception e) {
+            ExtendedHandler.aExtendedHandler().setHandler(handler).setException(e).setPresenter(presenter).handle();
+        }
+    }
 
 }

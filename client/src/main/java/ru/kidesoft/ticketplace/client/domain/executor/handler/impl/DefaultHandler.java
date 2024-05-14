@@ -2,6 +2,7 @@ package ru.kidesoft.ticketplace.client.domain.executor.handler.impl;
 
 import org.h2.jdbc.JdbcException;
 import ru.kidesoft.ticketplace.client.domain.executor.handler.Handler;
+import ru.kidesoft.ticketplace.client.domain.models.exception.ControllerException;
 import ru.kidesoft.ticketplace.client.domain.models.exception.DbException;
 import ru.kidesoft.ticketplace.client.domain.models.exception.KktException;
 import ru.kidesoft.ticketplace.client.domain.models.exception.WebException;
@@ -26,6 +27,11 @@ public class DefaultHandler extends Handler {
             return;
         }
 
+        if (exception instanceof ControllerException e) {
+            controllerHandler(e);
+            return;
+        }
+
         defaultHandler(exception);
 
     }
@@ -39,6 +45,10 @@ public class DefaultHandler extends Handler {
     }
 
     private void dbHandler(DbException dbException) {
+
+    }
+
+    private void controllerHandler(ControllerException controllerException) {
 
     }
 

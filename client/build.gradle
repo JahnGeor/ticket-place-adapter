@@ -1,4 +1,18 @@
 import com.sun.source.doctree.SystemPropertyTree
+import org.codehaus.groovy.runtime.GStringImpl
+import org.flywaydb.core.Flyway
+
+import java.sql.DriverManager
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.h2database:h2:2.2.220'
+    }
+}
 
 plugins {
   id 'java'
@@ -10,12 +24,11 @@ plugins {
 }
 
 run {
-  System.getProperties().forEach((key, value) -> System.out.println(key + " : " + value));
   systemProperties(System.getProperties())
 }
 
-flyway {
-  configFiles = ['./data/config/flyway.conf']
+tasks.register('throwProperties') {
+
 }
 
 group 'ru.kidesoft.ticketplace'
@@ -32,9 +45,9 @@ ext {
 sourceCompatibility = '17'
 targetCompatibility = '17'
 
-tasks.withType(JavaCompile).configureEach {
-  options.encoding = 'UTF-8'
-}
+//tasks.withType(JavaCompile).configureEach {
+//  options.encoding = 'UTF-8'
+//}
 
 application {
   mainModule = 'ru.kidesoft.ticketplace.client'
@@ -46,8 +59,23 @@ javafx {
   modules = ['javafx.controls', 'javafx.fxml']
 }
 
+compileJava.options.encoding = 'utf-8'
+
+tasks.withType(JavaCompile).configureEach {
+  options.encoding = 'utf-8'
+}
+
+flyway {
+  url = 'jdbc:h2:file:./data/db/ticketplace'
+  locations = ['classpath:ru/kidesoft/ticketplace/database/migrations']
+  cleanDisabled = false
+  user = 'h2'
+  password = 'h2'
+}
+
 dependencies {
   implementation 'com.google.code.gson:gson:2.10.1'
+  implementation 'com.fasterxml.jackson.core:jackson-core:2.17.1'
   implementation('org.flywaydb:flyway-core:10.12.0') // 'org.flywaydb:flyway-core:10.12.0'
   implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
   implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
@@ -57,7 +85,7 @@ dependencies {
   implementation('io.github.mkpaz:atlantafx-base:2.0.1')
   implementation('org.kordamp.ikonli:ikonli-fluentui-pack:12.3.1')
   implementation('org.kordamp.ikonli:ikonli-materialdesign2-pack:12.3.1')
-  implementation 'com.h2database:h2:2.2.224'
+  implementation 'com.h2database:h2:2.2.220'
   implementation('com.jfoenix:jfoenix:9.0.10')
   testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")

@@ -1,6 +1,8 @@
 package ru.kidesoft.ticketplace.client.view.controller.impl;
 
 import atlantafx.base.controls.PasswordTextField;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -9,10 +11,12 @@ import javafx.stage.Stage;
 import org.kordamp.ikonli.fluentui.FluentUiRegularAL;
 import org.kordamp.ikonli.fluentui.FluentUiRegularMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
+import ru.kidesoft.ticketplace.client.domain.dao.dto.CashierDto;
+import ru.kidesoft.ticketplace.client.domain.dao.dto.LoginProtected;
+import ru.kidesoft.ticketplace.client.domain.presenter.dto.Login;
 import ru.kidesoft.ticketplace.client.view.controller.Controller;
-import ru.kidesoft.ticketplace.client.view.controller.ControllerType;
+import ru.kidesoft.ticketplace.client.domain.presenter.ControllerType;
 import ru.kidesoft.ticketplace.client.view.controller.Manager;
 
 import java.net.URL;
@@ -29,6 +33,22 @@ public class AuthController extends Controller {
         enterButton.setGraphic(new FontIcon(FluentUiRegularMZ.PERSON_ARROW_RIGHT_20));
         printLastButton.setGraphic(new FontIcon(FluentUiRegularAL.DOCUMENT_ARROW_LEFT_16));
 
+
+        Login login = getUserData();
+
+        var emailList = FXCollections.observableList(login.getEmails());
+
+        var urlList = FXCollections.observableList(login.getUrls());
+
+        var profileList = FXCollections.observableList(login.getCashiers());
+
+        emailBox.setItems(emailList);
+        urlBox.setItems(urlList);
+        userShiftBox.setItems(profileList);
+
+        emailBox.getSelectionModel().selectFirst();
+        urlBox.getSelectionModel().selectFirst();
+        userShiftBox.getSelectionModel().selectFirst();
     }
 
     @Override
@@ -37,7 +57,7 @@ public class AuthController extends Controller {
     }
 
     @FXML
-    private ComboBox<?> emailBox;
+    private ComboBox<String> emailBox;
 
     @FXML
     private Button enterButton;
@@ -52,14 +72,13 @@ public class AuthController extends Controller {
     private Button shiftButton;
 
     @FXML
-    private ComboBox<?> urlBox;
+    private ComboBox<String> urlBox;
 
     @FXML
-    private ComboBox<?> userShiftBox;
+    private ComboBox<CashierDto> userShiftBox;
 
     @FXML
     void enterAction(ActionEvent event) {
-        Manager.openScene(ControllerType.MAIN);
     }
 
     @FXML
@@ -70,5 +89,19 @@ public class AuthController extends Controller {
     @FXML
     void shiftAction(ActionEvent event) {
 
+    }
+
+    Login getUserData() throws IllegalStateException {
+        Object o = getStage().getUserData();
+
+        if (o == null) {
+            throw new NullPointerException("Данные не переданы, userData = null");
+        }
+
+        if (o instanceof Login) {
+            return (Login) o;
+        } else {
+            throw new IllegalStateException(String.format("Неверный тип данных userData: %s", o.getClass().getName()));
+        }
     }
 }

@@ -6,21 +6,36 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import org.apache.logging.log4j.Logger;
+import ru.kidesoft.ticketplace.client.domain.executor.Executor;
+import ru.kidesoft.ticketplace.client.domain.interactor.Interactor;
+import ru.kidesoft.ticketplace.client.domain.interactor.InteractorBuilder;
+import ru.kidesoft.ticketplace.client.domain.presenter.SceneManager;
 import ru.kidesoft.ticketplace.client.repository.database.h2.H2DBRepository;
-import ru.kidesoft.ticketplace.client.view.controller.ControllerType;
+import ru.kidesoft.ticketplace.client.domain.presenter.ControllerType;
 import ru.kidesoft.ticketplace.client.view.controller.Manager;
 
-import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.Objects;
+import java.util.Properties;
+
 public class Main extends Application {
     Logger logger = org.apache.logging.log4j.LogManager.getLogger(Main.class);
     @Override
     public void start(Stage stage) throws Exception {
-        H2DBRepository.builder().create("jdbc:h2:file:./target/ticketplace").migrate().build();
+        logger.trace("Запуск приложения, поиск настроек");
+        Properties applicationProperties = new Properties();
 
-        logger.error("Application started");
+        applicationProperties.load(
+                Main.class.getResourceAsStream("/ru/kidesoft/ticketplace/application.properties")
+        );
+
+        H2DBRepository repo = H2DBRepository.builder()
+                .setProperties(applicationProperties).create().migrate().build();
+
+        if (!repo.getMigrateResult().success) {
+            logger.fatal("Ошибка в процессе создания миграции репозитория. Приложение будет закрыто", repo.getMigrateResult().exceptionObject);
+            StageSetting.exit();
+        } else {
+            logger.info("Процесс миграции успешно завершен. Текущая версия миграции: {}. Цель миграции: {}", repo.getMigrateResult().initialSchemaVersion, repo.getMigrateResult().targetSchemaVersion);
+        }
 
         setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
 
@@ -29,7 +44,8 @@ public class Main extends Application {
                 setLogo(StageSetting.iconImage).
                 setOnClose(Platform::exit);
 
-        Manager.initialize(stage,
+        SceneManager sceneManager = new Manager().initialize(
+                stage,
                 ControllerType.MAIN,
                 ControllerType.AUTH,
                 ControllerType.SETTING,
@@ -37,9 +53,24 @@ public class Main extends Application {
                 ControllerType.ADMIN,
                 ControllerType.HISTORY,
                 ControllerType.UPDATE,
-                ControllerType.BASE);
+                ControllerType.BASE
+        );
 
-        Manager.openScene(ControllerType.MAIN);
+        InteractorBuilder.anInteractor().withDatabaseDao(repo).withSceneManager(sceneManager).build();
+
+        Executor.builder().load().execute(Interactor.getLoginUsecase()::getActiveLoginUUID).ifPresentOrElse(
+                login -> Executor.builder().load().execute(
+                        Interactor::openScene, ControllerType.MAIN
+                ),
+                () -> Executor.builder().load().execute(
+                        Interactor::openScene, ControllerType.AUTH
+                )
+        );
+
+
+
+
+
     }
 
     public static void main(String[] args) {

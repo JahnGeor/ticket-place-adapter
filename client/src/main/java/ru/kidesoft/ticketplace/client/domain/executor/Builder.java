@@ -5,7 +5,7 @@ import ru.kidesoft.ticketplace.client.domain.executor.handler.impl.DefaultHandle
 import ru.kidesoft.ticketplace.client.domain.presenter.Presenter;
 
 public class Builder {
-    private Handler handler;
+    private Handler handler = new DefaultHandler();
     private Presenter presenter;
 
     public Builder withHandler(Handler handler) {

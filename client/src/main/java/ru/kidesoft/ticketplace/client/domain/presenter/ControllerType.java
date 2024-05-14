@@ -1,6 +1,7 @@
-package ru.kidesoft.ticketplace.client.view.controller;
+package ru.kidesoft.ticketplace.client.domain.presenter;
 
 import javafx.fxml.FXMLLoader;
+import ru.kidesoft.ticketplace.client.view.controller.Controller;
 import ru.kidesoft.ticketplace.client.view.controller.impl.*;
 
 import java.net.URL;

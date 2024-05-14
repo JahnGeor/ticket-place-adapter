@@ -6,19 +6,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import org.controlsfx.glyphfont.FontAwesome;
 import org.kordamp.ikonli.fluentui.*;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
+import ru.kidesoft.ticketplace.client.domain.executor.Executor;
+import ru.kidesoft.ticketplace.client.domain.interactor.Interactor;
 import ru.kidesoft.ticketplace.client.view.controller.Controller;
-import ru.kidesoft.ticketplace.client.view.controller.ControllerType;
+import ru.kidesoft.ticketplace.client.domain.presenter.ControllerType;
 import ru.kidesoft.ticketplace.client.view.controller.Manager;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.TimerTask;
 
 public class BaseController extends Controller {
 
@@ -107,37 +106,47 @@ public class BaseController extends Controller {
 
     @FXML
     void openHome(ActionEvent event) {
-        Manager.openScene(ControllerType.MAIN);
+        Executor.builder().load().execute(
+                Interactor.getProfileUsecase()::getProfile
+        );
     }
 
     @FXML
     void logoutAction(ActionEvent event) {
-        Manager.openScene(ControllerType.AUTH);
+
     }
 
     @FXML
     void openAbout(ActionEvent event) {
-        Manager.openScene(ControllerType.ABOUT);
+        Executor.builder().load().execute(
+                Interactor.getProfileUsecase()::getProfile
+        );
     }
 
     @FXML
     void openAdmin(ActionEvent event) {
-        Manager.openScene(ControllerType.ADMIN);
+        Executor.builder().load().execute(
+                Interactor.getProfileUsecase()::getProfile
+        );
     }
 
     @FXML
     void openHistory(ActionEvent event) {
-        Manager.openScene(ControllerType.HISTORY);
+        Executor.builder().load().execute(
+                Interactor.getProfileUsecase()::getProfile
+        );
     }
 
     @FXML
     void openSetting(ActionEvent event) {
-        Manager.openScene(ControllerType.SETTING);
+        Executor.builder().load().execute(
+                Interactor.getProfileUsecase()::getProfile
+        );
     }
 
     @FXML
     void updateAction(ActionEvent event) {
-        Manager.openScene(ControllerType.UPDATE);
+
     }
 
     @FXML

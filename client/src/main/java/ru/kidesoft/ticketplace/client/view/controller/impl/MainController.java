@@ -5,16 +5,12 @@ import atlantafx.base.controls.Tile;
 import atlantafx.base.theme.Styles;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.kordamp.ikonli.fluentui.FluentUiRegularAL;
@@ -23,12 +19,9 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 import ru.kidesoft.ticketplace.client.domain.executor.Executor;
-import ru.kidesoft.ticketplace.client.domain.executor.handler.impl.DefaultHandler;
-import ru.kidesoft.ticketplace.client.domain.interactor.impl.PrinterUsecase;
+import ru.kidesoft.ticketplace.client.domain.interactor.usecase.LoginUsecase;
 import ru.kidesoft.ticketplace.client.main.StageSetting;
 import ru.kidesoft.ticketplace.client.view.controller.Controller;
-import ru.kidesoft.ticketplace.client.view.controller.ControllerType;
-import ru.kidesoft.ticketplace.client.view.controller.Manager;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -133,7 +126,6 @@ public class MainController extends Controller {
 
     @FXML
     void printXReportAction(ActionEvent event) {
-        Executor.builder().withPresenter(this).load().execute(PrinterUsecase::printXReport);
     }
 
     @FXML
