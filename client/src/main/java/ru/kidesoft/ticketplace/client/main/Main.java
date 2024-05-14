@@ -10,6 +10,7 @@ import ru.kidesoft.ticketplace.client.domain.executor.Executor;
 import ru.kidesoft.ticketplace.client.domain.interactor.Interactor;
 import ru.kidesoft.ticketplace.client.domain.interactor.InteractorBuilder;
 import ru.kidesoft.ticketplace.client.domain.presenter.SceneManager;
+import ru.kidesoft.ticketplace.client.repository.api.ticketplace.TicketPlaceApiRepository;
 import ru.kidesoft.ticketplace.client.repository.database.h2.H2DBRepository;
 import ru.kidesoft.ticketplace.client.domain.presenter.ControllerType;
 import ru.kidesoft.ticketplace.client.view.controller.Manager;
@@ -29,6 +30,8 @@ public class Main extends Application {
 
         H2DBRepository repo = H2DBRepository.builder()
                 .setProperties(applicationProperties).create().migrate().build();
+
+        var ticketPlaceApiRepository = new TicketPlaceApiRepository();
 
         if (!repo.getMigrateResult().success) {
             logger.fatal("Ошибка в процессе создания миграции репозитория. Приложение будет закрыто", repo.getMigrateResult().exceptionObject);
@@ -56,7 +59,7 @@ public class Main extends Application {
                 ControllerType.BASE
         );
 
-        InteractorBuilder.anInteractor().withDatabaseDao(repo).withSceneManager(sceneManager).build();
+        InteractorBuilder.anInteractor().withDatabaseDao(repo).withApiDao(ticketPlaceApiRepository).withSceneManager(sceneManager).build();
 
         Executor.builder().load().execute(Interactor.getLoginUsecase()::getActiveLoginUUID).ifPresentOrElse(
                 login -> Executor.builder().load().execute(

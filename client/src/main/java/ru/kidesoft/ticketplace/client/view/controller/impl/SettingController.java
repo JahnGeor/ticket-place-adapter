@@ -2,19 +2,50 @@ package ru.kidesoft.ticketplace.client.view.controller.impl;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.print.Printer;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignF;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
+import ru.kidesoft.ticketplace.client.domain.models.entities.setting.Setting;
+import ru.kidesoft.ticketplace.client.domain.models.entities.setting.enums.PageOrientation;
+import ru.kidesoft.ticketplace.client.domain.models.entities.setting.enums.PageSize;
 import ru.kidesoft.ticketplace.client.view.controller.Controller;
 
 import java.net.URL;
+import java.time.Duration;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class SettingController extends Controller {
     public SettingController(Stage stage) {
         super(stage);
+    }
+
+    public Setting getUserData() {
+        Object o = getStage().getUserData();
+
+        if (o == null) {
+            throw new NullPointerException("user data object is null");
+        }
+
+        if (!(o instanceof Setting)) {
+            throw new ClassCastException("user data object is not " + Setting.class.getName());
+        }
+
+        return (Setting) o;
+    }
+
+    public void setUserData(Setting setting) {
+        KktDriverPathField.setText(setting.getKkt().getKktDriverPath());
+        repoPathField.setText(setting.getUpdate().getRepository());
+
+        printerNameField.getItems().addAll(
+                Printer.getAllPrinters().stream().map(Printer::getName).toList()
+        );
+
+        printerNameField.setValue(setting.getPrinter().getName());
     }
 
     @Override
@@ -24,6 +55,10 @@ public class SettingController extends Controller {
         printCheckLabel.setGraphic(new CheckBox());
         printTicketLabel.setGraphic(new CheckBox());
         autoReconnectLabel.setGraphic(new CheckBox());
+
+
+        setUserData(getUserData());
+
     }
 
     @Override
@@ -47,13 +82,13 @@ public class SettingController extends Controller {
     private Label autoUpdateLabelBox;
 
     @FXML
-    private ComboBox<?> pageOrientationBox;
+    private ComboBox<PageOrientation> pageOrientationBox;
 
     @FXML
-    private ComboBox<?> pageSizeBox;
+    private ComboBox<PageSize> pageSizeBox;
 
     @FXML
-    private ComboBox<?> periodBox;
+    private ComboBox<Duration> periodBox;
 
     @FXML
     private Label printCheckLabel;
@@ -62,7 +97,7 @@ public class SettingController extends Controller {
     private Label printTicketLabel;
 
     @FXML
-    private ComboBox<?> printerNameField;
+    private ComboBox<String> printerNameField;
 
     @FXML
     private TextField repoPathField;
@@ -71,7 +106,7 @@ public class SettingController extends Controller {
     private Button saveButton;
 
     @FXML
-    private ComboBox<?> timeoutBox;
+    private ComboBox<Duration> timeoutBox;
 
     @FXML
     void KktDriverPathExplorer(ActionEvent event) {

@@ -2,22 +2,23 @@ package ru.kidesoft.ticketplace.client.view.controller.impl;
 
 import atlantafx.base.controls.PasswordTextField;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import org.kordamp.ikonli.fluentui.FluentUiRegularAL;
 import org.kordamp.ikonli.fluentui.FluentUiRegularMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
-import ru.kidesoft.ticketplace.client.domain.dao.dto.CashierDto;
-import ru.kidesoft.ticketplace.client.domain.dao.dto.LoginProtected;
-import ru.kidesoft.ticketplace.client.domain.presenter.dto.Login;
-import ru.kidesoft.ticketplace.client.view.controller.Controller;
+import ru.kidesoft.ticketplace.client.domain.dao.database.dto.CashierDto;
+import ru.kidesoft.ticketplace.client.domain.executor.Executor;
+import ru.kidesoft.ticketplace.client.domain.interactor.Interactor;
+import ru.kidesoft.ticketplace.client.domain.models.entities.login.LoginBuilder;
 import ru.kidesoft.ticketplace.client.domain.presenter.ControllerType;
-import ru.kidesoft.ticketplace.client.view.controller.Manager;
+import ru.kidesoft.ticketplace.client.domain.presenter.dto.AuthProfile;
+import ru.kidesoft.ticketplace.client.view.controller.Controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -27,6 +28,21 @@ public class AuthController extends Controller {
         super(stage);
     }
 
+    public static StringConverter<CashierDto> cashierConverter = new StringConverter<CashierDto>() {
+
+        @Override
+        public String toString(CashierDto cashierDto) {
+            if (cashierDto == null) {
+                return null;
+            } else return String.format("%s : %s", cashierDto.getFullName(), cashierDto.getInn());
+        }
+
+        @Override
+        public CashierDto fromString(String s) {
+            return null;
+        }
+    };
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         shiftButton.setGraphic(new FontIcon(MaterialDesignP.PRINTER_CHECK));
@@ -34,13 +50,15 @@ public class AuthController extends Controller {
         printLastButton.setGraphic(new FontIcon(FluentUiRegularAL.DOCUMENT_ARROW_LEFT_16));
 
 
-        Login login = getUserData();
+        AuthProfile authProfile = getUserData();
 
-        var emailList = FXCollections.observableList(login.getEmails());
+        var emailList = FXCollections.observableList(authProfile.getEmails());
 
-        var urlList = FXCollections.observableList(login.getUrls());
+        var urlList = FXCollections.observableList(authProfile.getUrls());
 
-        var profileList = FXCollections.observableList(login.getCashiers());
+        var profileList = FXCollections.observableList(authProfile.getCashiers());
+
+        userShiftBox.setConverter(cashierConverter);
 
         emailBox.setItems(emailList);
         urlBox.setItems(urlList);
@@ -54,6 +72,9 @@ public class AuthController extends Controller {
     @Override
     public <T> void update(T t) {
 
+        if (t instanceof AuthProfile) {
+            getStage().setUserData(t);
+        }
     }
 
     @FXML
@@ -79,6 +100,14 @@ public class AuthController extends Controller {
 
     @FXML
     void enterAction(ActionEvent event) {
+
+        var login = LoginBuilder.aLogin().withEmail(emailBox.getSelectionModel().getSelectedItem())
+                        .withUrl(urlBox.getSelectionModel().getSelectedItem())
+                                .withPassword(passwordField.getPassword()).build();
+
+        Executor.builder().load().execute(Interactor.getLoginUsecase()::login, login).ifPresent(
+                (result) -> Executor.builder().load().execute(Interactor::openScene, ControllerType.MAIN)
+        );
     }
 
     @FXML
@@ -91,15 +120,15 @@ public class AuthController extends Controller {
 
     }
 
-    Login getUserData() throws IllegalStateException {
+    AuthProfile getUserData() {
         Object o = getStage().getUserData();
 
         if (o == null) {
             throw new NullPointerException("Данные не переданы, userData = null");
         }
 
-        if (o instanceof Login) {
-            return (Login) o;
+        if (o instanceof AuthProfile) {
+            return (AuthProfile) o;
         } else {
             throw new IllegalStateException(String.format("Неверный тип данных userData: %s", o.getClass().getName()));
         }

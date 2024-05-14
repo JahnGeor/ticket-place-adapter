@@ -2,13 +2,12 @@ package ru.kidesoft.ticketplace.client.domain.interactor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.kidesoft.ticketplace.client.domain.dao.DatabaseDao;
+import ru.kidesoft.ticketplace.client.domain.dao.api.ApiDao;
+import ru.kidesoft.ticketplace.client.domain.dao.database.DatabaseDao;
 import ru.kidesoft.ticketplace.client.domain.interactor.usecase.*;
 import ru.kidesoft.ticketplace.client.domain.models.exception.ControllerException;
 import ru.kidesoft.ticketplace.client.domain.presenter.ControllerType;
 import ru.kidesoft.ticketplace.client.domain.presenter.SceneManager;
-
-import static org.kordamp.ikonli.materialdesign2.MaterialDesignL.LOGIN;
 
 public class Interactor  {
     private static final Logger logger = LogManager.getLogger();
@@ -45,8 +44,8 @@ public class Interactor  {
 
     public Interactor() {}
 
-    public static void setUsecase(DatabaseDao databaseDao) {
-        loginUsecase = new LoginUsecase(databaseDao);
+    public static void setUsecase(DatabaseDao databaseDao, ApiDao apiDao) {
+        loginUsecase = new LoginUsecase(databaseDao, apiDao);
         profileUsecase = new ProfileUsecase(databaseDao);
         historyUsecase = new HistoryUsecase(databaseDao);
         aboutUsecase = new AboutUsecase(databaseDao);
@@ -85,6 +84,7 @@ public class Interactor  {
 
             logger.trace("Сцена с типом {} открыта", type);
         } catch (Exception e) {
+            logger.error("Возникла ошибка при открытии сцены с типом {}", type, e);
             throw new ControllerException(e);
         }
     }

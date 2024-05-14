@@ -28,11 +28,13 @@ public class Executor {
         }
      }
 
-     public void execute(ThrowableLambda.ThrowableRunnable func) {
+     public Optional<Object> execute(ThrowableLambda.ThrowableRunnable func) {
         try {
             func.call();
+            return Optional.of(true);
         }  catch (Exception e) {
             ExtendedHandler.aExtendedHandler().setHandler(handler).setException(e).setPresenter(presenter).handle();
+            return Optional.empty();
         }
      }
 
@@ -45,11 +47,13 @@ public class Executor {
         }
     }
 
-    public <T> void execute(ThrowableLambda.ThrowableConsumer<T> func, T t) {
+    public <T> Optional<Object> execute(ThrowableLambda.ThrowableConsumer<T> func, T t) {
         try {
             func.call(t);
+            return Optional.of(true);
         }  catch (Exception e) {
             ExtendedHandler.aExtendedHandler().setHandler(handler).setException(e).setPresenter(presenter).handle();
+            return Optional.empty();
         }
     }
 

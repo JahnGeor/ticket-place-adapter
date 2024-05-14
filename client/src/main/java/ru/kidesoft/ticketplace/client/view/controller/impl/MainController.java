@@ -20,6 +20,8 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 import ru.kidesoft.ticketplace.client.domain.executor.Executor;
 import ru.kidesoft.ticketplace.client.domain.interactor.usecase.LoginUsecase;
+import ru.kidesoft.ticketplace.client.domain.models.entities.profile.Profile;
+import ru.kidesoft.ticketplace.client.domain.models.exception.ControllerException;
 import ru.kidesoft.ticketplace.client.main.StageSetting;
 import ru.kidesoft.ticketplace.client.view.controller.Controller;
 
@@ -33,26 +35,7 @@ public class MainController extends Controller {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        var tile = new Tile();
-        var tile2 = new Tile();
-
-        VBox vBox = new VBox();
-
-
-        var textFullName = new Text("Иванов Иван Иванович");
-
-        textFullName.getStyleClass().addAll(Styles.TITLE_4, Styles.TEXT_LIGHTER);
-
-        var textRole = new Text("Администратор");
-
-        textRole.getStyleClass().addAll(Styles.TEXT_SUBTLE);
-        var textInn = new Text("ИНН: 2134567890");
-        textInn.getStyleClass().addAll(Styles.TEXT_SUBTLE);
-
-        vBox.getChildren().addAll(textFullName, textRole, textInn);
-
-        card.setHeader(vBox);
-
+        setUserData(getProfile());
 
         logoImage.setImage(StageSetting.logoImage);
         incomeButton.setGraphic(new FontIcon(FluentUiRegularMZ.PAYMENT_20));
@@ -71,7 +54,6 @@ public class MainController extends Controller {
         printXReport.setGraphic(new FontIcon(MaterialDesignA.ALPHA_X_CIRCLE_OUTLINE
 
         ));
-
     }
 
     @Override
@@ -131,5 +113,39 @@ public class MainController extends Controller {
     @FXML
     void testAction(ActionEvent event) {
 
+    }
+
+    public Profile getProfile() {
+        Object userData =  getStage().getUserData();
+
+        if (userData == null) {
+            throw new NullPointerException("Данные не переданы, userData = null");
+        }
+
+        if (userData instanceof Profile) {
+            return (Profile) userData;
+        } else {
+            throw new IllegalStateException(String.format("Неверный тип данных userData: %s", userData.getClass().getName()));
+        }
+
+    }
+
+    public void setUserData(Profile profile) {
+        VBox vBox = new VBox();
+
+
+        var textFullName = new Text(profile.getFullName());
+
+        textFullName.getStyleClass().addAll(Styles.TITLE_4, Styles.TEXT_LIGHTER);
+
+        var textRole = new Text(profile.getRole().getDescription());
+
+        textRole.getStyleClass().addAll(Styles.TEXT_SUBTLE);
+        var textInn = new Text(profile.getInn().toString());
+        textInn.getStyleClass().addAll(Styles.TEXT_SUBTLE);
+
+        vBox.getChildren().addAll(textFullName, textRole, textInn);
+
+        card.setHeader(vBox);
     }
 }
