@@ -2,14 +2,14 @@ package ru.kidesoft.ticketplace.client.domain.interactor.usecase;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.kidesoft.ticketplace.client.domain.dao.ApiDao;
-import ru.kidesoft.ticketplace.client.domain.dao.DatabaseDao;
-import ru.kidesoft.ticketplace.client.domain.dao.KktDao;
-import ru.kidesoft.ticketplace.client.domain.dao.dto.AuthorizationDto;
-import ru.kidesoft.ticketplace.client.domain.dao.dto.LoginProtected;
+import ru.kidesoft.ticketplace.client.domain.dao.api.ApiDao;
+import ru.kidesoft.ticketplace.client.domain.dao.database.DatabaseDao;
+import ru.kidesoft.ticketplace.client.domain.dao.api.dto.authorization.AuthorizationDto;
+import ru.kidesoft.ticketplace.client.domain.models.entities.login.Login;
 import ru.kidesoft.ticketplace.client.domain.models.exception.AppException;
 import ru.kidesoft.ticketplace.client.domain.models.exception.DbException;
-import ru.kidesoft.ticketplace.client.domain.presenter.dto.Login;
+import ru.kidesoft.ticketplace.client.domain.models.exception.WebException;
+import ru.kidesoft.ticketplace.client.domain.presenter.dto.AuthProfile;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -18,8 +18,9 @@ public class LoginUsecase {
     DatabaseDao databaseDao;
     ApiDao apiDao;
 
-    public LoginUsecase(DatabaseDao databaseDao) {
+    public LoginUsecase(DatabaseDao databaseDao, ApiDao apiDao) {
         this.databaseDao = databaseDao;
+        this.apiDao = apiDao;
     }
 
     Logger logger = LogManager.getLogger(LoginUsecase.class);
@@ -36,52 +37,67 @@ public class LoginUsecase {
         return loginId;
     }
 
-    public Login getLogin() throws AppException {
-        Login loginDto = databaseDao.getLoginDao().getLogin();
+    public AuthProfile getLogin() throws AppException {
 
-        if (loginDto == null) {
-            logger.error("Отсутствуют данные для окна авторизации");
-            throw new NullPointerException("loginDto is null");
+        try {
+            AuthProfile authProfileDto = databaseDao.getLoginDao().getAuthProfile();
+
+            if (authProfileDto == null) {
+                logger.error("Отсутствуют данные для окна авторизации");
+                throw new NullPointerException("loginDto is null");
+            }
+
+            if (authProfileDto.getUrls().isEmpty()) {
+                logger.warn("Отсутствуют данные по адресам серверов");
+                var defUrl = databaseDao.getConstantDao().getDefaultUrl();
+                authProfileDto.getUrls().add(defUrl);
+                logger.info("Добавлен адрес по умолчанию");
+            } else {
+                logger.trace("Обнаружены данные для окна авторизации: {}", authProfileDto);
+            }
+
+            return authProfileDto;
+        } catch (DbException e) {
+            logger.error("Возникла ошибка при получении данных для окна авторизации", e);
+            throw new AppException(e);
         }
-
-        if (loginDto.getUrls().isEmpty()) {
-            logger.warn("Отсутствуют данные по адресам серверов");
-            var defUrl = databaseDao.getConstantDao().getDefaultUrl();
-            loginDto.getUrls().add(defUrl);
-            logger.info("Добавлен адрес по умолчанию");
-        } else {
-            logger.trace("Обнаружены данные для окна авторизации: {}", loginDto);
-        }
-
-
-        return loginDto;
     }
 
-    public void setActiveLoginUUID(UUID loginId) throws AppException {
-        logger.warn("Установить активного пользователя - не реализовано");
+    public void logout() throws AppException {
+        try {
+            databaseDao.getConstantDao().setActiveUserUUID(null);
+        } catch (DbException e) {
+            logger.error("Возникла ошибка при выходе из учетной записи", e);
+            throw e;
+        }
     }
 
     public void login(Login login) throws AppException {
-        //logger.warn("Авторизация - не реализовано");
-        AuthorizationDto authorizationDto = apiDao.authorization(login);
-
-        databaseDao.startTransaction();
         try {
+            AuthorizationDto authorizationDto = apiDao.authorization(login);
+            databaseDao.startTransaction();
+
             UUID loginId = databaseDao.getLoginDao().save(login);
             logger.trace("Cохранена учетная запись с UUID: {}", loginId);
+            databaseDao.getConstantDao().setActiveUserUUID(loginId);
+            logger.trace("Установлена активная учетная запись с UUID: {}", loginId);
             UUID profileId = databaseDao.getProfileDao().save(authorizationDto.profile);
             logger.trace("Cохранен профиль с UUID: {}", profileId);
             UUID sessionId = databaseDao.getSessionDao().save(authorizationDto.session);
             logger.trace("Cохранена сессия с UUID: {}", sessionId);
             UUID settingId = databaseDao.getSettingDao().setDefault();
             logger.trace("Cохранен настройка с UUID: {}", settingId);
-            databaseDao.getConstantDao().setActiveUserUUID(loginId);
-            logger.trace("Установлена активная учетная запись с UUID: {}", loginId);
+            databaseDao.commit();
         } catch (DbException e) {
             databaseDao.rollback();
+            logger.trace("Отмена транзакции авторизации");
+            logger.error("Не удалось сохранить данные в системе после авторизации на удаленном сервере", e);
+            throw e;
+        } catch (WebException e) {
+            logger.error("Не удалось авторизоваться на удаленном сервере", e);
             throw e;
         }
-        databaseDao.commit();
+
     }
 
 }

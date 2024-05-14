@@ -1,9 +1,7 @@
 package ru.kidesoft.ticketplace.client.domain.interactor.usecase;
 
-import ru.kidesoft.ticketplace.client.domain.dao.DatabaseDao;
+import ru.kidesoft.ticketplace.client.domain.dao.database.DatabaseDao;
 import ru.kidesoft.ticketplace.client.domain.presenter.dto.History;
-
-import java.util.Optional;
 
 public class HistoryUsecase {
 

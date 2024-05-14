@@ -1,6 +1,6 @@
 package ru.kidesoft.ticketplace.client.repository.database.h2.impl;
 
-import ru.kidesoft.ticketplace.client.domain.dao.DatabaseDao;
+import ru.kidesoft.ticketplace.client.domain.dao.database.DatabaseDao;
 import ru.kidesoft.ticketplace.client.domain.models.entities.history.History;
 import ru.kidesoft.ticketplace.client.domain.models.exception.DbException;
 

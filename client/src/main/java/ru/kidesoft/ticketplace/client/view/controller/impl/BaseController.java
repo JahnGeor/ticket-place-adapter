@@ -107,13 +107,17 @@ public class BaseController extends Controller {
     @FXML
     void openHome(ActionEvent event) {
         Executor.builder().load().execute(
-                Interactor.getProfileUsecase()::getProfile
+                Interactor::openScene, ControllerType.MAIN
         );
     }
 
     @FXML
     void logoutAction(ActionEvent event) {
-
+        Executor.builder().load().execute(
+                Interactor.getLoginUsecase()::logout
+        ).ifPresent(
+                (result) -> Executor.builder().load().execute(Interactor::openScene, ControllerType.AUTH)
+        );
     }
 
     @FXML

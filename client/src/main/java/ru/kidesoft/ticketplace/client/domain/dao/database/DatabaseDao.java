@@ -1,11 +1,12 @@
-package ru.kidesoft.ticketplace.client.domain.dao;
+package ru.kidesoft.ticketplace.client.domain.dao.database;
 
 import ru.kidesoft.ticketplace.client.domain.models.entities.history.History;
+import ru.kidesoft.ticketplace.client.domain.models.entities.login.Login;
 import ru.kidesoft.ticketplace.client.domain.models.entities.profile.Profile;
 import ru.kidesoft.ticketplace.client.domain.models.entities.session.Session;
+import ru.kidesoft.ticketplace.client.domain.models.entities.setting.Setting;
 import ru.kidesoft.ticketplace.client.domain.models.exception.DbException;
-import ru.kidesoft.ticketplace.client.domain.presenter.dto.Login;
-import ru.kidesoft.ticketplace.client.domain.presenter.dto.Setting;
+import ru.kidesoft.ticketplace.client.domain.presenter.dto.AuthProfile;
 
 import java.util.UUID;
 
@@ -23,16 +24,18 @@ public interface DatabaseDao {
 
     interface ProfileDao {
         UUID save(Profile profile) throws DbException;
+        Profile getProfile() throws DbException;
     }
 
     interface LoginDao {
         UUID save(Login login) throws DbException;
-        Login getLogin() throws DbException;
+        AuthProfile getAuthProfile() throws DbException;
     }
 
     interface SettingDao {
         UUID save(Setting setting) throws DbException;
         UUID setDefault() throws DbException;
+        Setting getSetting() throws DbException;
     }
 
     interface SessionDao {

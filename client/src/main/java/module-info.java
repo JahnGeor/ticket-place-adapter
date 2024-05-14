@@ -1,4 +1,5 @@
 module ru.kidesoft.ticketplace.client {
+    requires java.net.http;
     requires javafx.controls;
     requires javafx.fxml;
     requires org.controlsfx.controls;
@@ -7,6 +8,8 @@ module ru.kidesoft.ticketplace.client {
     requires flyway.core;
     requires com.google.gson;
     requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.annotation;
     requires org.kordamp.ikonli.javafx;
     requires atlantafx.base;
     requires org.kordamp.ikonli.fluentui;
@@ -16,4 +19,6 @@ module ru.kidesoft.ticketplace.client {
     opens ru.kidesoft.ticketplace.database.migrations;
     exports ru.kidesoft.ticketplace.client.main;
     exports ru.kidesoft.ticketplace.client.view.controller.impl;
+    exports ru.kidesoft.ticketplace.client.domain.models.entities.profile;
+
 }

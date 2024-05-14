@@ -3,15 +3,12 @@ package ru.kidesoft.ticketplace.client.repository.database.h2;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.output.MigrateResult;
-import ru.kidesoft.ticketplace.client.domain.dao.DatabaseDao;
+import ru.kidesoft.ticketplace.client.domain.dao.database.DatabaseDao;
 import ru.kidesoft.ticketplace.client.domain.models.exception.DbException;
 import ru.kidesoft.ticketplace.client.repository.database.h2.impl.*;
 
-import javax.sql.DataSource;
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;

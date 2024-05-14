@@ -1,4 +1,4 @@
-package ru.kidesoft.ticketplace.client.domain.dao.dto;
+package ru.kidesoft.ticketplace.client.domain.dao.database.dto;
 
 public class CashierDto {
 

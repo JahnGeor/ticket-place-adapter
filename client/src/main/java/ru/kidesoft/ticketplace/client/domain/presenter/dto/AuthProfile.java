@@ -1,12 +1,11 @@
 package ru.kidesoft.ticketplace.client.domain.presenter.dto;
 
-import ru.kidesoft.ticketplace.client.domain.dao.dto.CashierDto;
-import ru.kidesoft.ticketplace.client.domain.dao.dto.LoginProtected;
+import ru.kidesoft.ticketplace.client.domain.dao.database.dto.CashierDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Login {
+public class AuthProfile {
     List<String> emails;
 
     List<String> urls;
@@ -36,7 +35,7 @@ public class Login {
         this.cashiers = cashiers;
     }
 
-    public Login() {
+    public AuthProfile() {
         this.emails = new ArrayList<>();
         this.urls = new ArrayList<>();
         this.cashiers = new ArrayList<>();
