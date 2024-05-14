@@ -144,8 +144,7 @@ public class BaseController extends Controller {
     @FXML
     void openSetting(ActionEvent event) {
         Executor.builder().load().execute(
-                Interactor.getProfileUsecase()::getProfile
-        );
+                Interactor::openScene, ControllerType.SETTING);
     }
 
     @FXML

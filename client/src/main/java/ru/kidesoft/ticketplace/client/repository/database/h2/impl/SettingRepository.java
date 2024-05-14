@@ -82,11 +82,16 @@ public class SettingRepository implements DatabaseDao.SettingDao {
 
     @Override
     public Setting getSetting() throws DbException {
-        String sql = MessageFormat.format("SELECT * FROM {0} LEFT JOIN {1} ON {0}.LOGIN_ID = {1}.VAL WHERE {1}.NAME = ?", TableNames.SETTING.getName(), TableNames.CONSTANT.getName());
+        String sql = MessageFormat.format("SELECT * FROM {1} LEFT JOIN {0} ON {0}.LOGIN_ID = {1}.VAL WHERE {1}.NAME = ?", TableNames.SETTING.getName(), TableNames.CONSTANT.getName());
 
         try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, ConstantNames.ACTIVE_LOGIN_UUID.getName());
             ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            if (!resultSet.next()) {
+                throw new DbException(new NullPointerException("setting return no uuid"));
+            }
 
             var kktAutoReconnect = resultSet.getBoolean("KKT_AUTO_RECONNECT");
             var kktDriverPath = resultSet.getString("KKT_DRIVER_PATH");

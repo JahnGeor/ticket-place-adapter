@@ -168,7 +168,7 @@
          <bottom>
             <HBox alignment="CENTER_RIGHT" prefHeight="60.0" prefWidth="600.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button mnemonicParsing="false" text="Сохранить">
+                  <Button mnemonicParsing="false" onAction="#saveAction" text="Сохранить">
                      <HBox.margin>
                         <Insets bottom="10.0" />
                      </HBox.margin>

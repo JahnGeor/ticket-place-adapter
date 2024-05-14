@@ -25,4 +25,14 @@ public class SettingUsecase {
             throw new DbException(e);
         }
     }
+
+    public void saveSetting(Setting setting) throws DbException {
+
+        try {
+            databaseDao.getSettingDao().save(setting);
+        } catch (DbException e) {
+            logger.error("Не удалось обновить настройки по пользователю: ", e);
+            throw new DbException(e);
+        }
+    }
 }
