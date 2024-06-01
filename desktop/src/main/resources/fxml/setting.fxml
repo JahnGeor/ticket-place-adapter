@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import atlantafx.base.controls.Spacer?>
+<?import atlantafx.base.layout.InputGroup?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <TabPane prefHeight="350.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="60.0" BorderPane.alignment="CENTER">
+              <tabs>
+                <Tab text="Сервер">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                           <children>
+                              <VBox layoutX="41.0" layoutY="24.0" prefHeight="304.0" prefWidth="600.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label maxHeight="32.0" maxWidth="270.0" minHeight="32.0" minWidth="270.0" prefHeight="32.0" prefWidth="270.0" text="Время ожидания ответа сервера" />
+                                          <ComboBox fx:id="timeoutBox" maxHeight="32.0" minHeight="32.0" prefHeight="32.0" prefWidth="300.0" />
+                                       </children>
+                                    </InputGroup>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label maxHeight="32.0" maxWidth="270.0" minHeight="32.0" minWidth="270.0" prefHeight="32.0" prefWidth="270.0" text="Интервал опроса сервера" />
+                                          <ComboBox fx:id="periodBox" maxHeight="32.0" minHeight="32.0" prefHeight="32.0" prefWidth="300.0" />
+                                       </children>
+                                    </InputGroup>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                  <Tab text="ККТ">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                           <children>
+                              <VBox layoutX="41.0" layoutY="24.0" prefHeight="304.0" prefWidth="600.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label fx:id="KktPathLabel" maxHeight="32.0" maxWidth="230.0" minHeight="32.0" minWidth="230.0" prefHeight="32.0" prefWidth="230.0" text="Путь к драйверу принтера ККТ" />
+                                          <TextField fx:id="KktDriverPathField" maxHeight="32.0" maxWidth="298.0" minHeight="32.0" minWidth="298.0" prefHeight="32.0" prefWidth="298.0" />
+                                          <Button fx:id="KktDriverPathButton" maxHeight="32.0" maxWidth="32.0" minHeight="32.0" minWidth="32.0" mnemonicParsing="false" onAction="#KktDriverPathExplorer" prefHeight="32.0" prefWidth="32.0" styleClass="button-icon" text="Button" />
+                                       </children>
+                                    </InputGroup>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label fx:id="autoReconnectLabel" maxHeight="32.0" maxWidth="560.0" minHeight="32.0" minWidth="560.0" prefHeight="32.0" prefWidth="560.0" text="Автоматическое переподключение к кассе" />
+                                          <Spacer />
+                                       </children>
+                                    </InputGroup>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+                <Tab text="Принтер">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                           <children>
+                              <VBox layoutX="41.0" layoutY="24.0" prefHeight="304.0" prefWidth="600.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label maxWidth="270.0" minWidth="270.0" prefHeight="45.0" prefWidth="270.0" text="Время ожидания ответа сервера" />
+                                          <ComboBox prefHeight="45.0" prefWidth="300.0" />
+                                       </children>
+                                    </InputGroup>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label maxHeight="45.0" maxWidth="270.0" minWidth="270.0" prefHeight="45.0" prefWidth="270.0" text="Интервал опроса сервера" />
+                                          <ComboBox maxHeight="45.0" prefHeight="45.0" prefWidth="300.0" />
+                                       </children>
+                                    </InputGroup>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                           <children>
+                              <VBox layoutX="41.0" layoutY="24.0" prefHeight="304.0" prefWidth="600.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label maxHeight="32.0" maxWidth="140.0" minHeight="32.0" minWidth="140.0" prefHeight="32.0" prefWidth="140.0" text="Принтер" />
+                                          <ComboBox fx:id="printerNameField" maxHeight="32.0" maxWidth="420.0" minHeight="32.0" minWidth="420.0" prefHeight="32.0" prefWidth="420.0" />
+                                       </children>
+                                    </InputGroup>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label maxHeight="32.0" maxWidth="140.0" minHeight="32.0" minWidth="140.0" prefHeight="32.0" prefWidth="140.0" text="Ориентация" />
+                                          <ComboBox fx:id="pageOrientationBox" maxHeight="32.0" maxWidth="140.0" minHeight="32.0" minWidth="140.0" prefHeight="32.0" prefWidth="140.0" />
+                                          <Label maxHeight="32.0" maxWidth="140.0" minHeight="32.0" minWidth="140.0" prefHeight="32.0" prefWidth="140.0" text="Размер" />
+                                          <ComboBox fx:id="pageSizeBox" maxHeight="32.0" maxWidth="140.0" minHeight="32.0" minWidth="140.0" prefHeight="32.0" prefWidth="140.0" />
+                                       </children>
+                                    </InputGroup>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label fx:id="printCheckLabel" maxWidth="280.0" minWidth="280.0" prefWidth="280.0" text="Печатать чек" />
+                                          <Label fx:id="printTicketLabel" maxWidth="280.0" minWidth="280.0" prefWidth="280.0" text="Печатать билет" />
+                                       </children>
+                                    </InputGroup>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                </Tab>
+                  <Tab text="Обновление">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                           <children>
+                              <VBox layoutX="41.0" layoutY="24.0" prefHeight="304.0" prefWidth="600.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
+                                       <children>
+                                          <Label maxHeight="32.0" maxWidth="320.0" minHeight="32.0" minWidth="320.0" prefHeight="32.0" prefWidth="320.0" text="Репозиторий обновления сервера" />
+                                          <TextField fx:id="repoPathField" minWidth="240.0" prefWidth="240.0" />
+                                       </children>
+                                    </InputGroup>
+                                    <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0" styleClass="right-pill">
+                                       <children>
+                                          <Label fx:id="autoUpdateLabelBox" maxHeight="32.0" maxWidth="320.0" minHeight="32.0" minWidth="560.0" prefHeight="32.0" prefWidth="320.0" text="Обновлять приложение автоматически" />
+                                          <Spacer />
+                                       </children>
+                                    </InputGroup>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+              </tabs>
+            </TabPane>
+         </center>
+         <bottom>
+            <HBox alignment="CENTER_RIGHT" prefHeight="60.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#saveAction" text="Сохранить">
+                     <HBox.margin>
+                        <Insets bottom="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <BorderPane.margin>
+                  <Insets />
+               </BorderPane.margin>
+               <padding>
+                  <Insets right="20.0" />
+               </padding>
+            </HBox>
+         </bottom>
+      </BorderPane>
+   </children>
+   <padding>
+      <Insets top="10.0" />
+   </padding>
+</AnchorPane>
