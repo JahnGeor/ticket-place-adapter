@@ -12,10 +12,9 @@ import java.util.UUID;
 
 @Repository
 public interface LoginRepository extends JpaRepository<Login, UUID> {
-    @Modifying
+
     @Transactional
-    @Override
-    Login save(Login login);
+    Login save(Login entity);
 
     @Override
     Optional<Login> findById(UUID uuid);

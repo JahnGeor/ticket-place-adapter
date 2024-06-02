@@ -36,6 +36,6 @@ public class AboutController extends Controller<AboutUiDto> {
 
     @Override
     public void updateView(AboutUiDto viewDto) {
-
+        versionLabel.setText("Версия приложения: " + viewDto.getVersion());
     }
 }

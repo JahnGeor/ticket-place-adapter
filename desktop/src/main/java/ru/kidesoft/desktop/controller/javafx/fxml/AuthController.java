@@ -19,6 +19,7 @@ import ru.kidesoft.desktop.controller.javafx.StageManager;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.AuthUiDto;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.CashierUiDto;
 import ru.kidesoft.desktop.domain.entity.login.Login;
+import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.AuthService;
 
 
@@ -56,42 +57,8 @@ public class AuthController extends Controller<AuthUiDto> {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        List<Login> loginList = authService.findAll();
-
-        var emailList = FXCollections.observableList(loginList.stream().map(Login::getEmail).distinct().toList());
-        emailBox.setItems(emailList);
-        emailBox.getSelectionModel().selectFirst();
-
-
-
-        var urlList = FXCollections.observableList(loginList.stream().map(Login::getUrl).distinct().toList());
-        urlBox.setItems(urlList);
-        urlBox.getSelectionModel().selectFirst();
-
-
-        shiftButton.setGraphic(new FontIcon(MaterialDesignP.PRINTER_CHECK));
-        enterButton.setGraphic(new FontIcon(FluentUiRegularMZ.PERSON_ARROW_RIGHT_20));
-        printLastButton.setGraphic(new FontIcon(FluentUiRegularAL.DOCUMENT_ARROW_LEFT_16));
-
-
-
-       // AuthProfile authProfile = getUserData();
-
-//        var emailList = FXCollections.observableList(authProfile.getEmails());
-//
-//        var urlList = FXCollections.observableList(authProfile.getUrls());
-//
-//        var profileList = FXCollections.observableList(authProfile.getCashiers());
-
-//        userShiftBox.setConverter(cashierConverter);
-
-//        emailBox.setItems(emailList);
-//        urlBox.setItems(urlList);
-//        userShiftBox.setItems(profileList);
-
-//        emailBox.getSelectionModel().selectFirst();
-//        urlBox.getSelectionModel().selectFirst();
-//        userShiftBox.getSelectionModel().selectFirst();
+        AuthUiDto loginList = authService.getAuthDto();
+        updateView(loginList);
     }
 
     @FXML
@@ -116,23 +83,15 @@ public class AuthController extends Controller<AuthUiDto> {
     private ComboBox<CashierUiDto> userShiftBox;
 
     @FXML
-    void enterAction(ActionEvent event) {
+    void enterAction(ActionEvent event) throws AppException {
 
         Login login = Login.builder().email(emailBox.getSelectionModel().getSelectedItem())
                 .url(urlBox.getSelectionModel().getSelectedItem())
                 .password(passwordField.getPassword()).build();
 
-        //authService.login(login);
+        authService.login(login);
 
         context.getBean(StageManager.class).show(MainController.class);
-
-//        var login = LoginBuilder.aLogin().withEmail(emailBox.getSelectionModel().getSelectedItem())
-//                        .withUrl(urlBox.getSelectionModel().getSelectedItem())
-//                                .withPassword(passwordField.getPassword()).build();
-//
-//        Executor.builder().load().execute(Interactor.getLoginUsecase()::login, login).ifPresent(
-//                (result) -> Executor.builder().load().execute(Interactor::openScene, ControllerType.MAIN)
-//        );
     }
 
     @FXML
@@ -147,6 +106,17 @@ public class AuthController extends Controller<AuthUiDto> {
 
     @Override
     public void updateView(AuthUiDto viewDto) {
+        var emailList = FXCollections.observableList(viewDto.getLogin().stream().map(Login::getEmail).distinct().toList());
+        emailBox.setItems(emailList);
+        emailBox.getSelectionModel().selectFirst();
 
+        var urlList = FXCollections.observableList(viewDto.getLogin().stream().map(Login::getUrl).distinct().toList());
+        urlBox.setItems(urlList);
+        urlBox.getSelectionModel().selectFirst();
+
+
+        shiftButton.setGraphic(new FontIcon(MaterialDesignP.PRINTER_CHECK));
+        enterButton.setGraphic(new FontIcon(FluentUiRegularMZ.PERSON_ARROW_RIGHT_20));
+        printLastButton.setGraphic(new FontIcon(FluentUiRegularAL.DOCUMENT_ARROW_LEFT_16));
     }
 }
