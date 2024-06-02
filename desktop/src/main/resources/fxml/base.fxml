@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<BorderPane maxHeight="375.0" maxWidth="600.0" minHeight="375.0" minWidth="600.0" prefHeight="375.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="375.0" maxWidth="600.0" minHeight="375.0" minWidth="600.0" prefHeight="375.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kidesoft.desktop.controller.javafx.fxml.BaseController">
    <top>
       <MenuBar prefHeight="25.0" BorderPane.alignment="CENTER">
         <menus>
