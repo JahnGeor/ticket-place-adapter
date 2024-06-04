@@ -7,10 +7,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import ru.kidesoft.desktop.domain.entity.order.Order;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import ru.kidesoft.desktop.domain.entity.order.PaymentType;
 import ru.kidesoft.desktop.domain.entity.order.StatusType;
 import ru.kidesoft.desktop.domain.entity.order.Ticket;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -44,34 +47,34 @@ public class OrderJsonDeserializer extends JsonDeserializer<Order> {
             ticketList.add(t);
         }
 
-        Order order = new Order();
+        var orderBuilder = Order.builder();
 
-        order.setId(data.get("id").asInt());
+        orderBuilder.id(data.get("id").asInt());
 
         if (data.has("kassir_name") && !data.get("kassir_name").isEmpty()) {
-            order.setCashier(data.get("kassir_name").asText());
+            orderBuilder.cashier(data.get("kassir_name").asText());
         } else if(data.has("client_name") && !data.get("client_name").isEmpty()) {
-            order.setCashier(data.get("client_name").asText());
+            orderBuilder.cashier(data.get("client_name").asText());
         } else if(data.has("user_name") && !data.get("user_name").isEmpty()) {
-            order.setCashier(data.get("user_name").asText());
+            orderBuilder.cashier(data.get("user_name").asText());
         } else {
-            order.setCashier("Нет данных");
+            orderBuilder.cashier("Нет данных");
         }
 
         if (data.has("payment_type") && !data.get("payment_type").isEmpty()) {
-            order.setPaymentType(PaymentType.getByName(data.get("payment_type").asText()));
+            orderBuilder.paymentType(PaymentType.getByName(data.get("payment_type").asText()));
         }
         else if (data.has("order") && data.get("order").has("payment_type") && !data.get("order").get("payment_type").isEmpty()) {
-            order.setPaymentType(PaymentType.getByName(data.get("order").get("payment_type").asText()));
+            orderBuilder.paymentType(PaymentType.getByName(data.get("order").get("payment_type").asText()));
         }
         else {
-            order.setPaymentType(PaymentType.UNDEFINED);
+            orderBuilder.paymentType(PaymentType.UNDEFINED);
         }
 
-        order.setCreatedAt(LocalDateTime.parse(data.get("date_time").asText(), shortFormatter).atZone(ZoneId.of("Europe/Moscow")));
+        orderBuilder.createdAt(LocalDateTime.parse(data.get("date_time").asText(), shortFormatter).atZone(ZoneId.of("Europe/Moscow")));
 
-        order.setTickets(ticketList);
+        orderBuilder.tickets(ticketList);
 
-        return order;
+        return orderBuilder.build();
     }
 }
