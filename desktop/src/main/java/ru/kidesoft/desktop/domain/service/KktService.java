@@ -97,7 +97,7 @@ public class KktService {
         kktRepository.setOperator(operator).closeShift();
     }
 
-    public void switchShift() throws AppException {
+    public State switchShift() throws AppException {
         var login = loginRepository.findCurrentLogin().orElseThrow(
                 () -> new AppException("Не удалось получить текущего пользователя", AppExceptionType.DbExceptionType)
         );
@@ -121,7 +121,12 @@ public class KktService {
                 kktRepository.setOperator(operator).closeShift();
                 kktRepository.setOperator(operator).openShift();
                 break;
+            default:
+                logger.error("Неизвестное состояние ККТ: {}", state);
+                throw new AppException("Неизвестное состояние ККТ", AppExceptionType.KktExceptionType);
         }
+
+        return kktRepository.getCurrentShiftState();
     }
 
     public State getShiftState() throws AppException {
@@ -155,5 +160,12 @@ public class KktService {
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
         kktRepository.setOperator(operator).printXReport();
         logger.info("Печать X-отчета, id профиля: {}", profile.getLogin().getId());
+    }
+
+    public void cashIncome(float income) throws AppException {
+        var profile = profileService.getProfile();
+        var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
+        kktRepository.setOperator(operator).income(income);
+        logger.info("Внесение наличных средств в размере {} рублей, id профиля: {}", income, profile.getLogin().getId());
     }
 }

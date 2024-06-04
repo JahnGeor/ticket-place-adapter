@@ -47,6 +47,12 @@ public class KktRepositoryImpl implements KktRepository {
     }
 
     public boolean isConnectionOpened() {
+        fptr.setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS);
+
+        if (fptr.queryData() != IFptr.LIBFPTR_OK) {
+            return false;
+        }
+
         return fptr.isOpened();
     }
 

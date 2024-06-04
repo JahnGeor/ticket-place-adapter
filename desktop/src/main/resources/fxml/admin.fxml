@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import atlantafx.base.layout.InputGroup?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
-
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kidesoft.desktop.controller.javafx.fxml.AdminController">
    <children>
-      <Label layoutX="281.0" layoutY="158.0" text="Admin" />
-      <Button layoutX="274.0" layoutY="191.0" mnemonicParsing="false" text="Button" />
+      <VBox alignment="CENTER" prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <InputGroup alignment="CENTER" prefHeight="53.0" prefWidth="600.0">
+               <children>
+                  <TextField fx:id="printRefundFromCheckLabel" prefHeight="40.0" prefWidth="323.0" promptText="Печать чека возврата" />
+                  <Button fx:id="printRefundFromCheckButton" mnemonicParsing="false" onAction="#printRefundFromCheckAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+               </children>
+            </InputGroup>
+            <InputGroup alignment="CENTER" prefHeight="53.0" prefWidth="600.0">
+               <children>
+                  <TextField fx:id="printSellFromCheckLabel" prefHeight="40.0" prefWidth="323.0" promptText="Печать чека продажи" />
+                  <Button fx:id="printSellFromCheckButton" mnemonicParsing="false" onAction="#printSellFromCheckAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+               </children>
+            </InputGroup>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

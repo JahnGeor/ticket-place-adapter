@@ -1,8 +1,8 @@
 /.app/
+/release
 /release/data/config/client/
 /release/data/config/server/
 /release/logs/
-/release/drivers/
 /release/ticket-place-server.exe
 /release/ticket-place-server-x64.exe
 /release/ticket-place-server

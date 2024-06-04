@@ -1,15 +1,19 @@
 package ru.kidesoft.desktop.controller.javafx.fxml;
 
 import atlantafx.base.controls.Card;
+import atlantafx.base.controls.Spacer;
 import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import lombok.SneakyThrows;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fluentui.FluentUiRegularAL;
 import org.kordamp.ikonli.fluentui.FluentUiRegularMZ;
@@ -17,11 +21,13 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.dto.MainUiDto;
+import ru.kidesoft.desktop.domain.entity.State;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.KktService;
 import ru.kidesoft.desktop.domain.service.ProfileService;
@@ -68,6 +74,7 @@ public class MainController extends Controller<MainUiDto> {
         this.profileService = profileService1;
     }
 
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //logoImage.setImage(StageSetting.logoImage);
@@ -90,13 +97,39 @@ public class MainController extends Controller<MainUiDto> {
         diagnosticButton.getStylesheets().addAll(Styles.BUTTON_ICON, Styles.BUTTON_OUTLINED, Styles.ACCENT);
         diagnosticButton.setGraphic(new FontIcon(MaterialDesignH.HELP_CIRCLE));
 
+
+        var btnRefresh = new Button();
+        btnRefresh.setGraphic(new FontIcon(MaterialDesignR.REFRESH_CIRCLE));
+        btnRefresh.getStylesheets().add(Styles.BUTTON_ICON);
+        btnRefresh.setOnAction(
+                (ActionEvent event) -> {
+                    try {
+                        getDataAndUpdate();
+                    } catch (AppException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
+
+
+        var title
+                = new HBox();
+
+        title.setAlignment(Pos.CENTER);
+
+        var titleBox = new VBox();
+        titleBox.getChildren().add(fullNameLabel);
+        titleBox.getChildren().add(innLabel);
+
+        title.getChildren().add(titleBox);
+        title.getChildren().add(new Spacer());
+        title.getChildren().add(btnRefresh);
+
         card.setHeader(
-                fullNameLabel
+                title
         );
 
         card.setBody(new VBox(
-                innLabel,
-                roleLabel,
                 new Separator(),
                 kktStateLabel,
                 kktShiftStateLabel,
@@ -115,18 +148,7 @@ public class MainController extends Controller<MainUiDto> {
         Platform.runLater(
                 () -> {
                     try {
-                        var profile = profileService.getProfile();
-                        var shiftState = kktService.getShiftState();
-                        var kktState = kktService.isConnectionOpened();
-                        var viewDto = MainUiDto.builder()
-                                .inn(profile.getInn().toString())
-                                .fullName(profile.getFullname())
-                                .shiftState(shiftState)
-                                .roleType(profile.getRole())
-                                .kktReady(kktState)
-                                .build();
-
-                        updateView(viewDto);
+                        getDataAndUpdate();
                     } catch (AppException e) {
                         throw new RuntimeException(e);
                     }
@@ -172,8 +194,8 @@ public class MainController extends Controller<MainUiDto> {
     private Label timeLabel;
 
     @FXML
-    void incomeAction(ActionEvent event) {
-
+    void incomeAction(ActionEvent event) throws AppException {
+        kktService.cashIncome(Float.parseFloat(incomeField.getText()));
     }
 
     @FXML void diagnosticAction(ActionEvent event) throws Exception {
@@ -183,7 +205,8 @@ public class MainController extends Controller<MainUiDto> {
 
     @FXML
     void shiftAction(ActionEvent event) throws AppException {
-        kktService.switchShift();
+        State state = kktService.switchShift();
+        kktShiftStateLabel.setText("Смена: " + state.getDescription());
     }
 
     @FXML
@@ -201,6 +224,7 @@ public class MainController extends Controller<MainUiDto> {
     @Override
     public void updateView(MainUiDto viewDto) {
         fullNameLabel.setText(viewDto.getFullName());
+
         innLabel.setText("ИНН: " + viewDto.getInn());
         roleLabel.setText("Роль: " + viewDto.getRoleType().getDescription());
 
@@ -209,5 +233,25 @@ public class MainController extends Controller<MainUiDto> {
 
         listenLabel.setText("Прослушивание сервера: " + (viewDto.isListening() ? "Включено" : "Выключено"));
         lastListenedNumber.setText("Последний обработанный чек: " + viewDto.getLastCheckNumber());
+    }
+
+    public void onRefreshClick(ActionEvent event) throws AppException {
+        getDataAndUpdate();
+    }
+
+    private void getDataAndUpdate() throws AppException {
+        var profile = profileService.getProfile();
+        var shiftState = kktService.getShiftState();
+        var kktState = kktService.isConnectionOpened();
+
+        var viewDto = MainUiDto.builder()
+                .inn(profile.getInn().toString())
+                .fullName(profile.getFullname())
+                .shiftState(shiftState)
+                .roleType(profile.getRole())
+                .kktReady(kktState)
+                .build();
+
+        updateView(viewDto);
     }
 }

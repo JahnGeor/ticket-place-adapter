@@ -23,7 +23,7 @@ public class ApiRepositoryImpl implements ApiRepository {
 
     final String auth = "/api/auth/login?email={email}&password={password}"; // 1 пункт == email, 2 пункт == пароль //?email=%s&password=%s
     final String order = "/api/print-requests/by-user/%s"; // 1 пункт == id пользователя
-    final String click = "/api/%s/%d"; // 1 пункт == тип операции (order, refund), 2 пункт == id операции
+    final String click = "/api/{type}/{id}"; // 1 пункт == тип операции (order, refund), 2 пункт == id операции
 
     public ApiRepositoryImpl(String host, String token, String tokenType, Duration timeout, String apiType) {
         this.host = host;
@@ -54,7 +54,15 @@ public class ApiRepositoryImpl implements ApiRepository {
 
     @Override
     public Order Order(ApiSetting apiSetting, int orderId, OperationType operationType) throws ApiException {
-        return null;
+        var rc = RestClient.builder().baseUrl(host).build();
+
+        ResponseEntity<Order> response = rc.get().uri(order, operationType.getName(), orderId).retrieve().toEntity(Order.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        } else {
+            throw new ApiException(response.getStatusCode().value(), "Error during getting order from remote server due incorrect status");
+        }
     }
 }
 
