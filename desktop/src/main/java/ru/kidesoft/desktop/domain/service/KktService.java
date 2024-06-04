@@ -122,8 +122,8 @@ public class KktService {
                 kktRepository.setOperator(operator).openShift();
                 break;
             default:
-                logger.error("Неизвестное состояние ККТ: {}", state);
-                throw new AppException("Неизвестное состояние ККТ", AppExceptionType.KktExceptionType);
+                logger.error("Неизвестное состояние смены ККТ: {}", state);
+                throw new AppException("Неизвестное состояние смены ККТ", AppExceptionType.KktExceptionType);
         }
 
         return kktRepository.getCurrentShiftState();
@@ -136,7 +136,8 @@ public class KktService {
             return state;
         } catch (Exception e) {
             logger.error("Не удалось получить состояние ККТ", e);
-            throw new AppException("Не удалось получить состояние ККТ", AppExceptionType.KktExceptionType);
+            return State.UNDEFINED;
+            //throw new AppException("Не удалось получить состояние ККТ", AppExceptionType.KktExceptionType);
         }
     }
 

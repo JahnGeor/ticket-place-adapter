@@ -240,8 +240,20 @@ public class MainController extends Controller<MainUiDto> {
     }
 
     private void getDataAndUpdate() throws AppException {
-        var profile = profileService.getProfile();
+        var viewDtoBuilder = MainUiDto.builder();
+            var profile = profileService.getProfile();
+            viewDtoBuilder.fullName(
+                    profile.getFullname()
+            ).inn(
+                    profile.getInn().toString()
+            ).roleType(
+                    profile.getRole()
+            );
+
+
+
         var shiftState = kktService.getShiftState();
+
         var kktState = kktService.isConnectionOpened();
 
         var viewDto = MainUiDto.builder()

@@ -23,7 +23,7 @@ public class KktRepositoryImpl implements KktRepository {
     private IFptr fptr;
 
     public KktRepositoryImpl() {
-        this.fptr = new Fptr();
+//        this.fptr = new Fptr();
     }
 
     @Override
@@ -47,6 +47,10 @@ public class KktRepositoryImpl implements KktRepository {
     }
 
     public boolean isConnectionOpened() {
+        if (fptr == null) {
+            return false;
+        }
+
         fptr.setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS);
 
         if (fptr.queryData() != IFptr.LIBFPTR_OK) {
@@ -220,6 +224,10 @@ public class KktRepositoryImpl implements KktRepository {
 
     @Override
     public State getCurrentShiftState() throws KktException {
+        if (fptr == null) {
+            return State.UNDEFINED;
+        }
+
         fptr.setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS);
         fptr.queryData();
 
