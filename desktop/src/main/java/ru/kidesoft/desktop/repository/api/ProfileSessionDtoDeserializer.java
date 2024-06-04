@@ -17,6 +17,7 @@ public class ProfileSessionDtoDeserializer extends JsonDeserializer<ProfileSessi
 
     @Override
     public ProfileSessionDto deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         Profile profile = new Profile();
