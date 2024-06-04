@@ -15,29 +15,36 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.kidesoft.desktop.controller.javafx.Controller;
-import ru.kidesoft.desktop.controller.javafx.StageManager;
+import ru.kidesoft.desktop.controller.javafx.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.AuthUiDto;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.CashierUiDto;
+import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
 import ru.kidesoft.desktop.domain.entity.login.Login;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.AuthService;
+import ru.kidesoft.desktop.domain.service.KktService;
+import ru.kidesoft.desktop.domain.service.ProfileService;
 
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 @org.springframework.stereotype.Controller
 @FxmlView("/fxml/auth.fxml")
 public class AuthController extends Controller<AuthUiDto> {
-
+    private final KktService kktService;
+    private final ProfileService profileService;
+    private final LoginRepository loginRepository;
     AuthService authService;
 
 
 
     @Autowired
-    public AuthController(ConfigurableApplicationContext context, AuthService authService) {
+    public AuthController(ConfigurableApplicationContext context, AuthService authService, KktService kktService, ProfileService profileService, LoginRepository loginRepository, LoginRepository loginRepository1) {
         super(context);
         this.authService = authService;
+        this.kktService = kktService;
+        this.profileService = profileService;
+        this.loginRepository = loginRepository1;
     }
 
     public static StringConverter<CashierUiDto> cashierConverter = new StringConverter<CashierUiDto>() {
@@ -57,8 +64,15 @@ public class AuthController extends Controller<AuthUiDto> {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        AuthUiDto loginList = authService.getAuthDto();
-        updateView(loginList);
+        try {
+            var cashierList = profileService.getCashier();
+            var loginList = loginRepository.findAll();
+            var viewDto = AuthUiDto.builder().login(loginList).cashier(cashierList).build();
+            updateView(viewDto);
+        } catch (AppException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @FXML
@@ -91,7 +105,7 @@ public class AuthController extends Controller<AuthUiDto> {
 
         authService.login(login);
 
-        context.getBean(StageManager.class).show(MainController.class);
+        context.publishEvent(new StartSessionEvent(StartSessionEvent.StartSession.START));
     }
 
     @FXML

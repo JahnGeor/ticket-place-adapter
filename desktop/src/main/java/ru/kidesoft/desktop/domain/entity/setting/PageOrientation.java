@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum PageOrientation {
-
+    UNDEFINED(0, "undefined", "Не определена"),
     PORTRAIT(0, "portrait", "Портретная"),
     LANDSCAPE(1, "landscape", "Альбомная");
 
@@ -28,6 +28,16 @@ public enum PageOrientation {
     public static PageOrientation fromName(String name) {
         for (PageOrientation pageOrientation : values()) {
             if (pageOrientation.getName().equals(name)) {
+                return pageOrientation;
+            }
+        }
+        return PORTRAIT;
+    }
+
+
+    public static PageOrientation fromDescription(String description) {
+        for (PageOrientation pageOrientation : values()) {
+            if (pageOrientation.getDescription().equals(description)) {
                 return pageOrientation;
             }
         }

@@ -1,11 +1,12 @@
-package ru.kidesoft.desktop.controller.javafx.dto.auth;
+package ru.kidesoft.desktop.domain.dao.kkt;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class CashierUiDto {
+public class KktOperator {
     private String fullName;
     private Long inn;
+
 }

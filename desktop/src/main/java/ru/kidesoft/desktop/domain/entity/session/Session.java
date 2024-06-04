@@ -9,6 +9,7 @@ import org.hibernate.proxy.HibernateProxy;
 import ru.kidesoft.desktop.domain.entity.login.Login;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,10 +32,10 @@ public class Session {
     private Login login;
 
     @Column(name = "CREATED_AT", nullable = false)
-    private Instant createdAt;
+    private ZonedDateTime createdAt;
 
     @Column(name = "EXPIRED_AT", nullable = false)
-    private Instant expiredAt;
+    private ZonedDateTime expiredAt;
 
     @Column(name = "TOKEN_TYPE", nullable = false, length = 30)
     private String tokenType;

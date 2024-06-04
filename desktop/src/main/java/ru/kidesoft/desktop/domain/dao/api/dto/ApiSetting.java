@@ -1,4 +1,4 @@
-package ru.kidesoft.desktop.domain.dao;
+package ru.kidesoft.desktop.domain.dao.api.dto;
 
 import lombok.Builder;
 import lombok.Data;

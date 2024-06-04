@@ -1,4 +1,4 @@
-package ru.kidesoft.desktop.repository.database;
+package ru.kidesoft.desktop.domain.dao.database;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,4 +15,6 @@ public interface ConstantRepository extends JpaRepository<Constant, String> {
     void delete(Constant entity);
 
     Optional<Constant> getConstantByName(ConstantEnums name);
+
+    Optional<Constant> findByName(ConstantEnums name);
 }

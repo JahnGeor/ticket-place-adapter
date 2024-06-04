@@ -1,8 +1,8 @@
-package ru.kidesoft.desktop.repository.database;
+package ru.kidesoft.desktop.domain.dao.database;
 
-import jakarta.transaction.Transactional;
+import lombok.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.kidesoft.desktop.domain.entity.login.Login;
 
@@ -12,15 +12,17 @@ import java.util.UUID;
 
 @Repository
 public interface LoginRepository extends JpaRepository<Login, UUID> {
-
-    @Transactional
-    Login save(Login entity);
-
     @Override
     Optional<Login> findById(UUID uuid);
 
     Optional<Login> findByEmailAndUrl(String email, String url);
 
     List<Login> findAll();
+
+
+
+    @Query("SELECT l from Constant c left join Login l on cast(c.val as uuid) = l.id WHERE c.name = 'ACTIVE_USER_ID'")
+    Optional<Login> findCurrentLogin();
+
 
 }

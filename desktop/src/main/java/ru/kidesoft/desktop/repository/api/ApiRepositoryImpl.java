@@ -1,31 +1,50 @@
 package ru.kidesoft.desktop.repository.api;
 
-import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
-import ru.kidesoft.desktop.domain.dao.ApiRepository;
-import ru.kidesoft.desktop.domain.dao.ApiSetting;
-import ru.kidesoft.desktop.domain.dao.ClickDto;
-import ru.kidesoft.desktop.domain.dao.LoginDto;
+import org.springframework.web.client.RestClient;
+import ru.kidesoft.desktop.domain.dao.api.ApiRepository;
+import ru.kidesoft.desktop.domain.dao.api.dto.ApiSetting;
+import ru.kidesoft.desktop.domain.dao.api.dto.ClickDto;
+import ru.kidesoft.desktop.domain.dao.api.dto.ProfileSessionDto;
 import ru.kidesoft.desktop.domain.entity.login.Login;
 import ru.kidesoft.desktop.domain.entity.order.OperationType;
 import ru.kidesoft.desktop.domain.entity.order.Order;
 import ru.kidesoft.desktop.domain.exception.ApiException;
 
-import java.net.http.HttpClient;
+import java.time.Duration;
 
-@Repository
-@AllArgsConstructor
 public class ApiRepositoryImpl implements ApiRepository {
-    final String auth = "/api/auth/login?email=%s&password=%s"; // 1 пункт == email, 2 пункт == пароль
+    final String host;
+    final String token;
+    final String tokenType;
+    final Duration timeout;
+    final String apiType;
+
+    final String auth = "/api/auth/login?email={email}&password={password}"; // 1 пункт == email, 2 пункт == пароль //?email=%s&password=%s
     final String order = "/api/print-requests/by-user/%s"; // 1 пункт == id пользователя
     final String click = "/api/%s/%d"; // 1 пункт == тип операции (order, refund), 2 пункт == id операции
 
-    final HttpClient client = HttpClient.newHttpClient();
+    public ApiRepositoryImpl(String host, String token, String tokenType, Duration timeout, String apiType) {
+        this.host = host;
+        this.token = token;
+        this.tokenType = tokenType;
+        this.timeout = timeout;
+        this.apiType = apiType;
+    }
 
 
     @Override
-    public LoginDto Login(Login login) throws ApiException {
-        return null;
+    public ProfileSessionDto Login(String user, String password) throws ApiException {
+        var rc = RestClient.builder().baseUrl(host).build();
+
+        ResponseEntity<ProfileSessionDto> response = rc.post().uri(auth, user, password).retrieve().toEntity(ProfileSessionDto.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        } else {
+            throw new ApiException(response.getStatusCode().value(), "Error during login on remote server due incorrect status");
+        }
     }
 
     @Override

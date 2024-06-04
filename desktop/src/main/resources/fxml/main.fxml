@@ -14,7 +14,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane maxHeight="350.0" maxWidth="600.0" minHeight="350.0" minWidth="600.0" prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kidesoft.desktop.controller.javafx.fxml.MainController">
    <children>
       <HBox alignment="CENTER" layoutX="60.0" layoutY="131.0" prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -45,7 +44,7 @@
                         <Spacer />
                         <Button fx:id="printXReport" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#printXReportAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                         <Spacer />
-                        <Button maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#testAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+                        <Button fx:id="diagnosticButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#diagnosticAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                      </children>
                   </HBox>
                   <InputGroup maxHeight="40.0" maxWidth="270.0" minHeight="40.0" minWidth="270.0" prefHeight="40.0" prefWidth="270.0">

@@ -2,13 +2,13 @@ package ru.kidesoft.desktop.domain.entity.setting;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import lombok.Generated;
+import org.hibernate.annotations.*;
 import org.hibernate.proxy.HibernateProxy;
 import ru.kidesoft.desktop.domain.entity.login.Login;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -17,6 +17,9 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
+@DynamicInsert
 public class Setting {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,61 +27,57 @@ public class Setting {
     @Column(name = "ID", nullable = false)
     private UUID id;
 
-    @ColumnDefault("TRUE")
+
     @Column(name = "KKT_AUTO_RECONNECT", nullable = false)
     private Boolean kktAutoReconnect = false;
 
-    @ColumnDefault("'./drivers/kkt/10.9.5.0/'")
+
     @Lob
     @Column(name = "KKT_DRIVER_PATH", nullable = false)
-    private String kktDriverPath;
+    private String kktDriverPath = "./drivers/kkt/10.9.5.0/";
 
-    @ColumnDefault("''")
     @Lob
     @Column(name = "PRINTER_NAME")
-    private String printerName;
+    private String printerName = "";
 
-    @ColumnDefault("TRUE")
     @Column(name = "PRINT_CHECK", nullable = false)
-    private Boolean printCheck = false;
+    private Boolean printCheck = true;
 
-    @ColumnDefault("TRUE")
+
     @Column(name = "PRINT_TICKET", nullable = false)
-    private Boolean printTicket = false;
+    private Boolean printTicket = true;
 
-    @ColumnDefault("'https://example.com'")
     @Lob
     @Column(name = "UPDATE_REPOSITORY_URL", nullable = false)
-    private String updateRepositoryUrl;
+    private String updateRepositoryUrl = "https://example.com";
 
-    @ColumnDefault("FALSE")
     @Column(name = "UPDATE_AUTOMATICALLY", nullable = false)
     private Boolean updateAutomatically = false;
 
-    @ColumnDefault("10000000000")
     @Column(name = "SERVER_REQUEST_TIMEOUT", nullable = false)
-    private BigDecimal serverRequestTimeout;
+    private Duration serverRequestTimeout = Duration.ofSeconds(10);
 
-    @ColumnDefault("5000000000")
     @Column(name = "SERVER_REQUEST_INTERVAL", nullable = false)
-    private BigDecimal serverRequestInterval;
+    private Duration serverRequestInterval = Duration.ofSeconds(5);
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "LOGIN_ID", nullable = false)
+    @JoinColumn(name = "LOGIN_ID", nullable = true)
     @ToString.Exclude
     private Login login;
 
-    @ColumnDefault("0")
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "PAGE_SIZE", columnDefinition = "TINYINT not null")
-    private PageSize pageSize;
+    private PageSize pageSize = PageSize.A4;
 
-
-    @ColumnDefault("0")
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "PAGE_ORIENTATION", columnDefinition = "TINYINT not null")
-    private PageOrientation pageOrientation;
+    private PageOrientation pageOrientation = PageOrientation.PORTRAIT;
+
+
+    public Setting(Login login) {
+        this.login = login;
+    }
 
 
     @Override

@@ -32,4 +32,13 @@ public enum PageSize {
         }
         return UNDEFINED;
     }
+
+    public static PageSize fromDescription(String description) {
+        for (PageSize pageSize : values()) {
+            if (pageSize.getDescription().equals(description)) {
+                return pageSize;
+            }
+        }
+        return UNDEFINED;
+    }
 }

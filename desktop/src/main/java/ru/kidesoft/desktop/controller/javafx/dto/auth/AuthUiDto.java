@@ -1,9 +1,9 @@
 package ru.kidesoft.desktop.controller.javafx.dto.auth;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.kidesoft.desktop.domain.entity.login.Login;
+import ru.kidesoft.desktop.domain.entity.profile.Cashier;
 
 import java.util.List;
 
@@ -11,6 +11,6 @@ import java.util.List;
 @Builder
 
 public class AuthUiDto {
-    List<CashierUiDto> cashier;
+    List<Cashier> cashier;
     List<Login> login;
 }
