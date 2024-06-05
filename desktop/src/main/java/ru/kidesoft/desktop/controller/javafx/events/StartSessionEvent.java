@@ -1,7 +1,6 @@
-package ru.kidesoft.desktop.controller.javafx;
+package ru.kidesoft.desktop.controller.javafx.events;
 
 import org.springframework.context.ApplicationEvent;
-import ru.kidesoft.desktop.domain.entity.login.Login;
 
 public class StartSessionEvent extends ApplicationEvent {
     public enum StartSession {

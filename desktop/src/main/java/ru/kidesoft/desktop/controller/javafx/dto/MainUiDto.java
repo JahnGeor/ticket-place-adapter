@@ -9,8 +9,8 @@ import ru.kidesoft.desktop.domain.entity.profile.RoleType;
 @Data
 public class MainUiDto {
     private State shiftState;
-    private boolean kktReady;
-    private boolean isListening;
+    private Boolean kktReady;
+    private Boolean isListening;
     private Integer lastCheckNumber;
     private String fullName;
     private String inn;

@@ -1,4 +1,4 @@
-package ru.kidesoft.desktop.controller.javafx;
+package ru.kidesoft.desktop.controller.javafx.events.manager;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,9 +17,15 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import ru.kidesoft.desktop.controller.javafx.Controller;
+import ru.kidesoft.desktop.controller.javafx.events.StageReadyEvent;
+import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.fxml.AuthController;
 import ru.kidesoft.desktop.controller.javafx.fxml.BaseController;
+import ru.kidesoft.desktop.domain.exception.ApiException;
 import ru.kidesoft.desktop.domain.exception.AppException;
+import ru.kidesoft.desktop.domain.exception.DbException;
+import ru.kidesoft.desktop.domain.exception.KktException;
 import ru.kidesoft.desktop.domain.service.AuthService;
 
 import java.io.IOException;
@@ -54,7 +60,7 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
         try {
             stage.getIcons().add(new Image(logoImage.getURL().toString()));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         stage.setTitle(title);
@@ -83,8 +89,6 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
 
         Parent parent = fxWeaver.loadView(controller);
 
-
-
         StackPane center = (StackPane) root.getCenter();
         center.getChildren().clear();
         center.getChildren().add(parent);
@@ -92,9 +96,27 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
 
     public void showError(AppException e) {
         Alert alert = new Alert(Alert.AlertType.ERROR, "Ошибка", ButtonType.OK);
+
+        alert.setTitle("Ошибка");
+
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setContentText(e.getMessage());
-        alert.setHeaderText(e.appExceptionType.getDescription());
+
+        try {
+            ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image(logoImage.getURL().toString()));
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+
+        if (e instanceof DbException) {
+            alert.setHeaderText("Внутренняя ошибка базы данных");
+        } else if(e instanceof KktException) {
+            alert.setHeaderText("Внутренняя ошибка ККТ");
+        } else if (e instanceof ApiException) {
+            alert.setHeaderText("Ошибка обращения к удаленному серверу");
+        } else {
+            alert.setHeaderText("Неизвестная ошибка");
+        }
 
         alert.showAndWait();
     }

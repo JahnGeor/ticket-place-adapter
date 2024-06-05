@@ -13,17 +13,19 @@ import org.kordamp.ikonli.fluentui.FluentUiRegularMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.kidesoft.desktop.controller.javafx.Controller;
-import ru.kidesoft.desktop.controller.javafx.StartSessionEvent;
+import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.AuthUiDto;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.CashierUiDto;
+import ru.kidesoft.desktop.domain.AppConfiguration;
 import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
 import ru.kidesoft.desktop.domain.entity.login.Login;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.AuthService;
 import ru.kidesoft.desktop.domain.service.KktService;
-import ru.kidesoft.desktop.domain.service.ProfileService;
+import ru.kidesoft.desktop.domain.service.entities.ProfileService;
 
 
 import java.net.URL;
@@ -120,11 +122,17 @@ public class AuthController extends Controller<AuthUiDto> {
 
     @Override
     public void updateView(AuthUiDto viewDto) {
-        var emailList = FXCollections.observableList(viewDto.getLogin().stream().map(Login::getEmail).distinct().toList());
+
+        var emailList = FXCollections.observableArrayList(viewDto.getLogin().stream().map(Login::getEmail).distinct().toList());
         emailBox.setItems(emailList);
         emailBox.getSelectionModel().selectFirst();
 
-        var urlList = FXCollections.observableList(viewDto.getLogin().stream().map(Login::getUrl).distinct().toList());
+        var urlList = FXCollections.observableArrayList(viewDto.getLogin().stream().map(Login::getUrl).distinct().toList());
+
+        if (urlList.isEmpty()) {
+            urlList.add(context.getBean(AppConfiguration.class).getDefaultUrl());
+        }
+
         urlBox.setItems(urlList);
         urlBox.getSelectionModel().selectFirst();
 

@@ -14,6 +14,8 @@ import ru.kidesoft.desktop.domain.dao.kkt.KktSetting;
 import ru.kidesoft.desktop.domain.entity.State;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.exception.AppExceptionType;
+import ru.kidesoft.desktop.domain.exception.DbException;
+import ru.kidesoft.desktop.domain.service.entities.ProfileService;
 
 @Service
 public class KktService {
@@ -38,14 +40,14 @@ public class KktService {
 
     public void initialize() throws AppException {
         var login = loginRepository.findCurrentLogin().orElseThrow(
-                () -> new AppException("Не удалось получить текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить текущего пользователя")
         );
 
         var profile = profileRepository.findByLogin(login).orElseThrow(
-                () -> new AppException("Не удалось получить профиль текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить профиль текущего пользователя")
         );
         var setting = settingRepository.findByLogin(login).orElseThrow(
-                () -> new AppException("Не удалось получить настройки текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить настройки текущего пользователя")
         );
 
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
@@ -71,11 +73,11 @@ public class KktService {
 
     public void openShift() throws AppException {
         var login = loginRepository.findCurrentLogin().orElseThrow(
-                () -> new AppException("Не удалось получить текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить текущего пользователя")
         );
 
         var profile = profileRepository.findByLogin(login).orElseThrow(
-                () -> new AppException("Не удалось получить профиль текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить профиль текущего пользователя")
         );
 
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
@@ -85,11 +87,11 @@ public class KktService {
 
     public void closeShift() throws AppException {
         var login = loginRepository.findCurrentLogin().orElseThrow(
-                () -> new AppException("Не удалось получить текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить текущего пользователя")
         );
 
         var profile = profileRepository.findByLogin(login).orElseThrow(
-                () -> new AppException("Не удалось получить профиль текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить профиль текущего пользователя")
         );
 
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
@@ -99,11 +101,11 @@ public class KktService {
 
     public State switchShift() throws AppException {
         var login = loginRepository.findCurrentLogin().orElseThrow(
-                () -> new AppException("Не удалось получить текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить текущего пользователя")
         );
 
         var profile = profileRepository.findByLogin(login).orElseThrow(
-                () -> new AppException("Не удалось получить профиль текущего пользователя", AppExceptionType.DbExceptionType)
+                () -> new DbException("Не удалось получить профиль текущего пользователя")
         );
 
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
@@ -123,7 +125,7 @@ public class KktService {
                 break;
             default:
                 logger.error("Неизвестное состояние смены ККТ: {}", state);
-                throw new AppException("Неизвестное состояние смены ККТ", AppExceptionType.KktExceptionType);
+                throw new DbException("Неизвестное состояние смены ККТ");
         }
 
         return kktRepository.getCurrentShiftState();
@@ -141,7 +143,7 @@ public class KktService {
         }
     }
 
-    public boolean isConnectionOpened() {
+    public boolean isConnectionOpened() throws AppException {
         var status = kktRepository.isConnectionOpened();
 
         logger.info("Статус подключения ККТ: {}", status);
@@ -150,21 +152,21 @@ public class KktService {
     }
 
     public void printLastCheck() throws AppException {
-        var profile = profileService.getProfile();
+        var profile = profileService.getCurrentProfile();
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
         kktRepository.setOperator(operator).printLastReceipt();
         logger.info("Печать последнего чека, оператор: {}", profile.getLogin().getId());
     }
 
     public void printXReport() throws AppException {
-        var profile = profileService.getProfile();
+        var profile = profileService.getCurrentProfile();
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
         kktRepository.setOperator(operator).printXReport();
         logger.info("Печать X-отчета, id профиля: {}", profile.getLogin().getId());
     }
 
     public void cashIncome(float income) throws AppException {
-        var profile = profileService.getProfile();
+        var profile = profileService.getCurrentProfile();
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
         kktRepository.setOperator(operator).income(income);
         logger.info("Внесение наличных средств в размере {} рублей, id профиля: {}", income, profile.getLogin().getId());

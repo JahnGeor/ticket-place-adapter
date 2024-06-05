@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.print.Printer;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -14,13 +13,14 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.kidesoft.desktop.controller.javafx.Controller;
-import ru.kidesoft.desktop.controller.javafx.StageManager;
+import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
 import ru.kidesoft.desktop.controller.javafx.dto.SettingUiDto;
+import ru.kidesoft.desktop.controller.javafx.fxml.main.MainView;
 import ru.kidesoft.desktop.domain.dao.database.SettingRepository;
 import ru.kidesoft.desktop.domain.entity.setting.PageOrientation;
 import ru.kidesoft.desktop.domain.entity.setting.PageSize;
 import ru.kidesoft.desktop.domain.entity.setting.Setting;
-import ru.kidesoft.desktop.domain.service.SettingService;
+import ru.kidesoft.desktop.domain.service.entities.SettingService;
 
 
 import java.net.URL;
@@ -150,27 +150,34 @@ public class SettingController extends Controller<SettingUiDto> {
         autoReconnectLabel.setGraphic(new CheckBox());
 
         //TODO: получаем настройки из базы данных
-        Setting setting = settingService.getSetting();
-
-        var settingDto = SettingUiDto.builder()
-                .kktDriverPath(setting.getKktDriverPath())
-                .autoReconnect(setting.getKktAutoReconnect())
-                .pageOrientation(setting.getPageOrientation())
-                .pageSize(setting.getPageSize())
-                .period(setting.getServerRequestInterval())
-                .timeout(setting.getServerRequestTimeout())
-                .printCheck(setting.getPrintCheck())
-                .printTicket(setting.getPrintTicket())
-                .printerName(setting.getPrinterName())
-                .updateAuto(setting.getUpdateAutomatically())
-                .updateRepo(setting.getUpdateRepositoryUrl())
-                .build();
-
-        // TODO: Используем метод setFxmlDto() для установки данных на форму
 
 
+        try {
+            Setting setting = settingService.getCurrentSetting();
 
-        updateView(settingDto);
+            var settingDto = SettingUiDto.builder()
+                    .kktDriverPath(setting.getKktDriverPath())
+                    .autoReconnect(setting.getKktAutoReconnect())
+                    .pageOrientation(setting.getPageOrientation())
+                    .pageSize(setting.getPageSize())
+                    .period(setting.getServerRequestInterval())
+                    .timeout(setting.getServerRequestTimeout())
+                    .printCheck(setting.getPrintCheck())
+                    .printTicket(setting.getPrintTicket())
+                    .printerName(setting.getPrinterName())
+                    .updateAuto(setting.getUpdateAutomatically())
+                    .updateRepo(setting.getUpdateRepositoryUrl())
+                    .build();
+
+            // TODO: Используем метод setFxmlDto() для установки данных на форму
+
+            updateView(settingDto);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+
     }
 
     @FXML
@@ -241,7 +248,7 @@ public class SettingController extends Controller<SettingUiDto> {
                 updateAutomatically(((CheckBox) autoUpdateLabelBox.getGraphic()).isSelected()).
                 updateRepositoryUrl(repoPathField.getText()).build());
 
-        context.getBean(StageManager.class).show(MainController.class);
+        context.getBean(StageManager.class).show(MainView.class);
     }
 
     @Override

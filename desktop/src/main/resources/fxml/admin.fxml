@@ -13,13 +13,13 @@
             <InputGroup alignment="CENTER" prefHeight="53.0" prefWidth="600.0">
                <children>
                   <TextField fx:id="printRefundFromCheckLabel" prefHeight="40.0" prefWidth="323.0" promptText="Печать чека возврата" />
-                  <Button fx:id="printRefundFromCheckButton" mnemonicParsing="false" onAction="#printRefundFromCheckAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+                  <Button fx:id="printRefundFromCheckButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                </children>
             </InputGroup>
             <InputGroup alignment="CENTER" prefHeight="53.0" prefWidth="600.0">
                <children>
                   <TextField fx:id="printSellFromCheckLabel" prefHeight="40.0" prefWidth="323.0" promptText="Печать чека продажи" />
-                  <Button fx:id="printSellFromCheckButton" mnemonicParsing="false" onAction="#printSellFromCheckAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+                  <Button fx:id="printSellFromCheckButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                </children>
             </InputGroup>
          </children>

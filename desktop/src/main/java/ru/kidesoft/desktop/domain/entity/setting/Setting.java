@@ -27,36 +27,42 @@ public class Setting {
     @Column(name = "ID", nullable = false)
     private UUID id;
 
-
+    @Builder.Default
     @Column(name = "KKT_AUTO_RECONNECT", nullable = false)
     private Boolean kktAutoReconnect = false;
 
-
+    @Builder.Default
     @Lob
     @Column(name = "KKT_DRIVER_PATH", nullable = false)
     private String kktDriverPath = "./drivers/kkt/10.9.5.0/";
 
+    @Builder.Default
     @Lob
     @Column(name = "PRINTER_NAME")
     private String printerName = "";
 
+    @Builder.Default
     @Column(name = "PRINT_CHECK", nullable = false)
     private Boolean printCheck = true;
 
-
+    @Builder.Default
     @Column(name = "PRINT_TICKET", nullable = false)
     private Boolean printTicket = true;
 
     @Lob
     @Column(name = "UPDATE_REPOSITORY_URL", nullable = false)
+    @Builder.Default
     private String updateRepositoryUrl = "https://example.com";
 
+    @Builder.Default
     @Column(name = "UPDATE_AUTOMATICALLY", nullable = false)
     private Boolean updateAutomatically = false;
 
+    @Builder.Default
     @Column(name = "SERVER_REQUEST_TIMEOUT", nullable = false)
     private Duration serverRequestTimeout = Duration.ofSeconds(10);
 
+    @Builder.Default
     @Column(name = "SERVER_REQUEST_INTERVAL", nullable = false)
     private Duration serverRequestInterval = Duration.ofSeconds(5);
 
@@ -66,10 +72,12 @@ public class Setting {
     @ToString.Exclude
     private Login login;
 
+    @Builder.Default
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "PAGE_SIZE", columnDefinition = "TINYINT not null")
     private PageSize pageSize = PageSize.A4;
 
+    @Builder.Default
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "PAGE_ORIENTATION", columnDefinition = "TINYINT not null")
     private PageOrientation pageOrientation = PageOrientation.PORTRAIT;

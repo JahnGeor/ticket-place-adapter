@@ -44,6 +44,7 @@ create table HISTORY
     ERROR          CHARACTER VARYING,
     ORDER_ID       INTEGER                    not null,
     OPERATION_TYPE TINYINT                    not null,
+    SOURCE_TYPE TINYINT                    not null,
     constraint HISTORY_PK
         primary key (ID),
     constraint HISTORY_PK_UNIQUE

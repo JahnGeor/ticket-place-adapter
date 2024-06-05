@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="350.0" maxWidth="600.0" minHeight="350.0" minWidth="600.0" prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kidesoft.desktop.controller.javafx.fxml.MainController">
+<AnchorPane maxHeight="350.0" maxWidth="600.0" minHeight="350.0" minWidth="600.0" prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kidesoft.desktop.controller.javafx.fxml.main.MainView">
    <children>
       <HBox alignment="CENTER" layoutX="60.0" layoutY="131.0" prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -38,19 +38,19 @@
                   </Label>
                   <HBox prefHeight="40.0" prefWidth="200.0">
                      <children>
-                        <Button fx:id="shiftButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#shiftAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+                        <Button fx:id="shiftButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                         <Spacer />
-                        <Button fx:id="printLastCheck" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#printLastCheckAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+                        <Button fx:id="printLastCheck" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                         <Spacer />
-                        <Button fx:id="printXReport" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#printXReportAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+                        <Button fx:id="printXReport" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                         <Spacer />
-                        <Button fx:id="diagnosticButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#diagnosticAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+                        <Button fx:id="diagnosticButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                      </children>
                   </HBox>
                   <InputGroup maxHeight="40.0" maxWidth="270.0" minHeight="40.0" minWidth="270.0" prefHeight="40.0" prefWidth="270.0">
                      <children>
                         <TextField fx:id="incomeField" maxHeight="40.0" maxWidth="230.0" minHeight="40.0" minWidth="230.0" prefHeight="40.0" prefWidth="230.0" />
-                        <Button fx:id="incomeButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" onAction="#incomeAction" prefHeight="40.0" prefWidth="40.0" text="Button" />
+                        <Button fx:id="incomeButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" text="Button" />
                      </children>
                   </InputGroup>
                </children>

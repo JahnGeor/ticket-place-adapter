@@ -1,4 +1,4 @@
-package ru.kidesoft.desktop.controller.javafx;
+package ru.kidesoft.desktop.controller.javafx.events;
 
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationEvent;

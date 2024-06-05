@@ -1,44 +1,54 @@
-package ru.kidesoft.desktop.domain.service;
+package ru.kidesoft.desktop.domain.service.entities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import ru.kidesoft.desktop.domain.dao.database.ConstantRepository;
 import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
 import ru.kidesoft.desktop.domain.dao.database.SettingRepository;
 import ru.kidesoft.desktop.domain.entity.constant.Constant;
 import ru.kidesoft.desktop.domain.entity.constant.ConstantEnums;
+import ru.kidesoft.desktop.domain.entity.login.Login;
 import ru.kidesoft.desktop.domain.entity.setting.Setting;
+import ru.kidesoft.desktop.domain.exception.AppException;
+import ru.kidesoft.desktop.domain.exception.AppExceptionType;
+import ru.kidesoft.desktop.domain.exception.DbException;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class SettingService {
+    private final Logger logger = LogManager.getLogger(SettingService.class);
+
     private final ConstantRepository constantRepository;
     private final LoginRepository loginRepository;
+    private final LoginService loginService;
     SettingRepository settingRepository;
 
-    public SettingService(SettingRepository settingRepository, ConstantRepository constantRepository, LoginRepository loginRepository) {
+    public SettingService(SettingRepository settingRepository, ConstantRepository constantRepository, LoginRepository loginRepository, LoginService loginService) {
         this.settingRepository = settingRepository;
         this.constantRepository = constantRepository;
         this.loginRepository = loginRepository;
+        this.loginService = loginService;
     }
 
-    public Setting getSetting() {
-        Optional<Constant> constant = constantRepository.findByName(ConstantEnums.ACTIVE_USER_ID);
+    public Setting getByLogin(Login login) throws AppException {
+        var setting = settingRepository.findByLogin(login).orElseThrow(
+                () -> {
+                    logger.error("Не удалось получить настройки пользователя {}", login.getId());
+                    return new DbException("Не удалось получить настройки пользователя");
+                }
+        );
 
-        if (constant.isPresent()) {
-            var login = loginRepository.findById(UUID.fromString(constant.get().getVal()));
+        logger.info("Получены настройки пользователя {}", login.getId());
 
-            if (login.isEmpty()) {
-                throw new RuntimeException("Active user id not found"); // TODO: add exception
-            }
+        return setting;
+    }
 
-            var settingOpt = settingRepository.findByLogin(login.get());
-
-            return settingOpt.orElseGet(() -> settingRepository.save(new Setting(login.get())));
-        } else {
-            throw new RuntimeException("Active user id not found"); // TODO: add exception
-        }
+    public Setting getCurrentSetting() throws AppException {
+        var login = loginService.getCurrentLogin();
+        return getByLogin(login);
     }
 
     public void save(Setting setting) {

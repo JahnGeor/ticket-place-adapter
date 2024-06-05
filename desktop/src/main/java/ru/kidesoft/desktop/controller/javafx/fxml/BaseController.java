@@ -1,6 +1,5 @@
 package ru.kidesoft.desktop.controller.javafx.fxml;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,8 +13,8 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.kidesoft.desktop.controller.javafx.Controller;
-import ru.kidesoft.desktop.controller.javafx.JavaFxApplication;
-import ru.kidesoft.desktop.controller.javafx.StageManager;
+import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
+import ru.kidesoft.desktop.controller.javafx.fxml.main.MainView;
 import ru.kidesoft.desktop.domain.service.AuthService;
 
 import java.net.URL;
@@ -93,7 +92,7 @@ public class BaseController extends Controller<Void> {
 
     @FXML
     void openHome(ActionEvent event) {
-        context.getBean(StageManager.class).show(MainController.class);
+        context.getBean(StageManager.class).show(MainView.class);
     }
 
     @FXML

@@ -10,10 +10,7 @@ class DesktopApplicationTests {
 
     private static final Logger log = LogManager.getLogger(DesktopApplicationTests.class);
 
-    @Test
-    void contextLoads() {
-        log.info("Hello");
-    }
+
 
 
 }

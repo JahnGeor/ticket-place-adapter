@@ -89,7 +89,7 @@ public class AuthService {
 
         logger.trace("Сохранение сессии пользователя {} завершено успешно. Session ID = {}", login.getEmail(), profileSessionDto.getSession().getId());
 
-        Setting setting = new Setting(resultLogin);
+        Setting setting = Setting.builder().login(resultLogin).build();
 
         Optional<Setting> settingOpt = settingRepository.findByLogin(resultLogin);
 

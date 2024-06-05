@@ -26,12 +26,20 @@ public class KktRepositoryImpl implements KktRepository {
 //        this.fptr = new Fptr();
     }
 
+    public IFptr getFptr() throws KktException {
+        if (fptr == null) {
+            throw new KktException("KKT driver not initialized");
+        }
+        return fptr;
+    }
+
+
     @Override
     public KktRepository setConnection(KktSetting kktSetting) throws KktException {
         File driverDir = new File(kktSetting.getPath());
 
         if (!(driverDir.isDirectory() && driverDir.exists())) {
-            throw new KktException("Invalid driver path");
+            throw new KktException("По выбранному пути не обнаружена директория");
         }
 
         URI uriDriverPath = driverDir.toURI().resolve(getOSDirectory());
@@ -40,18 +48,19 @@ public class KktRepositoryImpl implements KktRepository {
             fptr.destroy();
         }
 
-        fptr = new Fptr(uriDriverPath.getPath());
+        try {
+            var driverDirPath = uriDriverPath.getPath();
+            fptr = new Fptr(driverDirPath);
+        } catch (Throwable e) {
+            throw new KktException("Не удалось загрузить драйвер ККТ", e);
+        }
         fptr.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_RECONNECT, kktSetting.getAutoReconnect().toString());
         fptr.applySingleSettings();
         return this;
     }
 
-    public boolean isConnectionOpened() {
-        if (fptr == null) {
-            return false;
-        }
-
-        fptr.setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS);
+    public boolean isConnectionOpened() throws KktException {
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS);
 
         if (fptr.queryData() != IFptr.LIBFPTR_OK) {
             return false;
@@ -62,77 +71,74 @@ public class KktRepositoryImpl implements KktRepository {
 
     @Override
     public KktRepository setOperator(KktOperator kktOperator) throws KktException {
-        fptr.setParam(1021, kktOperator.getFullName());
-        fptr.setParam(1203, kktOperator.getInn().toString());
+        getFptr().setParam(1021, kktOperator.getFullName());
+        getFptr().setParam(1203, kktOperator.getInn().toString());
 
-        checkErrorCode(fptr.operatorLogin());
+        checkErrorCode(getFptr().operatorLogin());
         return this;
     }
 
     @Override
     public void openShift() throws KktException {
-        checkErrorCode(fptr.openShift());
+        checkErrorCode(getFptr().openShift());
     }
 
     @Override
     public void closeShift() throws KktException {
-        fptr.setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_CLOSE_SHIFT);
-        checkErrorCode(fptr.report()); // TODO: Проверка на ошибку
-        checkErrorCode(fptr.checkDocumentClosed()); // TODO: Проверка на ошибку
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_CLOSE_SHIFT);
+        checkErrorCode(getFptr().report()); // TODO: Проверка на ошибку
+        checkErrorCode(getFptr().checkDocumentClosed()); // TODO: Проверка на ошибку
     }
 
     @Override
     public KktRepository openConnection() throws KktException {
-        fptr.open();
+        getFptr().open();
         return this;
     }
 
     @Override
     public KktRepository closeConnection() throws KktException {
-        fptr.close();
+        getFptr().close();
 
         return this;
     }
 
-    private int positionRegister(Ticket ticket) {
-        fptr.setParam(IFptr.LIBFPTR_PARAM_COMMODITY_NAME, String.format(
+    private int positionRegister(Ticket ticket) throws KktException {
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_COMMODITY_NAME, String.format(
                 "%s,%s,%s,%s,%s,%d,%d", ticket.getNumber(), ticket.getShowName(), ticket.getAgeLimit(), ticket.getDateTime(), ticket.getZone(), ticket.getRowSector(), ticket.getSeatNumber()));
-        fptr.setParam(IFptr.LIBFPTR_PARAM_PRICE, ticket.getAmount());
-        fptr.setParam(IFptr.LIBFPTR_PARAM_QUANTITY, 1);
-        fptr.setParam(IFptr.LIBFPTR_PARAM_TAX_TYPE, IFptr.LIBFPTR_TAX_NO);
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_PRICE, ticket.getAmount());
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_QUANTITY, 1);
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_TAX_TYPE, IFptr.LIBFPTR_TAX_NO);
 
-        fptr.setParam(1212, 4);
-        fptr.setParam(1214, 4);
+        getFptr().setParam(1212, 4);
+        getFptr().setParam(1214, 4);
 
-        return fptr.registration();
+        return getFptr().registration();
     }
 
     @Override
-    public void print(Order order, OperationType operationType) throws KktException, InterruptedException {
+    public void print(Order order, OperationType operationType) throws KktException {
         switch(operationType) {
             case ORDER:
-                fptr.setParam(IFptr.LIBFPTR_PARAM_RECEIPT_TYPE, IFptr.LIBFPTR_RT_SELL);
+                getFptr().setParam(IFptr.LIBFPTR_PARAM_RECEIPT_TYPE, IFptr.LIBFPTR_RT_SELL);
                 break;
             case REFUND:
-                fptr.setParam(IFptr.LIBFPTR_PARAM_RECEIPT_TYPE, IFptr.LIBFPTR_RT_SELL_RETURN);
+                getFptr().setParam(IFptr.LIBFPTR_PARAM_RECEIPT_TYPE, IFptr.LIBFPTR_RT_SELL_RETURN);
                 break;
             default:
                 throw new IllegalArgumentException("Необрабатываемая форма заказа");
         }
 
-        int code = fptr.openReceipt();
+        int code = getFptr().openReceipt();
 
-        if (code != 0) {
-            checkErrorCode(fptr.closeReceipt());
-            checkErrorCode(fptr.openReceipt());
-        }
+        checkErrorCode(code);
 
         if (operationType == OperationType.REFUND) {
-            fptr.setParam(1212, 4);
-            fptr.setParam(1214, 4);
-            fptr.setParam(IFptr.LIBFPTR_PARAM_TEXT, "Возврат");
-            fptr.setParam(IFptr.LIBFPTR_PARAM_ALIGNMENT, IFptr.LIBFPTR_ALIGNMENT_CENTER);
-            checkErrorAndCancel(fptr.printText());
+            getFptr().setParam(1212, 4);
+            getFptr().setParam(1214, 4);
+            getFptr().setParam(IFptr.LIBFPTR_PARAM_TEXT, "Возврат");
+            getFptr().setParam(IFptr.LIBFPTR_PARAM_ALIGNMENT, IFptr.LIBFPTR_ALIGNMENT_CENTER);
+            checkErrorAndCancel(getFptr().printText());
         }
 
         for (Ticket t : order.getTickets()) {
@@ -144,94 +150,96 @@ public class KktRepositoryImpl implements KktRepository {
         double total = order.getTickets().stream().mapToDouble(Ticket::getAmount).sum();
 
 
-        fptr.setParam(IFptr.LIBFPTR_PARAM_SUM, total);
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_SUM, total);
 
-        checkErrorAndCancel(fptr.receiptTotal());
+        checkErrorAndCancel(getFptr().receiptTotal());
 
         switch(order.getPaymentType()) {
             case CASH:
-                fptr.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_CASH);
+                getFptr().setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_CASH);
                 break;
             case CARD, ACCOUNT_INDIVIDUAL:
-                fptr.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_ELECTRONICALLY);
+                getFptr().setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_ELECTRONICALLY);
                 break;
             default:
                 throw new IllegalArgumentException("Неизвестный тип оплаты");
         }
 
-        fptr.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_SUM, total);
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_PAYMENT_SUM, total);
 
-        checkErrorAndCancel(fptr.payment());
+        checkErrorAndCancel(getFptr().payment());
 
-        checkErrorAndCancel(fptr.closeReceipt());
+        checkErrorAndCancel(getFptr().closeReceipt());
 
         boolean closed = false;
 
         for (int i = 0; i < 5; i++) {
-            if (fptr.checkDocumentClosed() == 0) {
+            if (getFptr().checkDocumentClosed() == 0) {
                 closed = true;
                 break;
             } else {
-                Thread.sleep(500); // ? Возможно, стоит исправить
+                try {
+                    Thread.sleep(500); // ? Возможно, стоит исправить
+                } catch (InterruptedException ignored) {}
             }
         }
 
         if (!closed) {
-            throw new KktException(fptr.errorDescription(), fptr.errorCode());
+            throw new KktException(getFptr().errorDescription(), getFptr().errorCode());
         }
 
-        if (!fptr.getParamBool(IFptr.LIBFPTR_PARAM_DOCUMENT_CLOSED)) {
-            checkErrorCode(fptr.cancelReceipt());
+        if (!getFptr().getParamBool(IFptr.LIBFPTR_PARAM_DOCUMENT_CLOSED)) {
+            checkErrorCode(getFptr().cancelReceipt());
         }
 
-        if (!fptr.getParamBool(IFptr.LIBFPTR_PARAM_DOCUMENT_PRINTED)) {
+        if (!getFptr().getParamBool(IFptr.LIBFPTR_PARAM_DOCUMENT_PRINTED)) {
             while(true) {
-                if (fptr.continuePrint() == 0) {
+                if (getFptr().continuePrint() == 0) {
                     break;
                 }
             }
         }
 
-        fptr.setParam(IFptr.LIBFPTR_PARAM_FN_DATA_TYPE, IFptr.LIBFPTR_FNDT_LAST_DOCUMENT);
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_FN_DATA_TYPE, IFptr.LIBFPTR_FNDT_LAST_DOCUMENT);
 
-        checkErrorAndCancel(fptr.fnQueryData());
+        checkErrorAndCancel(getFptr().fnQueryData());
     }
 
     @Override
     public void printLastReceipt() throws KktException {
-        fptr.setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_LAST_DOCUMENT);
-        checkErrorCode(fptr.report());
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_LAST_DOCUMENT);
+        checkErrorCode(getFptr().report());
 
     }
 
     @Override
     public void income(float income) throws KktException {
-        fptr.setParam(IFptr.LIBFPTR_PARAM_SUM, income);
-        checkErrorCode(fptr.cashIncome());
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_SUM, income);
+        checkErrorCode(getFptr().cashIncome());
     }
 
     @Override
     public void printXReport() throws KktException {
-        fptr.setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_X);
-        checkErrorCode(fptr.report());
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_X);
+        checkErrorCode(getFptr().report());
     }
 
     @Override
     public KktRepository setCurrentTime(ZonedDateTime zonedDateTime) throws KktException {
-        fptr.setParam(IFptr.LIBFPTR_PARAM_DATE_TIME, Date.from(zonedDateTime.toInstant()));
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_DATE_TIME, Date.from(zonedDateTime.toInstant()));
         return this;
     }
 
     @Override
     public State getCurrentShiftState() throws KktException {
-        if (fptr == null) {
+        if (getFptr() == null) {
             return State.UNDEFINED;
         }
 
-        fptr.setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS);
-        fptr.queryData();
+        getFptr().setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS);
+        getFptr().queryData();
 
-        long state = fptr.getParamInt(IFptr.LIBFPTR_PARAM_SHIFT_STATE);
+        long state = getFptr().getParamInt(IFptr.LIBFPTR_PARAM_SHIFT_STATE);
 
         return switch ((int) state) {
             case IFptr.LIBFPTR_SS_CLOSED -> State.CLOSED;
@@ -266,14 +274,15 @@ public class KktRepositoryImpl implements KktRepository {
 
     private void checkErrorCode(int code) throws KktException {
         if (code != 0) {
-            throw new KktException(fptr.errorDescription(), fptr.errorCode());
+            throw new KktException(getFptr().errorDescription(), getFptr().errorCode());
         }
     }
 
     private void checkErrorAndCancel(int code) throws KktException {
         if (code != 0) {
-            checkErrorCode(fptr.cancelReceipt());
-            throw new KktException(fptr.errorDescription(), fptr.errorCode());
+            var exception = new KktException(getFptr().errorDescription(), getFptr().errorCode());
+            checkErrorCode(getFptr().cancelReceipt());
+            throw exception;
         }
     }
 

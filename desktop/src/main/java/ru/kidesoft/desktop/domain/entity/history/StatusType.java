@@ -3,8 +3,9 @@ package ru.kidesoft.desktop.domain.entity.history;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+@Getter
 @AllArgsConstructor
 public enum StatusType {
 

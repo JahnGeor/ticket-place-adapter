@@ -1,24 +1,26 @@
-package ru.kidesoft.desktop.controller.javafx;
+package ru.kidesoft.desktop.controller.javafx.events.manager;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Controller;
-import ru.kidesoft.desktop.controller.javafx.fxml.MainController;
+import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
+import ru.kidesoft.desktop.controller.javafx.fxml.main.MainView;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.KktService;
 
 @Controller
-public class StartSessionListener implements ApplicationListener<StartSessionEvent> {
+public class StartSessionManager implements ApplicationListener<StartSessionEvent> {
     private final KktService kktService;
     private ConfigurableApplicationContext context;
 
     @Autowired
-    public StartSessionListener(KktService kktService, ConfigurableApplicationContext context) {
+    public StartSessionManager(KktService kktService, ConfigurableApplicationContext context) {
         this.context = context;
         this.kktService = kktService;
     }
+
 
 
     @Override
@@ -28,7 +30,9 @@ public class StartSessionListener implements ApplicationListener<StartSessionEve
         } catch (AppException e) {
             context.getBean(StageManager.class).showError(e);
         }
-
-        context.getBean(StageManager.class).show(MainController.class);
+        finally {
+            context.getBean(StageManager.class).show(MainView.class);
+        }
     }
+
 }

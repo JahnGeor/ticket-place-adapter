@@ -14,13 +14,15 @@
    <children>
       <BorderPane prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
-            <TableView prefHeight="350.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+            <TableView fx:id="historyTable" editable="true" prefHeight="350.0" prefWidth="600.0" BorderPane.alignment="CENTER">
               <columns>
-                <TableColumn prefWidth="75.0" text="C1" />
-                <TableColumn prefWidth="75.0" text="C2" />
-                  <TableColumn prefWidth="75.0" text="C1" />
-                  <TableColumn prefWidth="75.0" text="C1" />
-                  <TableColumn prefWidth="75.0" text="C1" />
+                <TableColumn fx:id="checkCol" prefWidth="50.0" sortable="false" />
+                  <TableColumn fx:id="dateCol" prefWidth="200.0" text="Дата" />
+                <TableColumn fx:id="numberCol" prefWidth="150.0" text="Номер заказа" />
+                  <TableColumn fx:id="statusTypeCol" prefWidth="100.0" text="Статус" />
+                  <TableColumn fx:id="operationTypeCol" minWidth="8.0" prefWidth="100.0" text="Тип операции" />
+                  <TableColumn fx:id="sourceCol" minWidth="0.0" prefWidth="100.0" text="Источник" />
+                  <TableColumn fx:id="errorCol" prefWidth="500.0" text="Ошибка" />
               </columns>
             </TableView>
          </center>
@@ -34,7 +36,7 @@
                      <children>
                         <Label fx:id="printCheckLabel" text="Чек" />
                         <Label fx:id="printTicketLabel" text="Билет" />
-                        <Button mnemonicParsing="false" onAction="#printAction" text="Печать" />
+                        <Button fx:id="printButton" mnemonicParsing="false" text="Печать" />
                      </children>
                   </InputGroup>
                </children>

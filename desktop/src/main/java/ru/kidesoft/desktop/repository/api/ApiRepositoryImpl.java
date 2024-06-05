@@ -1,17 +1,20 @@
 package ru.kidesoft.desktop.repository.api;
 
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.client.RestClient;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.*;
 import ru.kidesoft.desktop.domain.dao.api.ApiRepository;
 import ru.kidesoft.desktop.domain.dao.api.dto.ApiSetting;
 import ru.kidesoft.desktop.domain.dao.api.dto.ClickDto;
 import ru.kidesoft.desktop.domain.dao.api.dto.ProfileSessionDto;
-import ru.kidesoft.desktop.domain.entity.login.Login;
 import ru.kidesoft.desktop.domain.entity.order.OperationType;
 import ru.kidesoft.desktop.domain.entity.order.Order;
+import ru.kidesoft.desktop.domain.entity.order.SourceType;
 import ru.kidesoft.desktop.domain.exception.ApiException;
 
+import java.io.IOException;
+import java.rmi.RemoteException;
 import java.time.Duration;
 
 public class ApiRepositoryImpl implements ApiRepository {
@@ -22,8 +25,8 @@ public class ApiRepositoryImpl implements ApiRepository {
     final String apiType;
 
     final String auth = "/api/auth/login?email={email}&password={password}"; // 1 пункт == email, 2 пункт == пароль //?email=%s&password=%s
-    final String order = "/api/print-requests/by-user/%s"; // 1 пункт == id пользователя
-    final String click = "/api/{type}/{id}"; // 1 пункт == тип операции (order, refund), 2 пункт == id операции
+    final String click = "/api/print-requests/by-user/{id}"; // 1 пункт == id пользователя
+    final String order = "/api/{type}/{id}"; // 1 пункт == тип операции (order, refund), 2 пункт == id операции
 
     public ApiRepositoryImpl(String host, String token, String tokenType, Duration timeout, String apiType) {
         this.host = host;
@@ -48,52 +51,41 @@ public class ApiRepositoryImpl implements ApiRepository {
     }
 
     @Override
-    public ClickDto Click(ApiSetting apiSetting, int userId) throws ApiException {
+    public ClickDto Click(int userId) throws ApiException {
         return null;
     }
 
     @Override
-    public Order Order(ApiSetting apiSetting, int orderId, OperationType operationType) throws ApiException {
+    public Order Order(int orderId, SourceType sourceType) throws ApiException {
         var rc = RestClient.builder().baseUrl(host).build();
 
-        ResponseEntity<Order> response = rc.get().uri(order, operationType.getName(), orderId).retrieve().toEntity(Order.class);
+        String tokenHeader = this.tokenType + " " + this.token;
 
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response.getBody();
-        } else {
-            throw new ApiException(response.getStatusCode().value(), "Error during getting order from remote server due incorrect status");
+        try {
+            var body = rc.get()
+                    .uri(order, sourceType.getName(), orderId)
+                    .header("Authorization", tokenHeader).retrieve().onStatus(
+                            HttpStatusCode::is5xxServerError,
+                            (request, response) -> {
+                                throw new HttpClientErrorException(response.getStatusCode(), "Error during getting order from remote server due incorrect status");
+                            }
+                    ).onStatus(
+                            HttpStatusCode::is4xxClientError,
+                            (request, response) -> {
+                                throw new HttpServerErrorException(response.getStatusCode(), "Error during getting order from remote server due incorrect status");
+                            }
+                    ).body(Order.class);
+
+            if (body == null) {
+                throw new ApiException(0, "Order body is null");
+            }
+
+            body.setSourceType(sourceType);
+
+            return body;
+
+        } catch (HttpStatusCodeException e) {
+            throw new ApiException(e.getStatusCode().value(), e.getMessage());
         }
     }
 }
-
-
-/*
-*
-* String authPathURI = "/api/auth/login?email=%s&password=%s";
-        HttpRequest request = HttpRequest.newBuilder(
-                URI.create(
-                        String.format(login.getUrl() + authPathURI, login.getEmail(), login.getPassword())
-                )
-        ).POST(HttpRequest.BodyPublishers.noBody()).build();
-
-        HttpResponse<String> response = null;
-
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException|InterruptedException e) {
-            throw new WebException(e);
-        }
-
-        return switch (response.statusCode()) {
-            case 200, 204 -> {
-                try {
-                    yield Deserializer.getObjectMapper().readValue(response.body(), AuthorizationDto.class);
-                } catch (IOException e) {
-                    throw new WebException(e);
-                }
-            }
-
-            default -> throw new WebException(response.statusCode(), response.body());
-        };
-*
-* */

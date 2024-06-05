@@ -1,4 +1,4 @@
-package ru.kidesoft.desktop.domain.service;
+package ru.kidesoft.desktop.domain.service.entities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,10 +7,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
 import ru.kidesoft.desktop.domain.dao.database.ProfileRepository;
+import ru.kidesoft.desktop.domain.entity.login.Login;
 import ru.kidesoft.desktop.domain.entity.profile.Cashier;
 import ru.kidesoft.desktop.domain.entity.profile.Profile;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.exception.AppExceptionType;
+import ru.kidesoft.desktop.domain.exception.DbException;
 
 import java.util.List;
 
@@ -19,32 +21,32 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final LoginRepository loginRepository;
     private final Logger logger = LogManager.getLogger(ProfileService.class);
+    private final LoginService loginService;
     ConfigurableApplicationContext applicationContext;
     @Autowired
-    public ProfileService(ConfigurableApplicationContext applicationContext, ProfileRepository profileRepository, LoginRepository loginRepository) {
+    public ProfileService(ConfigurableApplicationContext applicationContext, ProfileRepository profileRepository, LoginRepository loginRepository, LoginService loginService) {
         this.applicationContext = applicationContext;
         this.profileRepository = profileRepository;
         this.loginRepository = loginRepository;
+        this.loginService = loginService;
     }
 
-    public Profile getProfile() throws AppException {
-        var login = loginRepository.findCurrentLogin().orElseThrow(
-                () -> {
-                    logger.error("Не удалось получить id текущего пользователя");
-                    return new AppException("Не удалось получить текущего пользователя", AppExceptionType.DbExceptionType);
-                }
-        );
-
+    public Profile getByLogin(Login login) throws AppException {
         var profile = profileRepository.findByLogin(login).orElseThrow(
                 () -> {
                     logger.error("Не удалось получить профиль текущего пользователя {}", login.getId());
-                    return new AppException("Не удалось получить профиль текущего пользователя", AppExceptionType.DbExceptionType);
+                    return new DbException("Не удалось получить профиль текущего пользователя");
                 }
         );
 
         logger.info("Получен профиль пользователя {}", profile.getId());
 
         return profile;
+    }
+
+    public Profile getCurrentProfile() throws AppException {
+        var login = loginService.getCurrentLogin();
+        return getByLogin(login);
     }
 
     public List<Cashier> getCashier() throws AppException {
