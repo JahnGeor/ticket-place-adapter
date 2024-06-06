@@ -13,13 +13,12 @@ import org.kordamp.ikonli.fluentui.FluentUiRegularMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
+import ru.kidesoft.desktop.ApplicationConfiguration;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.AuthUiDto;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.CashierUiDto;
-import ru.kidesoft.desktop.domain.AppConfiguration;
 import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
 import ru.kidesoft.desktop.domain.entity.login.Login;
 import ru.kidesoft.desktop.domain.exception.AppException;
@@ -130,7 +129,7 @@ public class AuthController extends Controller<AuthUiDto> {
         var urlList = FXCollections.observableArrayList(viewDto.getLogin().stream().map(Login::getUrl).distinct().toList());
 
         if (urlList.isEmpty()) {
-            urlList.add(context.getBean(AppConfiguration.class).getDefaultUrl());
+            urlList.add(context.getBean(ApplicationConfiguration.class).getDefaultUrl());
         }
 
         urlBox.setItems(urlList);

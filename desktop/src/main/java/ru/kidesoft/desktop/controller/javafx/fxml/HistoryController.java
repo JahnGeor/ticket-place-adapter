@@ -1,37 +1,26 @@
 package ru.kidesoft.desktop.controller.javafx.fxml;
 
-import atlantafx.base.controls.RingProgressIndicator;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.dto.HistoryUiDto;
 import ru.kidesoft.desktop.controller.javafx.dto.HistoryUiDtoList;
-import ru.kidesoft.desktop.domain.entity.history.History;
-import ru.kidesoft.desktop.domain.entity.history.StatusType;
-import ru.kidesoft.desktop.domain.entity.order.OperationType;
-import ru.kidesoft.desktop.domain.entity.order.SourceType;
+import ru.kidesoft.desktop.controller.javafx.fxml.progress.Progress;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.PrinterService;
 import ru.kidesoft.desktop.domain.service.entities.HistoryService;
 
 import java.net.URL;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -170,31 +159,49 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
 
     public void printSelected(ActionEvent event) {
 
-        var printServiceTask = new Service<Integer>() {
+        var printServiceTask = new Service<String>() {
             @Override
-            protected Task<Integer> createTask() {
+            protected Task<String> createTask() {
+
+                var list = historyTable.getItems().stream().filter(
+                        historyUiDto -> historyUiDto.getCheck().getValue()
+                ).map(HistoryUiDto::getHistory).distinct().toList();
+
+                Integer size = list.size();
+
+
+
                 return new Task<>() {
 
 
                     @Override
-                    protected Integer call() throws Exception {
+                    protected String call() throws Exception {
+                        updateProgress(0, size);
 
-                        AtomicInteger progress = new AtomicInteger();
+                        updateTitle("Печать...");
 
-                        var list = historyTable.getItems().stream().filter(historyUiDto -> historyUiDto.getCheck().getValue()).toList();
+                        AtomicInteger progress = new AtomicInteger(0);
 
-                        list.forEach(
-                                historyUiDto -> {
-                                    try {
-                                        printerService.print(historyUiDto.getHistory().getOrderId(), historyUiDto.getHistory().getSourceType(), historyUiDto.getHistory().getOperationType());
-                                    } catch (AppException ignored) {
+                        for (var i = 0; i < list.size() + 1; i++) {
+                            try {
+                                var history = list.get(i);
+                                printerService.print(history.getOrderId(), history.getSourceType(), history.getOperationType());
+                                progress.set(progress.get() + 1);
+                                updateValue("Успешно: " + progress.get());
+                            } catch (Throwable ignored) {
 
-                                    } finally {
-                                        updateValue(getValue() + 1);
-                                        updateProgress(progress.addAndGet(1), list.size());
-                                    }
-                                }
-                        );
+                            } finally {
+                                updateMessage("Завершено: " + progress.get() + " из " + size);
+                                updateProgress(progress.get(), size);
+                            }
+                        }
+
+                        if (progress.get() == size) {
+                            updateTitle("Успешно завершено");
+                        } else {
+                            updateTitle("Завершено с ошибками");
+                        }
+
 
                         return getValue();
                     }
@@ -202,38 +209,33 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
             }
         };
 
-        Stage stage = new Stage();
-        var progress = new ProgressIndicator(0);
 
-        progress.progressProperty().bind(printServiceTask.progressProperty());
 
-        var box = new VBox();
-        box.setAlignment(Pos.CENTER);
-        box.setFillWidth(true);
-        box.getChildren().add(progress);
-
-        stage.setScene(new Scene(box));
+        var progressStage = context.getBean(Progress.class)
+                .bindProgressProperty(printServiceTask.progressProperty())
+                .bindValueProperty(printServiceTask.valueProperty())
+                .bindTitleProperty(printServiceTask.titleProperty())
+                .bindMessageProperty(printServiceTask.messageProperty());
 
         printServiceTask.stateProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.SUCCEEDED) {
-                        stage.close();
+                        progressStage.showButton();
                     }
 
                     if (newValue == Worker.State.FAILED) {
-                        stage.close();
+                        progressStage.showButton();
                     }
 
                     if (newValue == Worker.State.CANCELLED) {
-                        stage.close();
+                        progressStage.showButton();
                     }
 
                     if (newValue == Worker.State.RUNNING) {
-                        stage.show();
+                        progressStage.start();
                     }
                 }
         );
-
 
         printServiceTask.start();
 

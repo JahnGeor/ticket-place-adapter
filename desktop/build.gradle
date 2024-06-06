@@ -22,6 +22,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.controlsfx:controlsfx:11.2.1'
     implementation fileTree(dir: 'libs', include: '*.jar')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'

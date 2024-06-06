@@ -1,5 +1,6 @@
 package ru.kidesoft.desktop.controller.javafx.events.manager;
 
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -11,6 +12,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxWeaver;
+import org.controlsfx.control.Notifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -120,4 +122,24 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
 
         alert.showAndWait();
     }
-}
+
+    public void showNotification(AppException e) {
+        var notification = Notifications.create().position(Pos.BOTTOM_RIGHT).text(e.getMessage());
+
+        if (e instanceof DbException) {
+            notification.title("Внутренняя ошибка базы данных");
+        } else if(e instanceof KktException) {
+            notification.title("Внутренняя ошибка ККТ");
+        } else if (e instanceof ApiException) {
+            notification.title("Ошибка обращения к удаленному серверу");
+        } else {
+            notification.title("Неизвестная ошибка");
+        }
+
+
+        notification.show();
+
+    }
+
+    }
+

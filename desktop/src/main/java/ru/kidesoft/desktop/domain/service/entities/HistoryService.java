@@ -22,6 +22,7 @@ public class HistoryService {
     }
 
     public void saveHistory(History history) throws AppException {
+
         historyRepository.findHistoryByLoginAndOrderId(history.getLogin(), history.getOrderId()).ifPresent(
                 (historyExists) -> {
                     history.setId(historyExists.getId());

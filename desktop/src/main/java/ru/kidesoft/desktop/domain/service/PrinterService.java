@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
+import ru.kidesoft.desktop.domain.dao.database.HistoryRepository;
 import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
 import ru.kidesoft.desktop.domain.dao.database.SessionRepository;
 import ru.kidesoft.desktop.domain.dao.kkt.KktOperator;
@@ -14,10 +15,9 @@ import ru.kidesoft.desktop.domain.entity.history.History;
 import ru.kidesoft.desktop.domain.entity.history.StatusType;
 import ru.kidesoft.desktop.domain.entity.order.OperationType;
 import ru.kidesoft.desktop.domain.entity.order.Order;
+import ru.kidesoft.desktop.domain.entity.order.PrintType;
 import ru.kidesoft.desktop.domain.entity.order.SourceType;
-import ru.kidesoft.desktop.domain.exception.ApiException;
-import ru.kidesoft.desktop.domain.exception.AppException;
-import ru.kidesoft.desktop.domain.exception.AppExceptionType;
+import ru.kidesoft.desktop.domain.exception.*;
 import ru.kidesoft.desktop.domain.service.entities.*;
 import ru.kidesoft.desktop.repository.api.ApiRepositoryFactoryImpl;
 
@@ -35,10 +35,12 @@ public class PrinterService {
     private final HistoryService historyService;
     ConfigurableApplicationContext applicationContext;
     private final LoginRepository loginRepository;
+    private final HistoryRepository historyRepository;
 
     @Autowired
     public PrinterService(ConfigurableApplicationContext applicationContext, ApiRepositoryFactoryImpl apiRepositoryFactoryImpl, ProfileService profileService, SettingService settingService,
-                          LoginRepository loginRepository, SessionRepository sessionRepository, LoginService loginService, SessionService sessionService, KktRepository kktRepository, PrinterRepository printerRepository, HistoryService historyService) {
+                          LoginRepository loginRepository, SessionRepository sessionRepository, LoginService loginService, SessionService sessionService, KktRepository kktRepository, PrinterRepository printerRepository, HistoryService historyService,
+                          HistoryRepository historyRepository) {
         this.applicationContext = applicationContext;
         this.apiRepositoryFactoryImpl = apiRepositoryFactoryImpl;
         this.profileService = profileService;
@@ -50,61 +52,64 @@ public class PrinterService {
         this.kktRepository = kktRepository;
         this.printerRepository = printerRepository;
         this.historyService = historyService;
+        this.historyRepository = historyRepository;
+    }
+
+    public void processPrint(int orderId, SourceType sourceType, OperationType operationType) throws AppException {
+        var login = loginService.getCurrentLogin();
+
+        logger.info("Печать чека с orderId: {} sourceType: {} operationType: {}", orderId, sourceType, operationType);
+
+
+        var setting = settingService.getByLogin(login);
+        var session = sessionService.getByLogin(login);
+        var profile = profileService.getByLogin(login);
+
+        var operator = KktOperator.builder()
+                .fullName(profile.getFullname())
+                .inn(profile.getInn())
+                .build();
+
+
+        var order = apiRepositoryFactoryImpl
+                .setHost(login.getUrl())
+                .setTimeout(setting.getServerRequestTimeout())
+                .setToken(session.getAccessToken())
+                .setTokenType(session.getTokenType())
+                .build().Order(orderId, sourceType);
+
+        logger.info("Получен заказ с id {} из ресурса с типом {}", orderId, sourceType);
+
+        if (setting.getPrintCheck()) {
+            var orderForCheck = order.toBuilder().buildFor(PrintType.CHECK);
+            kktRepository.setOperator(operator).print(orderForCheck, operationType);
+            logger.info("Печать чека завершена");
+        }
+
+        if (setting.getPrintTicket()) {
+            var orderForTicket = order.toBuilder().buildFor(PrintType.TICKET);
+            printerRepository.print(orderForTicket);
+            logger.info("Печать билета завершена");
+        }
+
     }
 
     public void print(int orderId, SourceType sourceType, OperationType operationType) throws AppException {
-        var login = loginService.getCurrentLogin();
-
-        var historyBuilder = History.builder().orderId(orderId).sourceType(sourceType).operationType(operationType).login(login);
+        var historyBuilder = History.builder().orderId(orderId).sourceType(sourceType).operationType(operationType);
 
         try {
-            logger.info("Печать чека с orderId: {} sourceType: {} operationType: {}", orderId, sourceType, operationType);
-
-
-            var setting = settingService.getByLogin(login);
-            var session = sessionService.getByLogin(login);
-            var profile = profileService.getByLogin(login);
-
-            var operator = KktOperator.builder()
-                    .fullName(profile.getFullname())
-                    .inn(profile.getInn())
-                    .build();
-
-
-            var order = apiRepositoryFactoryImpl
-                    .setHost(login.getUrl())
-                    .setTimeout(setting.getServerRequestTimeout())
-                    .setToken(session.getAccessToken())
-                    .setTokenType(session.getTokenType())
-                    .build().Order(orderId, sourceType);
-
-            logger.info("Получен заказ с id {} из ресурса с типом {}", orderId, sourceType);
-
-            if (order == null || order.getTickets().isEmpty()) {
-                logger.warn("В заказе с id {} из ресурса с типом {} нет билетов", orderId, sourceType);
-                return;
-                // TODO: show notification
-            }
-
-            // TODO: Проверка на печать чека
-            if (setting.getPrintCheck()) {
-                // TODO: Проверка на бизнес-правила
-                kktRepository.setOperator(operator).print(order, operationType);
-                logger.info("Печать чека завершена");
-            }
-
-            if (setting.getPrintTicket()) {
-                // TODO: Проверка на бизнес-правила печати билета
-                printerRepository.print(order);
-                logger.info("Печать билета завершена");
-            }
-
+            processPrint(orderId, sourceType, operationType);
             historyBuilder.statusType(StatusType.SUCCESS).error(null);
-        } catch (Exception e) {
-            logger.error("Не удалось выполнить печать чека", e);
-            historyBuilder.statusType(StatusType.ERROR).error(e.getMessage());
+        } catch (BusinessRulesException e) {
+            historyBuilder.statusType(StatusType.SUCCESS).error(e.getMessage());
+            logger.warn("Чек не печатается в следствии бизнес-правил", e);
+            throw e;
+        } catch (AppException ex) {
+            historyBuilder.statusType(StatusType.ERROR).error(ex.getMessage());
+            logger.error("Не удалось выполнить печать чека", ex);
+            throw ex;
         } finally {
-            historyService.saveHistory(historyBuilder.build());
+            historyService.saveByCurrentLogin(historyBuilder.build());
         }
 
         // TODO: Запись в таблицу истории

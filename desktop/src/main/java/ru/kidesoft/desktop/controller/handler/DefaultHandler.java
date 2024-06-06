@@ -9,14 +9,17 @@ import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
 import ru.kidesoft.desktop.domain.exception.KktException;
 import ru.atol.drivers10.fptr.Fptr;
 import ru.atol.drivers10.fptr.IFptr;
+import ru.kidesoft.desktop.domain.service.KktService;
 
 @Component("defaultHandler")
 public class DefaultHandler implements Handler {
+    private final KktService kktService;
     ConfigurableApplicationContext applicationContext;
 
     @Autowired
-    public DefaultHandler(ConfigurableApplicationContext applicationContext) {
+    public DefaultHandler(ConfigurableApplicationContext applicationContext, KktService kktService, KktService kktService) {
         this.applicationContext = applicationContext;
+        this.kktService = kktService;
     }
 
     private final Logger logger = LogManager.getLogger(DefaultHandler.class);
@@ -30,14 +33,12 @@ public class DefaultHandler implements Handler {
     }
 
     private void KktHandle(KktException e) {
-        logger.trace("{} - {} - {}", "KKT", e.getCode(), e.getMessage());
+        applicationContext.getBean(StageManager.class).showNotification(e);
 
         switch (e.getCode()) {
-            default: applicationContext.getBean(StageManager.class).showError(e);
+            case IFptr.LIBFPTR_ERROR_DENIED_IN_OPENED_RECEIPT -> {
+
+            }
         }
-
-
-
-
     }
 }

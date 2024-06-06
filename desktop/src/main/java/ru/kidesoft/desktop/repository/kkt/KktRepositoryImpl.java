@@ -22,16 +22,9 @@ public class KktRepositoryImpl implements KktRepository {
 
     private IFptr fptr;
 
-    public KktRepositoryImpl() {
-//        this.fptr = new Fptr();
-    }
+    public KktRepositoryImpl() {}
 
-    public IFptr getFptr() throws KktException {
-        if (fptr == null) {
-            throw new KktException("KKT driver not initialized");
-        }
-        return fptr;
-    }
+
 
 
     @Override
