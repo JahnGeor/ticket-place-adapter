@@ -12,10 +12,14 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import ru.kidesoft.desktop.controller.handler.Handler;
+import ru.kidesoft.desktop.controller.handler.HandlerManager;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.dto.HistoryUiDto;
 import ru.kidesoft.desktop.controller.javafx.dto.HistoryUiDtoList;
+import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
 import ru.kidesoft.desktop.controller.javafx.fxml.progress.Progress;
+import ru.kidesoft.desktop.domain.entity.history.StatusType;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.PrinterService;
 import ru.kidesoft.desktop.domain.service.entities.HistoryService;
@@ -30,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class HistoryController extends Controller<HistoryUiDtoList> {
     private final HistoryService historyService;
     private final PrinterService printerService;
+    private final HandlerManager handlerManager;
     @FXML
     private TableColumn<HistoryUiDto, Boolean> checkCol;
 
@@ -63,12 +68,15 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
     @FXML
     private TableColumn<HistoryUiDto, String> statusTypeCol;
 
+    @FXML private MenuButton filterMenuButton;
+
 
     @Autowired
-    public HistoryController(ConfigurableApplicationContext context, HistoryService historyService, PrinterService printerService) {
+    public HistoryController(ConfigurableApplicationContext context, HistoryService historyService, PrinterService printerService, HandlerManager handlerManager) {
         super(context);
         this.historyService = historyService;
         this.printerService = printerService;
+        this.handlerManager = handlerManager;
     }
 
     @FXML
@@ -135,29 +143,51 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
         printCheckLabel.setGraphic(new CheckBox());
         printTicketLabel.setGraphic(new CheckBox());
 
-        printButton.setOnAction(this::printSelected);
+        printButton.setOnAction(eventAction -> handlerManager.handle(eventAction, this::printSelected));
+
+        Menu filterByStatus = new Menu("Фильтр по статусу");
+
+        MenuItem filterByStatusAll = new MenuItem("Все");
+        MenuItem filterByStatusSuccess = new MenuItem(StatusType.SUCCESS.getDescription());
+        MenuItem filterByStatusError = new MenuItem(StatusType.ERROR.getDescription());
+
+        filterByStatus.getItems().addAll(filterByStatusAll, filterByStatusSuccess, filterByStatusError);
+
+        filterMenuButton.getItems().add(filterByStatus);
+
+        init();
+
+
+    }
+
+    public Void init() {
         try {
             var listDto = new HistoryUiDtoList();
-
             var list = historyService.getListByLogin();
-
             list.forEach(history -> listDto.list.add(HistoryUiDto.builder().history(history).check(new SimpleBooleanProperty(false)).build()));
-
             updateView(listDto);
-        } catch (AppException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
+        return null;
     }
 
     @Override
     public void updateView(HistoryUiDtoList viewDto) {
-
-
+        ((CheckBox) this.checkCol.getGraphic()).setSelected(false);
         historyTable.setItems(viewDto.list);
     }
 
-    public void printSelected(ActionEvent event) {
+    public void printSelected(ActionEvent event) throws AppException {
+
+        if (historyTable.getItems().stream().noneMatch(
+                historyUiDto -> historyUiDto.getCheck().getValue()
+        )) {
+            context.getBean(StageManager.class).showWarning("Отсутствуют объекты для печати", "Пожалуйста, выберите объекты для печати и повторите попытку");
+            return;
+        }
+
 
         var printServiceTask = new Service<String>() {
             @Override
@@ -182,17 +212,18 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
 
                         AtomicInteger progress = new AtomicInteger(0);
 
-                        for (var i = 0; i < list.size() + 1; i++) {
+                        for (var i = 0; i < list.size(); i++) {
                             try {
                                 var history = list.get(i);
                                 printerService.print(history.getOrderId(), history.getSourceType(), history.getOperationType());
                                 progress.set(progress.get() + 1);
-                                updateValue("Успешно: " + progress.get());
+
                             } catch (Throwable ignored) {
 
                             } finally {
-                                updateMessage("Завершено: " + progress.get() + " из " + size);
-                                updateProgress(progress.get(), size);
+                                updateMessage("Завершено: " + (i+1) + " из " + size);
+                                updateProgress(i+1, size);
+                                updateValue("Успешно: " + progress.get());
                             }
                         }
 
@@ -217,6 +248,8 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
                 .bindTitleProperty(printServiceTask.titleProperty())
                 .bindMessageProperty(printServiceTask.messageProperty());
 
+
+
         printServiceTask.stateProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue == Worker.State.SUCCEEDED) {
@@ -238,6 +271,11 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
         );
 
         printServiceTask.start();
+        progressStage.getStage().showingProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                handlerManager.handle(this::init);
+            }
+        });
 
 
 

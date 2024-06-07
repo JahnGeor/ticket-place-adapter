@@ -8,11 +8,9 @@ import java.time.ZonedDateTime;
 
 @Repository
 public interface KktSystem {
-    void cancelReceipt();
     boolean isConnectionOpened() throws KktException;
-    KktRepository openConnection() throws KktException;
-    KktRepository closeConnection() throws KktException;
-    KktRepository setOperator(KktOperator kktOperator) throws KktException;
-    KktRepository setCurrentTime(ZonedDateTime zonedDateTime) throws KktException;
+    KktSystem setOperator(KktOperator kktOperator) throws KktException;
+    KktSystem setCurrentTime(ZonedDateTime zonedDateTime) throws KktException;
     State getCurrentShiftState() throws KktException;
+    KktPrinter getPrinter() throws KktException;
 }

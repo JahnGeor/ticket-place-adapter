@@ -11,6 +11,7 @@ import javax.xml.transform.Source;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Builder(toBuilder = true)
 @Data
@@ -54,18 +55,23 @@ public class Order {
         public OrderBuilder removeByPaymentType() throws BusinessRulesException {
             return switch (this.paymentType) {
                 case CASH, CARD, ACCOUNT_INDIVIDUAL -> this;
-                default -> throw new BusinessRulesException("Неизвестный тип оплаты");
+                default -> throw new BusinessRulesException(String.format("Тип оплаты \"%s\" не обрабатывается", this.paymentType.getDescription()));
             };
         }
 
         public OrderBuilder removeByPrintType(PrintType printType) throws BusinessRulesException{
+            var statusDescription = this.tickets.stream().map(ticket -> ticket.getStatus().getDescription()).distinct().collect(Collectors.joining(", "));
 
             switch (printType) {
-                case CHECK -> this.tickets.removeIf(ticket -> ticket.getStatus() == StatusType.PAYED || ticket.getStatus() == StatusType.RETURNED);
-                case TICKET -> this.tickets.removeIf(ticket -> ticket.getStatus() != StatusType.PAYED && ticket.getStatus() != StatusType.RETURNED);
+                case CHECK -> this.tickets.removeIf(ticket -> ticket.getStatus() != StatusType.PAYED && ticket.getStatus() != StatusType.RETURNED);
+                case TICKET -> this.tickets.removeIf(ticket -> ticket.getStatus() != StatusType.PAYED && ticket.getStatus() != StatusType.CREATED);
                 default -> {
                     throw new BusinessRulesException("Неизвестный тип печати");
                 }
+            }
+
+            if (this.tickets.isEmpty()) {
+                throw new BusinessRulesException(String.format("После обработки по статусу не осталось позиций. Набор позиций до удаления: \"%s\"", statusDescription));
             }
 
             return this;

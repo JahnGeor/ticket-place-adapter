@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Controller;
+import ru.kidesoft.desktop.controller.handler.DefaultHandler;
 import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.fxml.main.MainView;
 import ru.kidesoft.desktop.domain.exception.AppException;
@@ -28,7 +29,7 @@ public class StartSessionManager implements ApplicationListener<StartSessionEven
         try {
             kktService.initialize();
         } catch (AppException e) {
-            context.getBean(StageManager.class).showError(e);
+            context.getBean(DefaultHandler.class).handle(e);
         }
         finally {
             context.getBean(StageManager.class).show(MainView.class);

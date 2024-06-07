@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
+import ru.kidesoft.desktop.ApplicationConfiguration;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.dto.AboutUiDto;
 
@@ -19,27 +20,25 @@ import java.util.ResourceBundle;
 @org.springframework.stereotype.Controller
 public class AboutController extends Controller<AboutUiDto> {
 
-    @Value("${spring.application.logo}")
-    private Resource logoImageResource;
-    @Value("${app.version}")
-    private String version;
+    ApplicationConfiguration applicationConfiguration;
 
 
     @Autowired
-    public AboutController(ConfigurableApplicationContext context) {
+    public AboutController(ConfigurableApplicationContext context, ApplicationConfiguration applicationConfiguration) {
         super(context);
+        this.applicationConfiguration = applicationConfiguration;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         try {
-            logoImage.setImage(new Image(logoImageResource.getURL().toString()));
+            logoImage.setImage(applicationConfiguration.getLogo());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        versionLabel.setText("Версия приложения: " + version);
+        versionLabel.setText("Версия приложения: " + applicationConfiguration.getVersion());
         versionLabel.setStyle("-fx-text-fill: #6E62E5");
     }
 
@@ -51,6 +50,6 @@ public class AboutController extends Controller<AboutUiDto> {
 
     @Override
     public void updateView(AboutUiDto viewDto) {
-        versionLabel.setText("Версия приложения: " + viewDto.getVersion()); // DEPRECATED: ?
+
     }
 }

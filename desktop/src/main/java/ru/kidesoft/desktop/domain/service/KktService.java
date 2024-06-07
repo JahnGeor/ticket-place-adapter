@@ -3,14 +3,13 @@ package ru.kidesoft.desktop.domain.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
 import ru.kidesoft.desktop.domain.dao.database.ProfileRepository;
 import ru.kidesoft.desktop.domain.dao.database.SettingRepository;
-import ru.kidesoft.desktop.domain.dao.kkt.KktOperator;
-import ru.kidesoft.desktop.domain.dao.kkt.KktRepository;
-import ru.kidesoft.desktop.domain.dao.kkt.KktSetting;
+import ru.kidesoft.desktop.domain.dao.kkt.*;
 import ru.kidesoft.desktop.domain.entity.State;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.exception.AppExceptionType;
@@ -27,15 +26,19 @@ public class KktService {
     private final SettingRepository settingRepository;
     private final LoginRepository loginRepository;
     private final ProfileService profileService;
+    private final KktSystem kktSystem;
+    private final KktPrinter kktPrinter;
 
     @Autowired
-    public KktService(ConfigurableApplicationContext applicationContext, KktRepository kktRepository, ProfileRepository profileRepository, SettingRepository settingRepository, LoginRepository loginRepository, ProfileService profileService) {
+    public KktService(ConfigurableApplicationContext applicationContext, KktRepository kktRepository, ProfileRepository profileRepository, SettingRepository settingRepository, LoginRepository loginRepository, ProfileService profileService, KktSystem kktSystem, KktPrinter kktPrinter) {
         this.applicationContext = applicationContext;
         this.kktRepository = kktRepository;
         this.profileRepository = profileRepository;
         this.settingRepository = settingRepository;
         this.loginRepository = loginRepository;
         this.profileService = profileService;
+        this.kktSystem = kktSystem;
+        this.kktPrinter = kktPrinter;
     }
 
     public void initialize() throws AppException {
@@ -53,9 +56,9 @@ public class KktService {
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
         var kktSetting = KktSetting.builder().autoReconnect(setting.getKktAutoReconnect()).path(setting.getKktDriverPath()).build();
 
-        kktRepository.setConnection(kktSetting).openConnection().setOperator(operator);
+        kktRepository.setConnection(kktSetting).openConnection();
 
-        var state = kktRepository.getCurrentShiftState();
+        var state = kktSystem.getCurrentShiftState();
 
 
         // TODO: > Проверка имени и инн последнего чека
@@ -63,11 +66,11 @@ public class KktService {
         if (
                 state.equals(State.EXPIRED)
         ) {
-            kktRepository.closeShift();
+            kktSystem.setOperator(operator).getPrinter().closeShift();
         } else if (
                 state.equals(State.CLOSED)
         ) {
-            kktRepository.openShift();
+            kktSystem.setOperator(operator).getPrinter().openShift();
         }
     }
 
@@ -82,7 +85,7 @@ public class KktService {
 
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
 
-        kktRepository.setOperator(operator).openShift();
+        kktSystem.setOperator(operator).getPrinter().openShift();
     }
 
     public void closeShift() throws AppException {
@@ -96,7 +99,7 @@ public class KktService {
 
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
 
-        kktRepository.setOperator(operator).closeShift();
+        kktSystem.setOperator(operator).getPrinter().closeShift();
     }
 
     public State switchShift() throws AppException {
@@ -110,30 +113,30 @@ public class KktService {
 
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
 
-        State state = kktRepository.getCurrentShiftState();
+        State state = kktSystem.getCurrentShiftState();
 
         switch (state) {
             case OPENED:
-                kktRepository.setOperator(operator).closeShift();
+                kktSystem.setOperator(operator).getPrinter().closeShift();
                 break;
             case CLOSED:
-                kktRepository.setOperator(operator).openShift();
+                kktSystem.setOperator(operator).getPrinter().openShift();
                 break;
             case EXPIRED:
-                kktRepository.setOperator(operator).closeShift();
-                kktRepository.setOperator(operator).openShift();
+                kktSystem.setOperator(operator).getPrinter().closeShift();
+                kktSystem.setOperator(operator).getPrinter().openShift();
                 break;
             default:
                 logger.error("Неизвестное состояние смены ККТ: {}", state);
                 throw new DbException("Неизвестное состояние смены ККТ");
         }
 
-        return kktRepository.getCurrentShiftState();
+        return kktSystem.getCurrentShiftState();
     }
 
     public State getShiftState() throws AppException {
         try {
-            var state = kktRepository.getCurrentShiftState();
+            var state = kktSystem.getCurrentShiftState();
             logger.info("Запрос состояния ККТ: {}", state);
             return state;
         } catch (Exception e) {
@@ -144,7 +147,7 @@ public class KktService {
     }
 
     public boolean isConnectionOpened() throws AppException {
-        var status = kktRepository.isConnectionOpened();
+        var status = kktSystem.isConnectionOpened();
 
         logger.info("Статус подключения ККТ: {}", status);
 
@@ -154,21 +157,28 @@ public class KktService {
     public void printLastCheck() throws AppException {
         var profile = profileService.getCurrentProfile();
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
-        kktRepository.setOperator(operator).printLastReceipt();
+        kktSystem.setOperator(operator).getPrinter().printLastReceipt();
         logger.info("Печать последнего чека, оператор: {}", profile.getLogin().getId());
     }
 
     public void printXReport() throws AppException {
         var profile = profileService.getCurrentProfile();
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
-        kktRepository.setOperator(operator).printXReport();
+        kktSystem.setOperator(operator).getPrinter().printXReport();
         logger.info("Печать X-отчета, id профиля: {}", profile.getLogin().getId());
     }
 
     public void cashIncome(float income) throws AppException {
         var profile = profileService.getCurrentProfile();
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
-        kktRepository.setOperator(operator).income(income);
+        kktSystem.setOperator(operator).getPrinter().income(income);
         logger.info("Внесение наличных средств в размере {} рублей, id профиля: {}", income, profile.getLogin().getId());
+    }
+
+    public void cancelReceipt() throws AppException {
+        var profile = profileService.getCurrentProfile();
+        var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
+        kktSystem.setOperator(operator).getPrinter().cancelReceipt();
+        logger.info("Отмена чека, id пользователя: {}", profile.getLogin().getId());
     }
 }

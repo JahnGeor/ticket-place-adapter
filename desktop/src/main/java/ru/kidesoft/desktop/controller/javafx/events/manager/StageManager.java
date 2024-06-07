@@ -138,7 +138,28 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
 
 
         notification.show();
+    }
 
+    public void showNotification(String header, String text) {
+        Notifications.create().position(Pos.BOTTOM_RIGHT).text(text).title(header).show();
+    }
+
+    public void showWarning(String header, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING, "Предупреждение", ButtonType.OK);
+
+        alert.setTitle("Предупреждение");
+
+        alert.initModality(Modality.APPLICATION_MODAL);
+        alert.setHeaderText(header);
+        alert.setContentText(message);
+
+        try {
+            ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image(logoImage.getURL().toString()));
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+
+        alert.showAndWait();
     }
 
     }

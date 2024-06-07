@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
+import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.exception.KktException;
 import ru.atol.drivers10.fptr.Fptr;
 import ru.atol.drivers10.fptr.IFptr;
@@ -17,7 +18,7 @@ public class DefaultHandler implements Handler {
     ConfigurableApplicationContext applicationContext;
 
     @Autowired
-    public DefaultHandler(ConfigurableApplicationContext applicationContext, KktService kktService, KktService kktService) {
+    public DefaultHandler(ConfigurableApplicationContext applicationContext, KktService kktService) {
         this.applicationContext = applicationContext;
         this.kktService = kktService;
     }
@@ -25,20 +26,28 @@ public class DefaultHandler implements Handler {
     private final Logger logger = LogManager.getLogger(DefaultHandler.class);
     @Override
     public void handle(Throwable e) {
-        if (e.getCause() instanceof KktException kkt) {
-            KktHandle(kkt);
-        } else {
-            logger.error(e.getMessage(), e);
+
+        if (e instanceof RuntimeException appException) {
+            e = appException.getCause();
+        }
+
+        try {
+            if (e instanceof KktException kkt) {
+                KktHandle(kkt);
+            } else {
+                logger.error(e.getMessage(), e);
+            }
+        } catch (AppException ex) {
+            applicationContext.getBean(StageManager.class).showError(ex);
         }
     }
 
-    private void KktHandle(KktException e) {
+    private void KktHandle(KktException e) throws AppException {
         applicationContext.getBean(StageManager.class).showNotification(e);
 
-        switch (e.getCode()) {
-            case IFptr.LIBFPTR_ERROR_DENIED_IN_OPENED_RECEIPT -> {
-
-            }
+        if (e.getCode() == IFptr.LIBFPTR_ERROR_DENIED_IN_OPENED_RECEIPT) {
+            kktService.cancelReceipt();
+            applicationContext.getBean(StageManager.class).showNotification("Незакрытый чек был отменен", "Уведомление");
         }
     }
 }

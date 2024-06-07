@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ public class Progress {
 
     private ConfigurableApplicationContext context;
 
+    @Getter
     private Stage stage;
     private Node parent;
     private ProgressBar progressBar;

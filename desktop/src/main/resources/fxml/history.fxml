@@ -4,6 +4,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -22,16 +23,22 @@
                   <TableColumn fx:id="statusTypeCol" prefWidth="100.0" text="Статус" />
                   <TableColumn fx:id="operationTypeCol" minWidth="8.0" prefWidth="100.0" text="Тип операции" />
                   <TableColumn fx:id="sourceCol" minWidth="0.0" prefWidth="100.0" text="Источник" />
-                  <TableColumn fx:id="errorCol" prefWidth="500.0" text="Ошибка" />
+                  <TableColumn fx:id="errorCol" prefWidth="500.0" text="Описание" />
               </columns>
             </TableView>
          </center>
          <bottom>
-            <HBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" spacing="20.0" BorderPane.alignment="CENTER">
                <padding>
                   <Insets bottom="10.0" top="5.0" />
                </padding>
                <children>
+                  <InputGroup>
+                     <children>
+                        <Label fx:id="onlyErrorFilterLabel" minHeight="32.0" prefHeight="32.0" text="Фильтры" />
+                        <MenuButton fx:id="filterMenuButton" mnemonicParsing="false" text="Выберите фильтр" />
+                     </children>
+                  </InputGroup>
                   <InputGroup>
                      <children>
                         <Label fx:id="printCheckLabel" text="Чек" />
