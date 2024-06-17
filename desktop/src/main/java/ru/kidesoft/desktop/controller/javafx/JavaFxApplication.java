@@ -15,20 +15,23 @@ public class JavaFxApplication extends Application {
     public ConfigurableApplicationContext context;
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         String[] args = getParameters().getRaw().toArray(new String[0]);
         context = new SpringApplicationBuilder().sources(DesktopApplication.class).run(args);
-        Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
+        //Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
+
+        var styleSheets = "/assets/css/cupertino-light.css";
+        Application.setUserAgentStylesheet(styleSheets);
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         context.close();
         Platform.exit();
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         context.publishEvent(new StageReadyEvent(stage));
     }
 }

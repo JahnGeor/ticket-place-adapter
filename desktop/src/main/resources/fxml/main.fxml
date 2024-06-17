@@ -44,7 +44,7 @@
                         <Spacer />
                         <Button fx:id="printXReport" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                         <Spacer />
-                        <Button fx:id="diagnosticButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
+                        <Button fx:id="listenerButton" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button" />
                      </children>
                   </HBox>
                   <InputGroup maxHeight="40.0" maxWidth="270.0" minHeight="40.0" minWidth="270.0" prefHeight="40.0" prefWidth="270.0">

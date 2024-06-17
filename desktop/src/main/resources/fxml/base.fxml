@@ -22,7 +22,8 @@
                <items>
               <MenuItem fx:id="historyMenuItem" mnemonicParsing="false" onAction="#openHistory" text="История печати" />
                   <MenuItem fx:id="adminMenuItem" mnemonicParsing="false" onAction="#openAdmin" text="Дополнительные возможности" />
-                  <MenuItem fx:id="syncKktMenuItem" mnemonicParsing="false" onAction="#syncKkt" text="Синхронизировать время ККТ" />
+                  <MenuItem fx:id="syncKktMenuItem" mnemonicParsing="false" text="Синхронизировать время ККТ" />
+                  <MenuItem fx:id="diagnosticMenuItem" mnemonicParsing="false" text="Диагностика" />
                </items>
           </Menu>
           <Menu fx:id="helpMenu" mnemonicParsing="false" text="Помощь">

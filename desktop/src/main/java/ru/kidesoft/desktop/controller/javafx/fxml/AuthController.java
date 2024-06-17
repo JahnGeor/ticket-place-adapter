@@ -15,12 +15,15 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.kidesoft.desktop.ApplicationConfiguration;
+import ru.kidesoft.desktop.controller.handler.HandlerManager;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.AuthUiDto;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.CashierUiDto;
 import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
+import ru.kidesoft.desktop.domain.dao.kkt.KktOperator;
 import ru.kidesoft.desktop.domain.entity.login.Login;
+import ru.kidesoft.desktop.domain.entity.profile.Cashier;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.AuthService;
 import ru.kidesoft.desktop.domain.service.KktService;
@@ -48,17 +51,17 @@ public class AuthController extends Controller<AuthUiDto> {
         this.loginRepository = loginRepository1;
     }
 
-    public static StringConverter<CashierUiDto> cashierConverter = new StringConverter<CashierUiDto>() {
+    public static StringConverter<Cashier> cashierConverter = new StringConverter<Cashier>() {
 
         @Override
-        public String toString(CashierUiDto cashierDto) {
+        public String toString(Cashier cashierDto) {
             if (cashierDto == null) {
                 return null;
             } else return String.format("%s : %s", cashierDto.getFullName(), cashierDto.getInn());
         }
 
         @Override
-        public CashierUiDto fromString(String s) {
+        public Cashier fromString(String s) {
             return null;
         }
     };
@@ -68,7 +71,12 @@ public class AuthController extends Controller<AuthUiDto> {
         try {
             var cashierList = profileService.getCashier();
             var loginList = loginRepository.findAll();
+
+            shiftButton.setOnAction(event -> context.getBean(HandlerManager.class).handle(event, this::shiftAction));
+            printLastButton.setOnAction(event -> context.getBean(HandlerManager.class).handle(event, this::printLastAction));
+
             var viewDto = AuthUiDto.builder().login(loginList).cashier(cashierList).build();
+
             updateView(viewDto);
         } catch (AppException e) {
             throw new RuntimeException(e);
@@ -95,7 +103,7 @@ public class AuthController extends Controller<AuthUiDto> {
     private ComboBox<String> urlBox;
 
     @FXML
-    private ComboBox<CashierUiDto> userShiftBox;
+    private ComboBox<Cashier> userShiftBox;
 
     @FXML
     void enterAction(ActionEvent event) throws AppException {
@@ -109,14 +117,16 @@ public class AuthController extends Controller<AuthUiDto> {
         context.publishEvent(new StartSessionEvent(StartSessionEvent.StartSession.START));
     }
 
-    @FXML
-    void printLastAction(ActionEvent event) {
 
+    void printLastAction(ActionEvent event) throws AppException {
+        var cashier = this.userShiftBox.getSelectionModel().getSelectedItem();
+        kktService.printXReportByOperator(cashier);
     }
 
-    @FXML
-    void shiftAction(ActionEvent event) {
 
+    void shiftAction(ActionEvent event) throws AppException {
+        var cashier = this.userShiftBox.getSelectionModel().getSelectedItem();
+        kktService.closeShiftByOperator(cashier);
     }
 
     @Override
@@ -134,6 +144,11 @@ public class AuthController extends Controller<AuthUiDto> {
 
         urlBox.setItems(urlList);
         urlBox.getSelectionModel().selectFirst();
+
+
+        userShiftBox.setItems(FXCollections.observableArrayList(viewDto.getCashier().stream().distinct().toList()));
+        userShiftBox.setConverter(cashierConverter);
+        userShiftBox.getSelectionModel().selectFirst();
 
 
         shiftButton.setGraphic(new FontIcon(MaterialDesignP.PRINTER_CHECK));

@@ -3,10 +3,8 @@ package ru.kidesoft.desktop.repository.kkt.atol;
 import org.springframework.stereotype.Repository;
 import ru.atol.drivers10.fptr.Fptr;
 import ru.atol.drivers10.fptr.IFptr;
-import ru.kidesoft.desktop.domain.dao.kkt.KktPrinter;
 import ru.kidesoft.desktop.domain.dao.kkt.KktRepository;
 import ru.kidesoft.desktop.domain.dao.kkt.KktSetting;
-import ru.kidesoft.desktop.domain.dao.kkt.KktSystem;
 import ru.kidesoft.desktop.domain.exception.KktException;
 
 import java.io.File;
@@ -54,6 +52,24 @@ public class AtolRepositoryImpl implements KktRepository {
             throw new KktException("Не удалось загрузить драйвер ККТ", e);
         }
         fptr.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_RECONNECT, kktSetting.getAutoReconnect().toString());
+        fptr.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_TIME_SYNC, "0"); //
+
+        fptr.applySingleSettings();
+        return this;
+    }
+
+    @Override
+    public KktRepository setConnection() throws KktException {
+        if (fptr != null) {
+            fptr.destroy();
+        }
+
+        try {
+            fptr = new Fptr();
+        } catch (Throwable e) {
+            throw new KktException("Не удалось загрузить драйвер ККТ", e);
+        }
+        fptr.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_RECONNECT, "false");
         fptr.applySingleSettings();
         return this;
     }

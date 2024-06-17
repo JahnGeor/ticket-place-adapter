@@ -14,7 +14,7 @@ public interface ProfileRepository extends JpaRepository<Profile, UUID> {
     @Query("select p from Profile p where p.login.id = ?1")
     Optional<Profile> findByLoginId(UUID loginId);
 
-    @Query("select inn, fullname from Profile")
+    @Query("select new ru.kidesoft.desktop.domain.entity.profile.Cashier(p.fullname, p.inn) from Profile p")
     List<Cashier> findCashierList();
 
     Optional<Profile> findByLogin(Login uuid);

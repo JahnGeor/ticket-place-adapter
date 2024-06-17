@@ -11,12 +11,14 @@ import org.springframework.core.io.Resource;
 @Getter
 @Setter
 public class ApplicationConfiguration {
-    @Value("${app.application.default-url}")
+    @Value("${spring.application.default-url}")
     private String DefaultUrl;
-    @Value("${app.application.version}")
+    @Value("${spring.application.version}")
     private String Version;
-    @Value("${spring.application.title}")
+    @Value("${spring.application.name}")
     private String Title;
+    @Value("${spring.application.password}")
+    private String Password;
 
     private Image logo;
     private Image icon;

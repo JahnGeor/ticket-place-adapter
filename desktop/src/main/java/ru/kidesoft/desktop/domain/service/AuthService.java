@@ -1,6 +1,6 @@
 package ru.kidesoft.desktop.domain.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 
 import ru.kidesoft.desktop.domain.dao.api.ApiRepositoryFactory;
+import ru.kidesoft.desktop.domain.dao.api.dto.ProfileSessionDto;
 import ru.kidesoft.desktop.domain.dao.database.*;
 import ru.kidesoft.desktop.domain.dao.kkt.KktRepository;
 import ru.kidesoft.desktop.domain.entity.constant.Constant;
@@ -58,7 +59,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void login(Login login) throws AppException {
+    public ProfileSessionDto login(Login login) throws AppException {
         var profileSessionDto = apiRepositoryFactory.setHost(login.getUrl()).build().Login(login.getEmail(), login.getPassword());
 
         loginRepository.findByEmailAndUrl(login.getEmail(), login.getUrl()).ifPresent(loginExists -> {
@@ -105,6 +106,8 @@ public class AuthService {
         logger.trace("Сохранение константы {} = {} завершено успешно", ConstantEnums.ACTIVE_USER_ID, resultLogin.getId());
 
         logger.info("Авторизация пользователя {} на сервисе {} завершена успешно", login.getEmail(), login.getUrl());
+
+        return profileSessionDto;
     }
 
     public void logout() {

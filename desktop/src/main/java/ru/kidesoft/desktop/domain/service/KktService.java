@@ -11,10 +11,13 @@ import ru.kidesoft.desktop.domain.dao.database.ProfileRepository;
 import ru.kidesoft.desktop.domain.dao.database.SettingRepository;
 import ru.kidesoft.desktop.domain.dao.kkt.*;
 import ru.kidesoft.desktop.domain.entity.State;
+import ru.kidesoft.desktop.domain.entity.profile.Cashier;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.exception.AppExceptionType;
 import ru.kidesoft.desktop.domain.exception.DbException;
 import ru.kidesoft.desktop.domain.service.entities.ProfileService;
+
+import java.time.ZonedDateTime;
 
 @Service
 public class KktService {
@@ -63,13 +66,12 @@ public class KktService {
 
         // TODO: > Проверка имени и инн последнего чека
 
-        if (
-                state.equals(State.EXPIRED)
-        ) {
+        if (state.equals(State.EXPIRED)) {
             kktSystem.setOperator(operator).getPrinter().closeShift();
-        } else if (
-                state.equals(State.CLOSED)
-        ) {
+            kktSystem.setCurrentTime(ZonedDateTime.now());
+            kktSystem.setOperator(operator).getPrinter().openShift();
+        } else if (state.equals(State.CLOSED)) {
+            kktSystem.setCurrentTime(ZonedDateTime.now());
             kktSystem.setOperator(operator).getPrinter().openShift();
         }
     }
@@ -168,6 +170,36 @@ public class KktService {
         logger.info("Печать X-отчета, id профиля: {}", profile.getLogin().getId());
     }
 
+    public void printXReportByOperator(Cashier cashier) throws AppException {
+        var operator = KktOperator.builder().fullName(cashier.getFullName()).inn(cashier.getInn()).build();
+
+        try { // TODO: Заменить
+            kktRepository.getFptr(); // TODO: Заменить
+        } catch (Exception e) { // TODO: Заменить
+            kktRepository.setConnection(); // TODO: Заменить
+        } // TODO: Заменить
+
+        kktRepository.openConnection();
+        kktSystem.setOperator(operator).getPrinter().printXReport();
+
+        logger.info("Печать X-отчета под профилем: ИНН: {}, ФИО: {}", cashier.getInn(), cashier.getFullName());
+    }
+
+    public void closeShiftByOperator(Cashier cashier) throws AppException {
+        var operator = KktOperator.builder().fullName(cashier.getFullName()).inn(cashier.getInn()).build();
+
+        try { // TODO: Заменить
+            kktRepository.getFptr(); // TODO: Заменить
+        } catch (Exception e) { // TODO: Заменить
+            kktRepository.setConnection(); // TODO: Заменить
+        } // TODO: Заменить
+
+        kktRepository.openConnection();
+        kktSystem.setOperator(operator).getPrinter().closeShift();
+
+        logger.info("Закрытие смены под профилем: ИНН: {}, ФИО: {}", cashier.getInn(), cashier.getFullName());
+    }
+
     public void cashIncome(float income) throws AppException {
         var profile = profileService.getCurrentProfile();
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
@@ -180,5 +212,11 @@ public class KktService {
         var operator = KktOperator.builder().fullName(profile.getFullname()).inn(profile.getInn()).build();
         kktSystem.setOperator(operator).getPrinter().cancelReceipt();
         logger.info("Отмена чека, id пользователя: {}", profile.getLogin().getId());
+    }
+
+    public void kktTime() throws AppException {
+        var time = ZonedDateTime.now();
+        kktSystem.setCurrentTime(time);
+        logger.info("Время ККТ {} установлено", time);
     }
 }

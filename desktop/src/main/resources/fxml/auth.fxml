@@ -36,11 +36,11 @@
             <PasswordTextField fx:id="passwordField" prefHeight="40.0" promptText="Пароль" GridPane.rowIndex="1" />
             <ComboBox fx:id="urlBox" editable="true" prefHeight="40.0" prefWidth="270.0" promptText="Адрес подключения" GridPane.columnIndex="1" />
             <Button fx:id="enterButton" mnemonicParsing="false" onAction="#enterAction" prefHeight="40.0" prefWidth="302.0" text="Войти" GridPane.rowIndex="2" />
-            <Button fx:id="printLastButton" mnemonicParsing="false" onAction="#printLastAction" prefHeight="40.0" prefWidth="270.0" text="Печать последнего чека" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button fx:id="printLastButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="270.0" text="Печать последнего чека" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="2">
                <children>
                   <ComboBox fx:id="userShiftBox" prefHeight="40.0" prefWidth="238.0" promptText="Пользователь" />
-                  <Button fx:id="shiftButton" minWidth="40.0" mnemonicParsing="false" onAction="#shiftAction" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Закрыть смену" />
+                  <Button fx:id="shiftButton" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Закрыть смену" />
                </children>
             </InputGroup>
          </children>

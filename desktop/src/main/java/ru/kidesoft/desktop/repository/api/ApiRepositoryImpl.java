@@ -8,6 +8,7 @@ import ru.kidesoft.desktop.domain.dao.api.ApiRepository;
 import ru.kidesoft.desktop.domain.dao.api.dto.ApiSetting;
 import ru.kidesoft.desktop.domain.dao.api.dto.ClickDto;
 import ru.kidesoft.desktop.domain.dao.api.dto.ProfileSessionDto;
+import ru.kidesoft.desktop.domain.entity.click.Click;
 import ru.kidesoft.desktop.domain.entity.order.OperationType;
 import ru.kidesoft.desktop.domain.entity.order.Order;
 import ru.kidesoft.desktop.domain.entity.order.SourceType;
@@ -46,13 +47,39 @@ public class ApiRepositoryImpl implements ApiRepository {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         } else {
-            throw new ApiException(response.getStatusCode().value(), "Error during login on remote server due incorrect status");
+            throw new ApiException(response.getStatusCode().value(), "Ошибка авторизации на удаленном сервере");
         }
     }
 
     @Override
     public ClickDto Click(int userId) throws ApiException {
-        return null;
+        var rc = RestClient.builder().baseUrl(host).build();
+
+        String tokenHeader = this.tokenType + " " + this.token;
+
+        try {
+            var body = rc.get()
+                    .uri(click, userId)
+                    .header("Authorization", tokenHeader).retrieve().onStatus(
+                            HttpStatusCode::is5xxServerError,
+                            (request, response) -> {
+                                throw new HttpClientErrorException(response.getStatusCode(), "Ошибка при получении данных о последней операции с удаленного сервера");
+                            }
+                    ).onStatus(
+                            HttpStatusCode::is4xxClientError,
+                            (request, response) -> {
+                                throw new HttpServerErrorException(response.getStatusCode(), "Ошибка при получении данных о последней операции с удаленного сервера");
+                            }
+                    ).body(ClickDto.class);
+
+            if (body == null) {
+                throw new ApiException(0, "Click body is null");
+            }
+
+            return body;
+        } catch (HttpStatusCodeException e) {
+            throw new ApiException(e.getStatusCode().value(), e.getMessage());
+        }
     }
 
     @Override
@@ -67,12 +94,12 @@ public class ApiRepositoryImpl implements ApiRepository {
                     .header("Authorization", tokenHeader).retrieve().onStatus(
                             HttpStatusCode::is5xxServerError,
                             (request, response) -> {
-                                throw new HttpClientErrorException(response.getStatusCode(), "Error during getting order from remote server due incorrect status");
+                                throw new HttpClientErrorException(response.getStatusCode(), "Ошибка при получении данных с удаленного сервера");
                             }
                     ).onStatus(
                             HttpStatusCode::is4xxClientError,
                             (request, response) -> {
-                                throw new HttpServerErrorException(response.getStatusCode(), "Error during getting order from remote server due incorrect status");
+                                throw new HttpServerErrorException(response.getStatusCode(), "Ошибка при получении данных с удаленного сервера");
                             }
                     ).body(Order.class);
 

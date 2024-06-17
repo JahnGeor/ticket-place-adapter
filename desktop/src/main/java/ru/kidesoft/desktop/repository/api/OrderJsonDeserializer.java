@@ -79,7 +79,11 @@ public class OrderJsonDeserializer extends JsonDeserializer<Order> {
             orderBuilder.paymentType(PaymentType.UNDEFINED);
         }
 
-        orderBuilder.createdAt(LocalDateTime.parse(data.get("date_time").asText(), shortFormatter).atZone(ZoneId.of("Europe/Moscow")));
+        try {
+            orderBuilder.createdAt(LocalDateTime.parse(data.get("date_time").asText(), shortFormatter).atZone(ZoneId.of("Europe/Moscow")));
+        } catch (Exception e) {
+            orderBuilder.createdAt(LocalDateTime.parse(data.get("date_time").asText(), formatterForeign).atZone(ZoneId.of("Europe/Moscow")));
+        }
 
         orderBuilder.tickets(ticketList);
 

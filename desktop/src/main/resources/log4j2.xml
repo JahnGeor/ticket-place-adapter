@@ -3,16 +3,19 @@
     <Properties>
         <Property name="LOG_PATH">log</Property>
         <Property name="ROLLING_FILE_NAME">app</Property>
-        <Property name="LOG_PATTERN">%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %msg%n%throwable
+        <Property name="LOG_PATTERN">%highlight%{%d %-5level: [%t %c:%L] -> %msg %throwable{short} %n}</Property>
+        <Property name="CLR">{FATAL=bright red, ERROR=red, WARN=bright yellow, INFO=green, DEBUG=white, TRACE=black}</Property>
+        <Property name="LOG_CONSOLE_PATTERN">
+            %highlight{%5p- %d{yy-MM-dd HH:mm:ss.SSS}}${CLR} %clr{${sys:PID}}{magenta}%clr{-}{faint}%clr{[%t]}{faint} %clr{%-40.40c{1.}}{cyan}  %highlight{: %m%n%xwEx}${CLR}
         </Property>
     </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT" follow="true">
-            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <PatternLayout pattern="${LOG_CONSOLE_PATTERN}"/>
         </Console>
         <RollingFile name="RollingFile" fileName="${LOG_PATH}/${ROLLING_FILE_NAME}.log"
                      filePattern="${LOG_PATH}/${ROLLING_FILE_NAME}_%d{yyyy-MM-dd}.log">
-            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <PatternLayout pattern="${LOG_PATTERN}" disableAnsi="false"/>
             <Policies>
                 <OnStartupTriggeringPolicy/>
 

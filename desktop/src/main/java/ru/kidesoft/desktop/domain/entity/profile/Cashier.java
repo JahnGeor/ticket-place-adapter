@@ -8,8 +8,8 @@ import lombok.Getter;
 @Data
 @Builder
 public class Cashier {
-    @Column(name = "FULLNAME", nullable = false)
+    @Column(name = "fullname", nullable = false)
     private String fullName;
-    @Column(name = "INN", nullable = false)
+    @Column(name = "inn", nullable = false)
     private Long inn;
 }

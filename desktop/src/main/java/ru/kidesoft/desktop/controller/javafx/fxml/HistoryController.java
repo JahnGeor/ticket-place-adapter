@@ -20,12 +20,14 @@ import ru.kidesoft.desktop.controller.javafx.dto.HistoryUiDtoList;
 import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
 import ru.kidesoft.desktop.controller.javafx.fxml.progress.Progress;
 import ru.kidesoft.desktop.domain.entity.history.StatusType;
+import ru.kidesoft.desktop.domain.entity.order.PrintType;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.service.PrinterService;
 import ru.kidesoft.desktop.domain.service.entities.HistoryService;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -188,6 +190,20 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
             return;
         }
 
+        var printType = new ArrayList<PrintType>();
+
+        if ( ((CheckBox) printCheckLabel.getGraphic()).isSelected()) {
+            printType.add(PrintType.CHECK);
+        }
+        if (((CheckBox) printTicketLabel.getGraphic()).isSelected()) {
+            printType.add(PrintType.TICKET);
+        }
+
+        if (printType.isEmpty()) {
+            context.getBean(StageManager.class).showWarning("Не выбран тип печати", "Пожалуйста, выберите тип печати и повторите попытку");
+            return;
+        }
+
 
         var printServiceTask = new Service<String>() {
             @Override
@@ -215,7 +231,7 @@ public class HistoryController extends Controller<HistoryUiDtoList> {
                         for (var i = 0; i < list.size(); i++) {
                             try {
                                 var history = list.get(i);
-                                printerService.print(history.getOrderId(), history.getSourceType(), history.getOperationType());
+                                printerService.print(history.getOrderId(), history.getSourceType(), history.getOperationType(), printType.toArray(PrintType[]::new));
                                 progress.set(progress.get() + 1);
 
                             } catch (Throwable ignored) {

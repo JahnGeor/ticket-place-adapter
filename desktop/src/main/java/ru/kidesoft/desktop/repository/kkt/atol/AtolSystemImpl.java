@@ -51,6 +51,14 @@ public class AtolSystemImpl implements KktSystem {
     @Override
     public KktSystem setCurrentTime(ZonedDateTime zonedDateTime) throws KktException {
         kktRepository.getFptr().setParam(IFptr.LIBFPTR_PARAM_DATE_TIME, Date.from(zonedDateTime.toInstant()));
+        kktRepository.checkErrorCode(kktRepository.getFptr().writeDateTime());
+
+
+        kktRepository.getFptr().setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_DATE_TIME);
+        kktRepository.getFptr().queryData();
+
+        Date dateTime =  kktRepository.getFptr().getParamDateTime(IFptr.LIBFPTR_PARAM_DATE_TIME);
+
         return this;
     }
 

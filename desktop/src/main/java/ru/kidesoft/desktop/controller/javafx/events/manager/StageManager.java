@@ -6,12 +6,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.Getter;
 import net.rgielen.fxweaver.core.FxWeaver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.Notifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,13 +35,18 @@ import ru.kidesoft.desktop.domain.exception.KktException;
 import ru.kidesoft.desktop.domain.service.AuthService;
 
 import java.io.IOException;
+import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class StageManager implements ApplicationListener<StageReadyEvent> {
+    private Logger logger = LogManager.getLogger(StageManager.class);
+
     private ConfigurableApplicationContext context;
     private final FxWeaver fxWeaver;
+    @Getter
     private Stage stage;
-    @Value("${spring.application.title}")
+    @Value("${spring.application.name}")
     private String title;
 
     @Value("${spring.application.icon}")
@@ -56,6 +65,13 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
         stage = event.getStage();
         Parent parent = fxWeaver.loadView(BaseController.class);
         Scene scene = new Scene(parent, 600, 415);
+
+        String path = Objects.requireNonNull(getClass().getResource("/assets/css/notification.css")).toExternalForm();
+
+        if (!scene.getStylesheets().contains(path)) {
+            scene.getStylesheets().add(path);
+        }
+
         stage.setScene(scene);
         stage.sizeToScene();
 
@@ -124,7 +140,11 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
     }
 
     public void showNotification(AppException e) {
-        var notification = Notifications.create().position(Pos.BOTTOM_RIGHT).text(e.getMessage());
+        String path = getClass().getResource("/assets/css/cupertino-light.css").toExternalForm();
+
+        stage.getScene().getStylesheets().add(path);
+
+        var notification = Notifications.create().position(Pos.TOP_RIGHT).text(e.getMessage());
 
         if (e instanceof DbException) {
             notification.title("Внутренняя ошибка базы данных");
@@ -141,7 +161,8 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
     }
 
     public void showNotification(String header, String text) {
-        Notifications.create().position(Pos.BOTTOM_RIGHT).text(text).title(header).show();
+
+        Notifications.create().position(Pos.TOP_RIGHT).text(text).title(header).show();
     }
 
     public void showWarning(String header, String message) {
@@ -160,6 +181,16 @@ public class StageManager implements ApplicationListener<StageReadyEvent> {
         }
 
         alert.showAndWait();
+    }
+
+    public Optional<String> showWarningWithPassword(String title, String header, String message) {
+        var dialog = new TextInputDialog();
+        dialog.setTitle(title);
+        dialog.setHeaderText(header);
+        dialog.setContentText(message);
+        dialog.initOwner(stage);
+
+        return dialog.showAndWait();
     }
 
     }

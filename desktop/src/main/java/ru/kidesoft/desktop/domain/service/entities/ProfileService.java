@@ -54,4 +54,8 @@ public class ProfileService {
         logger.info("Получен список кассиров, размер списка: {}", cashiers.size());
         return cashiers;
     }
+
+    public void getCurrentSession() {
+
+    }
 }

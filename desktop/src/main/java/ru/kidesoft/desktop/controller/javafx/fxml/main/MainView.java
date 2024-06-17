@@ -3,6 +3,8 @@ package ru.kidesoft.desktop.controller.javafx.fxml.main;
 import atlantafx.base.controls.Card;
 import atlantafx.base.controls.Spacer;
 import atlantafx.base.theme.Styles;
+import io.micrometer.observation.Observation;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -10,26 +12,30 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import lombok.SneakyThrows;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fluentui.FluentUiRegularAL;
 import org.kordamp.ikonli.fluentui.FluentUiRegularMZ;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
+import org.kordamp.ikonli.materialdesign2.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.util.function.ThrowingFunction;
 import ru.kidesoft.desktop.controller.handler.HandlerManager;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.dto.MainUiDto;
 import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
+import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
 import ru.kidesoft.desktop.domain.entity.State;
+import ru.kidesoft.desktop.domain.entity.login.Login;
+import ru.kidesoft.desktop.domain.entity.profile.Profile;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.exception.KktException;
 import ru.kidesoft.desktop.domain.service.KktService;
+import ru.kidesoft.desktop.domain.service.PrinterService;
 import ru.kidesoft.desktop.domain.service.entities.ProfileService;
+import ru.kidesoft.desktop.domain.service.entities.SettingService;
 
 
 import java.net.URL;
@@ -42,12 +48,16 @@ public class MainView extends Controller<MainUiDto> {
     private final HandlerManager handlerManager;
     private final KktService kktService;
     private final ProfileService profileService;
+    private final SettingService settingService;
+
     private TimeService timeService;
+    private ListenerService listenerService;
 
     @FXML
     public Button incomeButton;
     @FXML
-    public Button diagnosticButton;
+    public Button listenerButton;
+
     @FXML
     public TextField incomeField;
     @FXML
@@ -75,12 +85,14 @@ public class MainView extends Controller<MainUiDto> {
     public final Label lastListenedNumber = new Label();
 
     @Autowired
-    public MainView(ConfigurableApplicationContext context, HandlerManager handlerManager, KktService kktService, ProfileService profileService) {
+    public MainView(ConfigurableApplicationContext context, ListenerService listenerService, PrinterService printerService, HandlerManager handlerManager, KktService kktService, ProfileService profileService, SettingService settingService) {
         super(context);
         timeService = new TimeService();
+        this.listenerService = listenerService;
         this.handlerManager = handlerManager;
         this.kktService = kktService;
         this.profileService = profileService;
+        this.settingService = settingService;
     }
 
     @SneakyThrows
@@ -103,9 +115,9 @@ public class MainView extends Controller<MainUiDto> {
         printXReport.setTooltip(new Tooltip("Печать Х-отчёта"));
         printXReport.setGraphic(new FontIcon(MaterialDesignA.ALPHA_X_CIRCLE_OUTLINE));
 
-        diagnosticButton.setTooltip(new Tooltip("Диагностика"));
-        diagnosticButton.getStylesheets().addAll(Styles.BUTTON_ICON, Styles.BUTTON_OUTLINED, Styles.ACCENT);
-        diagnosticButton.setGraphic(new FontIcon(MaterialDesignH.HELP_CIRCLE));
+        listenerButton.setTooltip(new Tooltip("Диагностика"));
+        listenerButton.getStylesheets().addAll(Styles.BUTTON_ICON, Styles.BUTTON_OUTLINED, Styles.ACCENT);
+        listenerButton.setGraphic(new FontIcon(MaterialDesignH.HELP_CIRCLE));
 
 
         refreshButton.setGraphic(new FontIcon(MaterialDesignR.REFRESH_CIRCLE));
@@ -149,14 +161,37 @@ public class MainView extends Controller<MainUiDto> {
         shiftButton.setOnAction(eventAction -> handlerManager.handle(eventAction, this::onSwitchShiftClick));
         printLastCheck.setOnAction(eventAction -> handlerManager.handle(eventAction, this::onPrintLastClick));
         printXReport.setOnAction(eventAction -> handlerManager.handle(eventAction, this::onPrintXClick));
-        diagnosticButton.setOnAction(eventAction -> handlerManager.handle(eventAction, this::onDiagnosticClick));
+        listenerButton.setOnAction(eventAction -> handlerManager.handle(eventAction, this::onListenerCLick));
         refreshButton.setOnAction(eventAction -> handlerManager.handle(eventAction, this::onRefreshClick));
+        listenerButton.setGraphic(new FontIcon(MaterialDesignD.DOWNLOAD_OFF_OUTLINE));
+
+        if (!listenerService.isRunning()) {
+            listenLabel.setText("Состояние прослушивания: нет");
+            listenerButton.setGraphic(new FontIcon(MaterialDesignD.DOWNLOAD_OFF_OUTLINE));
+        } else {
+            listenLabel.setText("Состояние прослушивания: да");
+            listenerButton.setGraphic(new FontIcon(MaterialDesignD.DOWNLOAD_CIRCLE_OUTLINE));
+        }
+
+        listenerService.runningProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                if (newValue) {
+                    listenLabel.setText("Состояние прослушивания: да");
+                    listenerButton.setGraphic(new FontIcon(MaterialDesignD.DOWNLOAD_CIRCLE_OUTLINE));
+                } else {
+                    listenLabel.setText("Состояние прослушивания: нет");
+                    listenerButton.setGraphic(new FontIcon(MaterialDesignD.DOWNLOAD_OFF_OUTLINE));
+                }
+            }
+        });
 
         var initData = initData();
 
-        if (initData != null) {
-            updateView(initData);
+        if (initData == null) {
+            return;
         }
+
+        updateView(initData);
     }
 
     @Override
@@ -221,8 +256,11 @@ public class MainView extends Controller<MainUiDto> {
             mainUiDtoBuilder.shiftState(shiftState);
 
             mainUiDtoBuilder.kktReady(kktReady);
-        } catch (Exception ignored) {
+
+        } catch (AppException ignored) {
+
         }
+
         return mainUiDtoBuilder.build();
     }
 
@@ -254,9 +292,39 @@ public class MainView extends Controller<MainUiDto> {
         updateView(getMainData());
     }
 
-    public void onDiagnosticClick(ActionEvent event) throws AppException {
-        context.publishEvent(new StartSessionEvent(StartSessionEvent.StartSession.REFRESH));
+    public void onListenerCLick(ActionEvent event) throws AppException {
+
+        if (!listenerService.isRunning()) {
+            var setting = settingService.getCurrentSetting();
+            listenerService.setPeriod(Duration.seconds(setting.getServerRequestInterval().getSeconds()));
+
+            if (listenerService.getState() == Worker.State.CANCELLED) {
+                listenerService.reset();
+            }
+
+            listenerService.start();
+        } else {
+            listenerService.cancel();
+        }
     }
+
+//    public void onDiagnosticClick(ActionEvent event) throws AppException {
+//        try {
+//            kktService.initialize();
+//
+//            if (!listenerService.isRunning()) {
+//                var setting = settingService.getCurrentSetting();
+//                listenerService.setPeriod(Duration.seconds(setting.getServerRequestInterval().getSeconds()));
+//                listenerService.start();
+//            }
+//        } catch (AppException e) {
+//            context.getBean(StageManager.class).showNotification("Диагностика завершилась с ошибкой", e.getMessage());
+//            return;
+//        } finally {
+//            updateView(getMainData());
+//        }
+//        context.getBean(StageManager.class).showNotification("Диагностика успешно завершена", "Подробнее о статусах можно узнать в информационном окне");
+//    }
 
     public void onIncomeCashClick(ActionEvent event) throws AppException {
         var income = Float.parseFloat(context.getBean(MainView.class).incomeField.getText());

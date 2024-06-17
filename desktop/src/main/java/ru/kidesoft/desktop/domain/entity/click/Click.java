@@ -1,8 +1,7 @@
 package ru.kidesoft.desktop.domain.entity.click;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -13,7 +12,10 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "CLICK")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Click {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,5 +30,4 @@ public class Click {
 
     @Column(name = "CLICK_ID", nullable = false)
     private Integer clickId;
-
 }
