@@ -2,17 +2,14 @@ package ru.kidesoft.desktop.controller.javafx.fxml.main;
 
 import javafx.application.Platform;
 import javafx.concurrent.ScheduledService;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
-import ru.kidesoft.desktop.domain.service.PrinterService;
+import ru.kidesoft.desktop.infrastructure.service.PrinterService;
 
 @Component
 public class ListenerService extends ScheduledService<Integer> {
@@ -50,6 +47,11 @@ public class ListenerService extends ScheduledService<Integer> {
                 errorCounter = 0;
             }
         });
+
+
+        setOnSucceeded(event -> {
+            errorCounter = 0;
+        });
     }
 
     @Override
@@ -77,12 +79,8 @@ class ListenerTask extends Task<Integer> {
 
         printerService.printByClick();
 
-
         logger.trace("Listener task executed");
 
-        throw new Exception();
-        // errorCounter = 0
-
-        //return 0;
+        return 0;
     }
 }

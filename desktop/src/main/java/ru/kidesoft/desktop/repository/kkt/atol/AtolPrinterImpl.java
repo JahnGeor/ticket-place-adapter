@@ -3,7 +3,7 @@ package ru.kidesoft.desktop.repository.kkt.atol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.atol.drivers10.fptr.IFptr;
-import ru.kidesoft.desktop.domain.dao.kkt.KktPrinter;
+import ru.kidesoft.desktop.infrastructure.port.api.kkt.KktPrinter;
 import ru.kidesoft.desktop.domain.entity.order.OperationType;
 import ru.kidesoft.desktop.domain.entity.order.Order;
 import ru.kidesoft.desktop.domain.entity.order.Ticket;

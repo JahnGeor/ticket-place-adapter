@@ -16,11 +16,11 @@ import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
 import ru.kidesoft.desktop.controller.javafx.dto.SettingUiDto;
 import ru.kidesoft.desktop.controller.javafx.fxml.main.MainView;
-import ru.kidesoft.desktop.domain.dao.database.SettingRepository;
+import ru.kidesoft.desktop.infrastructure.port.dao.database.SettingRepository;
 import ru.kidesoft.desktop.domain.entity.setting.PageOrientation;
 import ru.kidesoft.desktop.domain.entity.setting.PageSize;
 import ru.kidesoft.desktop.domain.entity.setting.Setting;
-import ru.kidesoft.desktop.domain.service.entities.SettingService;
+import ru.kidesoft.desktop.infrastructure.service.entities.SettingService;
 
 
 import java.net.URL;

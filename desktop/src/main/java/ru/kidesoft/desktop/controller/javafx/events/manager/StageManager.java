@@ -32,7 +32,7 @@ import ru.kidesoft.desktop.domain.exception.ApiException;
 import ru.kidesoft.desktop.domain.exception.AppException;
 import ru.kidesoft.desktop.domain.exception.DbException;
 import ru.kidesoft.desktop.domain.exception.KktException;
-import ru.kidesoft.desktop.domain.service.AuthService;
+import ru.kidesoft.desktop.infrastructure.service.AuthService;
 
 import java.io.IOException;
 import java.util.Objects;

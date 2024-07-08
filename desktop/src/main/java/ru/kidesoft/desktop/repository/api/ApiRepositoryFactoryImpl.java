@@ -1,8 +1,8 @@
 package ru.kidesoft.desktop.repository.api;
 
 import org.springframework.stereotype.Repository;
-import ru.kidesoft.desktop.domain.dao.api.ApiRepository;
-import ru.kidesoft.desktop.domain.dao.api.ApiRepositoryFactory;
+import ru.kidesoft.desktop.infrastructure.port.api.web.ApiRepository;
+import ru.kidesoft.desktop.infrastructure.port.api.web.ApiRepositoryFactory;
 
 import java.time.Duration;
 

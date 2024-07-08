@@ -1,40 +1,33 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.0'
+    id 'application'
+    id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'org.beryx.jlink' version '2.25.0'
-//    id 'org.beryx.runtime' version "1.13.1"
-    id 'gg.jte.gradle' version '3.0.3'
+    id 'org.javamodularity.moduleplugin' version '1.8.12'
+    id 'org.beryx.runtime' version "1.12.5"
 }
 
 group = 'ru.kidesoft'
 version = '2.0.0'
 
+
 application {
+    applicationDefaultJvmArgs = ['-Dfile.encoding=UTF8']
     mainClass = 'ru.kidesoft.desktop.DesktopApplication'
-    applicationName = 'Ticket Place'
-    version = '2.0.0'
 }
 
+ext {
 
-
-jte {
-    generate()
-    //precompile()
-}
-
-tasks.jar {
-    dependsOn(tasks.generateJte)
-    from(fileTree("jte-classes") {
-        include("**/*.class")
-        include("**/*.bin")
-    })
+    junitVersion = '5.10.0'
 }
 
 java {
-    sourceCompatibility = '17'
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
+
 
 javafx {
     version = '17.0.11'
@@ -46,13 +39,9 @@ repositories {
 }
 
 dependencies {
-    implementation("gg.jte:jte:3.0.3")
-
+    implementation files('libs/libfptr10.jar')
     implementation 'net.datafaker:datafaker:2.2.2'
     implementation 'org.controlsfx:controlsfx:11.2.1'
-
-
-
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     testImplementation 'org.springframework.batch:spring-batch-test'
@@ -84,44 +73,66 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
 
+runtime {
+    options = ['--strip-debug', '--no-header-files', '--no-man-pages']
 
-jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    modules = [
+            'javafx.base',
+            'javafx.graphics',
+            'javafx.controls',
+            'javafx.fxml',
+            'java.sql',
+            'java.desktop',
+            'java.logging',
+            'java.management',
+            'javafx.media',
+            'java.compiler',
+            'jdk.compiler',
+            'jdk.unsupported',
+            'java.instrument',
+            'java.xml',
+            'java.scripting',
+            'java.net.http',
+            'jdk.jsobject',
+            'jdk.xml.dom',
+            'java.naming',
+            'java.transaction.xa',
+            'jdk.crypto.ec'
+    ]
+
     launcher {
         noConsole = true
     }
+
+    jpackage {
+        //imageName = "$application.applicationName"
+        imageOptions += ['--icon', "src/main/resources/assets/img/icon.ico"]
+        //installerName = "$application.applicationName-setup"
+
+        installerOptions += ['--resource-dir', "src/main/resources"]
+        installerOptions += ['--vendor', 'Kidesoft']
+        installerOptions += ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+    }
+
+
+    tasks.jpackage.doFirst {
+        copy {
+            from("${projectDir}/drivers/kkt/atol/10.10.3.0/nt-x64-msvc2015")
+            into("$buildDir/jpackage/$application.applicationName/drivers/kkt")
+        }
+    }
 }
-//
-//runtime {
-//    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-//    modules.set(["java.desktop", "jdk.unsupported", "java.scripting", "java.logging", "java.xml", "java.net.http"])
-//
-//    launcher {
-//        noConsole = true
-//    }
-//    jpackage {
-//        // Uncomment and adjust the following line if your runtime task is configured to generate images for multiple platforms
-//        // targetPlatformName = "mac"
-//
-//        def currentOs = org.gradle.internal.os.OperatingSystem.current()
-//       // def imgType = currentOs.windows ? 'ico' : currentOs.macOsX ? 'icns' : 'png'
-//        //imageOptions += ['--icon', "src/main/resources/assets/img/icon.$imgType"]
-//
-//
-//        installerOptions += ['--resource-dir', "src/main/resources"]
-//        installerOptions += ['--vendor', 'Kidesoft']
-//        installerOptions += ['--app-version', '2.0.0']
-//        //installerOptions += ['--module-path', 'build/image/lib']
-//
-////        if(currentOs.windows) {
-////            installerOptions += ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
-////        }
-////        else if (currentOs.linux) {
-////            installerOptions += ['--linux-package-name', 'ticket-place-adapter','--linux-shortcut']
-////        }
-////        else if (currentOs.macOsX) {
-////            installerOptions += ['--mac-package-name', 'ticket-place-adapter']
-////        }
-//    }
-//}
+
+tasks.compileJava.doFirst {
+    copy {
+        from("${projectDir}/drivers/kkt/atol/10.10.3.0/nt-x64-msvc2015")
+        into("$buildDir/drivers/kkt")
+    }
+}
+

@@ -10,11 +10,10 @@ import ru.kidesoft.desktop.controller.handler.DefaultHandler;
 import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.fxml.main.ListenerService;
 import ru.kidesoft.desktop.controller.javafx.fxml.main.MainView;
-import ru.kidesoft.desktop.domain.entity.State;
 import ru.kidesoft.desktop.domain.exception.AppException;
-import ru.kidesoft.desktop.domain.service.KktService;
-import ru.kidesoft.desktop.domain.service.entities.ClickService;
-import ru.kidesoft.desktop.domain.service.entities.SettingService;
+import ru.kidesoft.desktop.infrastructure.service.KktService;
+import ru.kidesoft.desktop.infrastructure.service.entities.ClickService;
+import ru.kidesoft.desktop.infrastructure.service.entities.SettingService;
 
 @Controller
 public class StartSessionManager implements ApplicationListener<StartSessionEvent> {

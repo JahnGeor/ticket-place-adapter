@@ -9,10 +9,15 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Controller;
 import ru.kidesoft.desktop.DesktopApplication;
 import ru.kidesoft.desktop.controller.javafx.events.StageReadyEvent;
+import ru.kidesoft.desktop.utils.Lock;
+
+import java.io.IOException;
 
 @Controller
 public class JavaFxApplication extends Application {
     public ConfigurableApplicationContext context;
+
+    Boolean lock;
 
     @Override
     public void init() {

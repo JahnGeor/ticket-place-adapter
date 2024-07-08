@@ -3,12 +3,11 @@ package ru.kidesoft.desktop.repository.kkt.atol;
 import org.springframework.stereotype.Repository;
 import ru.atol.drivers10.fptr.Fptr;
 import ru.atol.drivers10.fptr.IFptr;
-import ru.kidesoft.desktop.domain.dao.kkt.KktRepository;
-import ru.kidesoft.desktop.domain.dao.kkt.KktSetting;
+import ru.kidesoft.desktop.infrastructure.port.api.kkt.KktRepository;
+import ru.kidesoft.desktop.infrastructure.port.api.kkt.KktSetting;
 import ru.kidesoft.desktop.domain.exception.KktException;
 
 import java.io.File;
-import java.net.URI;
 
 @Repository
 public class AtolRepositoryImpl implements KktRepository {
@@ -39,14 +38,15 @@ public class AtolRepositoryImpl implements KktRepository {
             throw new KktException("По выбранному пути не обнаружена директория");
         }
 
-        URI uriDriverPath = driverDir.toURI().resolve(getOSDirectory());
+        // URI uriDriverPath = driverDir.toURI().resolve(getOSDirectory());
 
         if (fptr != null) {
             fptr.destroy();
         }
 
         try {
-            var driverDirPath = uriDriverPath.getPath();
+            // var driverDirPath = uriDriverPath.getPath();
+            var driverDirPath = driverDir.getCanonicalPath();
             fptr = new Fptr(driverDirPath);
         } catch (Throwable e) {
             throw new KktException("Не удалось загрузить драйвер ККТ", e);

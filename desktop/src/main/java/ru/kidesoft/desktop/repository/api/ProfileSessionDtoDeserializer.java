@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import ru.kidesoft.desktop.domain.dao.api.dto.ProfileSessionDto;
+import ru.kidesoft.desktop.infrastructure.port.api.dto.ProfileSessionDto;
 import ru.kidesoft.desktop.domain.entity.profile.Profile;
 import ru.kidesoft.desktop.domain.entity.profile.RoleType;
 import ru.kidesoft.desktop.domain.entity.session.Session;

@@ -19,15 +19,13 @@ import ru.kidesoft.desktop.controller.handler.HandlerManager;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.events.StartSessionEvent;
 import ru.kidesoft.desktop.controller.javafx.dto.auth.AuthUiDto;
-import ru.kidesoft.desktop.controller.javafx.dto.auth.CashierUiDto;
-import ru.kidesoft.desktop.domain.dao.database.LoginRepository;
-import ru.kidesoft.desktop.domain.dao.kkt.KktOperator;
+import ru.kidesoft.desktop.infrastructure.port.dao.database.LoginRepository;
 import ru.kidesoft.desktop.domain.entity.login.Login;
 import ru.kidesoft.desktop.domain.entity.profile.Cashier;
 import ru.kidesoft.desktop.domain.exception.AppException;
-import ru.kidesoft.desktop.domain.service.AuthService;
-import ru.kidesoft.desktop.domain.service.KktService;
-import ru.kidesoft.desktop.domain.service.entities.ProfileService;
+import ru.kidesoft.desktop.infrastructure.service.AuthService;
+import ru.kidesoft.desktop.infrastructure.service.KktService;
+import ru.kidesoft.desktop.infrastructure.service.entities.ProfileService;
 
 
 import java.net.URL;

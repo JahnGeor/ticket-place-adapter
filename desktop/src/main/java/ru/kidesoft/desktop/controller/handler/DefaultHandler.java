@@ -7,9 +7,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import ru.kidesoft.desktop.controller.javafx.events.manager.StageManager;
 import ru.kidesoft.desktop.domain.exception.*;
-import ru.atol.drivers10.fptr.Fptr;
 import ru.atol.drivers10.fptr.IFptr;
-import ru.kidesoft.desktop.domain.service.KktService;
+import ru.kidesoft.desktop.infrastructure.service.KktService;
 
 @Component("defaultHandler")
 public class DefaultHandler implements Handler {

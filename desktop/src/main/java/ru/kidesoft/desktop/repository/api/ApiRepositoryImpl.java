@@ -2,20 +2,14 @@ package ru.kidesoft.desktop.repository.api;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.*;
-import ru.kidesoft.desktop.domain.dao.api.ApiRepository;
-import ru.kidesoft.desktop.domain.dao.api.dto.ApiSetting;
-import ru.kidesoft.desktop.domain.dao.api.dto.ClickDto;
-import ru.kidesoft.desktop.domain.dao.api.dto.ProfileSessionDto;
-import ru.kidesoft.desktop.domain.entity.click.Click;
-import ru.kidesoft.desktop.domain.entity.order.OperationType;
+import ru.kidesoft.desktop.infrastructure.port.api.web.ApiRepository;
+import ru.kidesoft.desktop.infrastructure.port.api.dto.ClickDto;
+import ru.kidesoft.desktop.infrastructure.port.api.dto.ProfileSessionDto;
 import ru.kidesoft.desktop.domain.entity.order.Order;
 import ru.kidesoft.desktop.domain.entity.order.SourceType;
 import ru.kidesoft.desktop.domain.exception.ApiException;
 
-import java.io.IOException;
-import java.rmi.RemoteException;
 import java.time.Duration;
 
 public class ApiRepositoryImpl implements ApiRepository {

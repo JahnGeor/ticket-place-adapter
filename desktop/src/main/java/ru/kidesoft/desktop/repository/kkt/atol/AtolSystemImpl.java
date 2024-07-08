@@ -3,9 +3,9 @@ package ru.kidesoft.desktop.repository.kkt.atol;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.atol.drivers10.fptr.IFptr;
-import ru.kidesoft.desktop.domain.dao.kkt.KktOperator;
-import ru.kidesoft.desktop.domain.dao.kkt.KktPrinter;
-import ru.kidesoft.desktop.domain.dao.kkt.KktSystem;
+import ru.kidesoft.desktop.infrastructure.port.api.kkt.KktOperator;
+import ru.kidesoft.desktop.infrastructure.port.api.kkt.KktPrinter;
+import ru.kidesoft.desktop.infrastructure.port.api.kkt.KktSystem;
 import ru.kidesoft.desktop.domain.entity.State;
 import ru.kidesoft.desktop.domain.exception.KktException;
 

@@ -4,7 +4,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.fluentui.FluentUiRegularAL;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -16,7 +15,7 @@ import ru.kidesoft.desktop.controller.javafx.dto.AdminUiDto;
 import ru.kidesoft.desktop.domain.entity.order.OperationType;
 import ru.kidesoft.desktop.domain.entity.order.SourceType;
 import ru.kidesoft.desktop.domain.exception.AppException;
-import ru.kidesoft.desktop.domain.service.PrinterService;
+import ru.kidesoft.desktop.infrastructure.service.PrinterService;
 
 import java.net.URL;
 import java.util.ResourceBundle;

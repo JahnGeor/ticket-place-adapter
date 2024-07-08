@@ -12,7 +12,6 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
-import ru.kidesoft.desktop.controller.handler.Handler;
 import ru.kidesoft.desktop.controller.handler.HandlerManager;
 import ru.kidesoft.desktop.controller.javafx.Controller;
 import ru.kidesoft.desktop.controller.javafx.dto.HistoryUiDto;
@@ -22,8 +21,8 @@ import ru.kidesoft.desktop.controller.javafx.fxml.progress.Progress;
 import ru.kidesoft.desktop.domain.entity.history.StatusType;
 import ru.kidesoft.desktop.domain.entity.order.PrintType;
 import ru.kidesoft.desktop.domain.exception.AppException;
-import ru.kidesoft.desktop.domain.service.PrinterService;
-import ru.kidesoft.desktop.domain.service.entities.HistoryService;
+import ru.kidesoft.desktop.infrastructure.service.PrinterService;
+import ru.kidesoft.desktop.infrastructure.service.entities.HistoryService;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;

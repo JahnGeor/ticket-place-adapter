@@ -34,7 +34,7 @@ public class Setting {
     @Builder.Default
     @Lob
     @Column(name = "KKT_DRIVER_PATH", nullable = false)
-    private String kktDriverPath = "./drivers/kkt/10.9.5.0/";
+    private String kktDriverPath = "./drivers/kkt";
 
     @Builder.Default
     @Lob
