@@ -7,7 +7,7 @@ class LoginUsecase : Usecase<LoginUsecase.Input, LoginUsecase.OutputBoundary>() 
 
     }
 
-    open interface OutputBoundary : Usecase.OutputBoundary {
+    interface OutputBoundary : Usecase.OutputBoundary {
         fun changeScene()
     }
 

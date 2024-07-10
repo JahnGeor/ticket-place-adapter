@@ -32,3 +32,7 @@ interface SettingPort {
 interface HistoryPort {
 
 }
+
+interface PropertiesPort {
+    fun getVersion() : String
+}

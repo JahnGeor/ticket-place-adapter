@@ -5,14 +5,14 @@ import javafx.fxml.FXML
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import ru.kidesoft.ticketplace.adapter.domain.Cashier
-import ru.kidesoft.ticketplace.adapter.ui.presenter.AuthPresenter
-import ru.kidesoft.ticketplace.adapter.ui.presenter.AuthView
-import ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.AuthPresenter
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.AuthView
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene
 import java.net.URL
 import java.util.*
 
 @FxmlView("auth.fxml", Scene.AUTH)
-class AuthView(private val presenter: AuthPresenter) : AuthView, View() {
+class AuthViewController(private val presenter: AuthPresenter) : AuthView, ViewController() {
     @FXML private lateinit var emailFields: ComboBox<String>
     @FXML private lateinit var passwordField: PasswordTextField
     @FXML private lateinit var urlFields : ComboBox<String>
@@ -36,12 +36,12 @@ class AuthView(private val presenter: AuthPresenter) : AuthView, View() {
         setActions()
     }
 
-    override fun setEmails(urls: List<String>) {
-        emailFields.items.setAll(urls)
+    override fun setEmails(urlList: List<String>) {
+        emailFields.items.setAll(urlList)
     }
 
-    override fun setUrls(emails: List<String>) {
-        urlFields.items.setAll(emails)
+    override fun setUrls(emailList: List<String>) {
+        urlFields.items.setAll(emailList)
     }
 
     override fun setCashiers(cashiers: List<Cashier>) {

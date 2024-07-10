@@ -2,30 +2,65 @@ package ru.kidesoft.ticketplace.adapter
 
 import atlantafx.base.theme.CupertinoLight
 import javafx.application.Application
-import javafx.fxml.FXMLLoader
 import javafx.stage.Stage
+import ru.kidesoft.ticketplace.adapter.application.port.PropertiesPort
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.*
 import ru.kidesoft.ticketplace.adapter.ui.StageManager
 
-import ru.kidesoft.ticketplace.adapter.ui.presenter.AuthPresenter
-import ru.kidesoft.ticketplace.adapter.ui.presenter.BasePresenter
-import ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene
-import ru.kidesoft.ticketplace.adapter.ui.view.AuthView
-import ru.kidesoft.ticketplace.adapter.ui.view.BaseView
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene
+import ru.kidesoft.ticketplace.adapter.infrastructure.repository.properties.ApplicationProperties
+import ru.kidesoft.ticketplace.adapter.ui.view.*
 
+// Класс-наследник JavaFX Application, выполняет все в потоке JavaFX
 class Main : Application() {
     override fun start(stage: Stage) {
+        // Устанавливаем тему от AtlantaFX
         setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)
-        val basePresenter = BasePresenter()
-        val baseView = BaseView(basePresenter)
 
+        val applicationRepository = ApplicationProperties()
+
+        // Инициализация View/Presenter окна авторизации
         val authPresenter = AuthPresenter()
-        val authView = AuthView(authPresenter)
+        val authViewController = AuthViewController(authPresenter).apply {  }
 
-        val stageManager = StageManager(stage, baseView)
+        // Инициализация View/Presenter главного
+        val mainPresenter = MainPresenter()
+        val mainViewController = MainViewController(mainPresenter)
 
-        stageManager.addScene(Scene.AUTH, authView)
+        val aboutPresenter = AboutPresenter(applicationRepository)
+        val aboutViewController = AboutViewController(aboutPresenter)
 
+        val historyPresenter = HistoryPresenter()
+        val historyViewController = HistoryViewController(historyPresenter)
+
+        val settingPresenter = SettingPresenter()
+        val settingViewController = SettingViewController(settingPresenter)
+
+        val adminPresenter = AdminPresenter()
+        val adminViewController = AdminViewController(adminPresenter)
+
+        val updatePresenter = UpdatePresenter()
+        val updateViewController = UpdateViewController(updatePresenter)
+
+        // Инициализация View/Presenter базовой формы сцены
+        val basePresenter = BasePresenter()
+        val baseViewController = BaseViewController(basePresenter, authPresenter)
+
+        // Инициализируем менеджер окон
+        val stageManager = StageManager(stage, baseViewController)
+
+        // Добавляем сцену в менеджер
+        stageManager.addScene(Scene.AUTH, authViewController)
+        stageManager.addScene(Scene.MAIN, mainViewController)
+        stageManager.addScene(Scene.ABOUT, aboutViewController)
+        stageManager.addScene(Scene.HISTORY, historyViewController)
+        stageManager.addScene(Scene.SETTING, settingViewController)
+        stageManager.addScene(Scene.ADMIN, adminViewController)
+        stageManager.addScene(Scene.UPDATE, updateViewController)
+
+        // Делаем окно видимым
         stage.show()
+
     }
 }
 

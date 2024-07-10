@@ -1,8 +1,6 @@
-package ru.kidesoft.ticketplace.adapter.ui.presenter
+package ru.kidesoft.ticketplace.adapter.infrastructure.presenter
 
-import ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene
-
-interface BaseView : ViewManager{
+interface BaseView : ViewManager {
 
 }
 
@@ -11,10 +9,14 @@ class BasePresenter : Presenter() {
 
     fun exit(b: BaseView) {
         try {
-            b.getSceneManager().openScene(Scene.AUTH)
+            b.getSceneManager().closeApplication()
         } catch (e: Exception) {
             b.getSceneManager().onErrorAlert(e)
             println(e.cause)
         }
+    }
+
+    fun runDiagnostic(b: BaseView) {
+
     }
 }

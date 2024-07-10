@@ -11,7 +11,10 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kidesoft.desktop.controller.javafx.fxml.HistoryController">
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.CheckBox?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <BorderPane prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
@@ -41,9 +44,21 @@
                   </InputGroup>
                   <InputGroup>
                      <children>
-                        <Label fx:id="printCheckLabel" text="Чек" />
-                        <Label fx:id="printTicketLabel" text="Билет" />
-                        <Button fx:id="printButton" mnemonicParsing="false" text="Печать" />
+                         <Label text="Чек">
+                             <graphic>
+                                 <CheckBox fx:id="printCheckBox"></CheckBox>
+                             </graphic>
+                         </Label>
+                         <Label text="Билет">
+                             <graphic>
+                                 <CheckBox fx:id="printTicketBox"></CheckBox>
+                             </graphic>
+                         </Label>
+                         <Button fx:id="printButton" mnemonicParsing="false" text="Печать">
+                             <graphic>
+                                 <FontIcon iconLiteral="mdi2p-printer"></FontIcon>
+                             </graphic>
+                         </Button>
                      </children>
                   </InputGroup>
                </children>

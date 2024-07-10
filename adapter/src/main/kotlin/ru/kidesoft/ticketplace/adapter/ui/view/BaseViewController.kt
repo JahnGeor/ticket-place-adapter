@@ -4,18 +4,16 @@ import javafx.fxml.FXML
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.layout.StackPane
-import org.kordamp.ikonli.fluentui.FluentUiRegularAL
-import org.kordamp.ikonli.fluentui.FluentUiRegularMZ
-import org.kordamp.ikonli.javafx.FontIcon
-import ru.kidesoft.ticketplace.adapter.ui.presenter.BasePresenter
-import ru.kidesoft.ticketplace.adapter.ui.presenter.BaseView
-import ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.AuthPresenter
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.BasePresenter
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.BaseView
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene
 import java.net.URL
 import java.util.*
 
 
 @FxmlView("base.fxml", Scene.BASE)
-class BaseView(val presenter: BasePresenter) : View(), BaseView {
+class BaseViewController(private val presenter: BasePresenter, private val authPresenter: AuthPresenter) : ViewController(), BaseView {
     @FXML
     private lateinit var aboutMenuItem: MenuItem
 
@@ -59,8 +57,15 @@ class BaseView(val presenter: BasePresenter) : View(), BaseView {
     private lateinit var updateMenuItem: MenuItem
 
     override fun setActions() {
-        updateMenuItem.setOnAction { presenter.openScene(Scene.MAIN, stageManager) }
+        updateMenuItem.setOnAction { presenter.openScene(Scene.UPDATE, stageManager) }
+        logoutMenuItem.setOnAction { authPresenter.logout(this) }
         exitMenuItem.setOnAction { presenter.exit(this) }
+        settingMenuItem.setOnAction { presenter.openScene(Scene.SETTING, stageManager) }
+        homeMenuItem.setOnAction { presenter.openScene(Scene.MAIN, stageManager) }
+        historyMenuItem.setOnAction { presenter.openScene(Scene.HISTORY, stageManager) }
+        adminMenuItem.setOnAction { presenter.openScene(Scene.ADMIN, stageManager) }
+        aboutMenuItem.setOnAction { presenter.openScene(Scene.ABOUT, stageManager) }
+        diagnosticMenuItem.setOnAction { presenter.runDiagnostic(this) }
     }
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {

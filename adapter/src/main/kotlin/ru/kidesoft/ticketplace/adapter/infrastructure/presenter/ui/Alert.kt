@@ -1,4 +1,4 @@
-package ru.kidesoft.ticketplace.adapter.ui.presenter.ui
+package ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui
 
 interface Alert {
     fun onErrorAlert(e : Exception)

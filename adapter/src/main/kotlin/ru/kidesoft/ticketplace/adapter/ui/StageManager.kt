@@ -1,39 +1,38 @@
 package ru.kidesoft.ticketplace.adapter.ui
 
+import javafx.application.Platform
 import javafx.fxml.FXMLLoader
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.control.Alert
-import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
 import javafx.stage.Modality
 import javafx.stage.Stage
-import ru.kidesoft.ticketplace.adapter.ui.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene
-import ru.kidesoft.ticketplace.adapter.ui.view.BaseView
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.SceneManager
+import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene
 import ru.kidesoft.ticketplace.adapter.ui.view.FxmlView
-import ru.kidesoft.ticketplace.adapter.ui.view.View
+import ru.kidesoft.ticketplace.adapter.ui.view.ViewController
 
-class StageManager(var stage: Stage, baseView: View) : SceneManager {
-    private val views : MutableList<View> = mutableListOf()
+class StageManager(var stage: Stage, baseViewController: ViewController) : SceneManager {
+    private val viewControllers : MutableList<ViewController> = mutableListOf()
 
     init {
-        baseView.stageManager = this
-        val root = getRoot(baseView)
+        baseViewController.stageManager = this
+        val root = getRoot(baseViewController)
         stage.scene = javafx.scene.Scene(root as Parent?, 600.0, 415.0)
     }
 
-    fun addScene(scene: ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene, view : View) {
-        view.stageManager = this
-        views.add(view)
+    fun addScene(scene: ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene, viewController : ViewController) {
+        viewController.stageManager = this
+        viewControllers.add(viewController)
     }
 
 
-    override fun openScene(scene : ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene) {
+    override fun openScene(scene : ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene) {
         require(scene != Scene.BASE)
 
-        val view = views.firstOrNull { view ->
+        val view = viewControllers.firstOrNull { view ->
             val fxmlViewAnnotation = view::class.annotations.find { it is FxmlView } as? FxmlView
             fxmlViewAnnotation?.scene == scene
         } ?: throw IllegalArgumentException("There is no view with fxmlView.scene = ${scene.name}")
@@ -47,16 +46,20 @@ class StageManager(var stage: Stage, baseView: View) : SceneManager {
         stackPane.children.addAll(root)
     }
 
-    private fun getRoot(view : View) : Node {
-        val annotationFxml = view::class.annotations.find { it is FxmlView }?.let {
+    override fun closeApplication() {
+        Platform.exit()
+    }
+
+    private fun getRoot(viewController : ViewController) : Node {
+        val annotationFxml = viewController::class.annotations.find { it is FxmlView }?.let {
             it as FxmlView
         } ?: throw IllegalArgumentException("fxml view not found")
 
         val fxmlLoader: FXMLLoader = FXMLLoader()
 
-        fxmlLoader.location = view.javaClass.getResource(annotationFxml.path) ?: throw IllegalArgumentException("fxml file not found")
+        fxmlLoader.location = viewController.javaClass.getResource(annotationFxml.path) ?: throw IllegalArgumentException("fxml file not found")
 
-        fxmlLoader.setController(view)
+        fxmlLoader.setController(viewController)
 
         val pane = fxmlLoader.load<Node>()
 
