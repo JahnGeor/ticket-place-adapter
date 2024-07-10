@@ -11,12 +11,13 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" >
    <top>
       <ImageView fitHeight="76.0" fitWidth="413.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
          <image>
-            <Image url="@../assets/img/logo.png" />
+            <Image url="@..\..\assets\logo.png" />
          </image>
       </ImageView>
    </top>
@@ -35,12 +36,23 @@
             <ComboBox fx:id="emailFields" editable="true" prefHeight="40.0" prefWidth="270.0" promptText="Электронная почта" />
             <PasswordTextField fx:id="passwordField" prefHeight="40.0" promptText="Пароль" GridPane.rowIndex="1" />
             <ComboBox fx:id="urlFields" editable="true" prefHeight="40.0" prefWidth="270.0" promptText="Адрес подключения" GridPane.columnIndex="1" />
-            <Button fx:id="loginButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="302.0" text="Войти" GridPane.rowIndex="2" />
-            <Button fx:id="printLastButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="270.0" text="Печать последнего чека" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button fx:id="loginButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="302.0" text="Войти" GridPane.rowIndex="2"><graphic>
+               <FontIcon iconLiteral="fltrmz-person-arrow-right-24"/>
+            </graphic>
+            </Button>
+            <Button fx:id="printLastButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="270.0" text="Печать последнего чека" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <graphic>
+                  <FontIcon iconLiteral="fltral-document-arrow-left-24"/>
+               </graphic>
+            </Button>
             <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="2">
                <children>
                   <ComboBox fx:id="cashierList" prefHeight="40.0" prefWidth="238.0" promptText="Пользователь" />
-                  <Button fx:id="shiftButton" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Закрыть смену" />
+                  <Button fx:id="shiftButton" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Закрыть смену">
+                     <graphic>
+                        <FontIcon iconLiteral="mdi2p-printer-check"/>
+                     </graphic>
+                  </Button>
                </children>
             </InputGroup>
          </children>

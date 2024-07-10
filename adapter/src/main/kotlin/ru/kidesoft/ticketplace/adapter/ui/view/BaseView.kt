@@ -4,14 +4,18 @@ import javafx.fxml.FXML
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.layout.StackPane
+import org.kordamp.ikonli.fluentui.FluentUiRegularAL
+import org.kordamp.ikonli.fluentui.FluentUiRegularMZ
+import org.kordamp.ikonli.javafx.FontIcon
 import ru.kidesoft.ticketplace.adapter.ui.presenter.BasePresenter
+import ru.kidesoft.ticketplace.adapter.ui.presenter.BaseView
 import ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene
 import java.net.URL
 import java.util.*
 
 
 @FxmlView("base.fxml", Scene.BASE)
-class BaseView(val presenter: BasePresenter) : View() {
+class BaseView(val presenter: BasePresenter) : View(), BaseView {
     @FXML
     private lateinit var aboutMenuItem: MenuItem
 
@@ -56,7 +60,7 @@ class BaseView(val presenter: BasePresenter) : View() {
 
     override fun setActions() {
         updateMenuItem.setOnAction { presenter.openScene(Scene.MAIN, stageManager) }
-        exitMenuItem.setOnAction { presenter.exit(stageManager) }
+        exitMenuItem.setOnAction { presenter.exit(this) }
     }
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {

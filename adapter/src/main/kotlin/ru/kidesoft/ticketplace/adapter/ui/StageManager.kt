@@ -3,9 +3,11 @@ package ru.kidesoft.ticketplace.adapter.ui
 import javafx.fxml.FXMLLoader
 import javafx.scene.Node
 import javafx.scene.Parent
+import javafx.scene.control.Alert
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
+import javafx.stage.Modality
 import javafx.stage.Stage
 import ru.kidesoft.ticketplace.adapter.ui.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene
@@ -19,7 +21,7 @@ class StageManager(var stage: Stage, baseView: View) : SceneManager {
     init {
         baseView.stageManager = this
         val root = getRoot(baseView)
-        stage.scene = javafx.scene.Scene(root as Parent?, 200.0, 200.0)
+        stage.scene = javafx.scene.Scene(root as Parent?, 600.0, 415.0)
     }
 
     fun addScene(scene: ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene, view : View) {
@@ -61,5 +63,29 @@ class StageManager(var stage: Stage, baseView: View) : SceneManager {
         return pane
     }
 
+    override fun onError(e : Exception) {
 
+    }
+
+    override fun onWarning() {
+
+    }
+
+    override fun onErrorAlert(e : Exception) {
+        val alert = Alert(Alert.AlertType.ERROR).apply {
+            headerText = "Во время выполнения программы произошла ошибка"
+            contentText = e.localizedMessage
+        }
+        alert.initOwner(stage)
+        alert.initModality(Modality.APPLICATION_MODAL)
+        alert.showAndWait()
+    }
+
+    override fun onWarningAlert() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onInformationAlert() {
+        TODO("Not yet implemented")
+    }
 }

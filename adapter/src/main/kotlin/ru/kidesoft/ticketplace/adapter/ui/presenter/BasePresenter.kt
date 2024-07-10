@@ -2,24 +2,19 @@ package ru.kidesoft.ticketplace.adapter.ui.presenter
 
 import ru.kidesoft.ticketplace.adapter.ui.presenter.ui.Scene
 
-class BasePresenter {
-    fun runDiagnostic() {
+interface BaseView : ViewManager{
 
-    }
+}
 
-    fun openScene(scene: Scene, sceneManager: SceneManager) {
+class BasePresenter : Presenter() {
+    fun runDiagnostic() {}
+
+    fun exit(b: BaseView) {
         try {
-            sceneManager.openScene(scene)
+            b.getSceneManager().openScene(Scene.AUTH)
         } catch (e: Exception) {
-            println(e)
-        }
-    }
-
-    fun exit(sceneManager: SceneManager) {
-        try {
-            sceneManager.openScene(Scene.AUTH)
-        } catch (e: Exception) {
-            println(e)
+            b.getSceneManager().onErrorAlert(e)
+            println(e.cause)
         }
     }
 }

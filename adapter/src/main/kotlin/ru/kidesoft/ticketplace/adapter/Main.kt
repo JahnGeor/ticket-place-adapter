@@ -1,5 +1,6 @@
 package ru.kidesoft.ticketplace.adapter
 
+import atlantafx.base.theme.CupertinoLight
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.stage.Stage
@@ -13,6 +14,7 @@ import ru.kidesoft.ticketplace.adapter.ui.view.BaseView
 
 class Main : Application() {
     override fun start(stage: Stage) {
+        setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)
         val basePresenter = BasePresenter()
         val baseView = BaseView(basePresenter)
 
