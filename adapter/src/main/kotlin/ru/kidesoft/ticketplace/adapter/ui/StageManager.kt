@@ -15,10 +15,17 @@ import org.controlsfx.dialog.ExceptionDialog
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
 import ru.kidesoft.ticketplace.adapter.ui.view.FxmlView
 import ru.kidesoft.ticketplace.adapter.ui.view.ViewController
+import kotlin.reflect.KClass
 
 class StageManager(var stage: Stage, baseViewController: ViewController) : SceneManager, ApplicationManager,
     Notification, ru.kidesoft.ticketplace.adapter.application.presenter.Alert {
     private val viewControllers: MutableList<ViewController> = mutableListOf()
+
+    fun <P : Presenter> getPresenter(presenter : KClass<P>): P? {
+        return viewControllers.firstOrNull { presenter.java.isAssignableFrom(it.javaClass) } ?.let {
+            presenter.java.cast(it)
+        }
+    }
 
     init {
         baseViewController.stageManager = this

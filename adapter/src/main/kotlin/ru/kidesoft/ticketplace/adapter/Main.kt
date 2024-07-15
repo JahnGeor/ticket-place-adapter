@@ -9,6 +9,7 @@ import org.flywaydb.core.api.logging.Log
 import ru.kidesoft.ticketplace.adapter.application.port.*
 import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
 import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartSessionUsecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.UpdateSessionStateUsecase
 
 
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
@@ -52,6 +53,7 @@ class Main : Application() {
             val isActiveSessionUsecase = IsActiveSessionUsecase(h2DatabaseRepository) // mock/h2DatabaseRepository
             val getProfileByCurrentUser = GetProfileByCurrentUser(h2DatabaseRepository) // mock/h2DatabaseRepository
             val startSessionUsecase = StartSessionUsecase(h2DatabaseRepository, kktFactory)
+            val updateSessionStateUsecase = UpdateSessionStateUsecase(h2DatabaseRepository, kktFactory)
             UsecaseExecutor.registerUsecase(
                 loginUsecase,
                 logoutUsecase,
@@ -59,8 +61,11 @@ class Main : Application() {
                 getCashierListUsecase,
                 isActiveSessionUsecase,
                 getProfileByCurrentUser,
-                startSessionUsecase
+                startSessionUsecase,
+                updateSessionStateUsecase
             )
+
+
 
             // Устанавливаем тему от AtlantaFX
             setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)

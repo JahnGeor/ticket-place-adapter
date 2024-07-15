@@ -7,12 +7,14 @@ import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.util.StringConverter
 import org.apache.logging.log4j.LogManager
+import ru.kidesoft.ticketplace.adapter.Main
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
 import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartSessionUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.LoginUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetCashierListUsecase
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
+import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.mock.Login
 
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import ru.kidesoft.ticketplace.adapter.ui.handler.DefaultHandler
@@ -65,8 +67,8 @@ class AuthViewController : ViewController(), ru.kidesoft.ticketplace.adapter.app
 
         }
 
-        UsecaseExecutor.Executor(this as ru.kidesoft.ticketplace.adapter.application.presenter.AuthPresenter).present(GetAllLoginUsecase::class, GetAllLoginUsecase.GetAllLoginUsecaseInput())
-        UsecaseExecutor.Executor(this as ru.kidesoft.ticketplace.adapter.application.presenter.AuthPresenter).present(GetCashierListUsecase::class, GetCashierListUsecase.GetCashierListInput())
+        UsecaseExecutor.Executor(this as AuthPresenter).present(GetAllLoginUsecase::class, GetAllLoginUsecase.GetAllLoginUsecaseInput())
+        UsecaseExecutor.Executor(this as AuthPresenter).present(GetCashierListUsecase::class, GetCashierListUsecase.GetCashierListInput())
         setActions()
     }
 
@@ -92,9 +94,25 @@ class AuthViewController : ViewController(), ru.kidesoft.ticketplace.adapter.app
             url = urlFields.value
         }
 
-        UsecaseExecutor.Executor(this as Presenter).present(LoginUsecase::class, input)
 
-        UsecaseExecutor.Executor<Presenter>(this).present(StartSessionUsecase::class, StartSessionUsecase.Input())
+        UsecaseExecutor.Executor(this).get(LoginUsecase, input)?.let {
+            UsecaseExecutor.Executor(this).get(StartSessionUsecase)
+            getSceneManager().openScene(Scene.MAIN)
+        }
+
+//        UsecaseExecutor.Executor<Presenter>(this).get(LoginUsecase::class, input)?.let {
+//
+//            getSceneManager().getViewController(MainPresenter::class)?.let {
+//                UsecaseExecutor.Executor(it as MainPresenter).get(StartSessionUsecase::class, StartSessionUsecase.Input()).let {
+//
+//                }
+//            }
+//
+//            getSceneManager().openScene(Scene.MAIN)
+//
+//        }
+
+        // UsecaseExecutor.Executor(this).present(StartSessionUsecase::class, StartSessionUsecase.Input())
     }
 
     fun onPrintLastButtonClick(event: ActionEvent) {

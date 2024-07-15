@@ -10,6 +10,7 @@ import ru.kidesoft.ticketplace.adapter.Main
 import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
 
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.UpdateSessionStateUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetProfileByCurrentUser
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
@@ -68,6 +69,7 @@ class MainViewController() : ViewController(), MainPresenter {
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         UsecaseExecutor.Executor(this as MainPresenter).present(GetProfileByCurrentUser::class, GetProfileByCurrentUser.Input())
+        UsecaseExecutor.Executor(this as MainPresenter).present(UpdateSessionStateUsecase::class, UpdateSessionStateUsecase.Input())
     }
 
     override fun setProfile(profile: Profile) {
@@ -81,6 +83,11 @@ class MainViewController() : ViewController(), MainPresenter {
             ShiftState.CLOSED -> "Смена закрыта"
             ShiftState.EXPIRED -> "Смена истекла"
             ShiftState.OPENED -> "Смена открыта"
+        }
+
+        kktStateLabel.text = when(isConnected) {
+            true -> "Соединение с кассой: да"
+            false -> "Соединение с кассой: нет"
         }
     }
 }

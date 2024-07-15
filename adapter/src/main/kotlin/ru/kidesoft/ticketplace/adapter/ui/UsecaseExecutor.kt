@@ -21,28 +21,24 @@ object UsecaseExecutor {
         usecase.forEach { uc -> usecaseMap[uc::class] = uc }
     }
 
-    class Executor<P : Presenter>() {
+    class Executor<P : Presenter>(val presenter: P) {
         var handler: Handler? = DefaultHandler() // TODO: DefaultHandler()
         var maxAttempts: Int = 1
-        lateinit var presenter: P
 
-        constructor(presenter: P) : this(){
-            this.presenter = presenter
-        }
 
         // Функция возвращает данные от Usecase
         fun <I : _Usecase.Input, O : _Usecase.Output, UC : _Usecase<I, O, P>> get(
             usecaseClass: KClass<UC>,
             input: I
         ): O? {
-            val result: O? = null
+            var result: O? = null
             measureTimeMillis {
                 val usecase: UC =
                     usecaseMap[usecaseClass] as? UC
                         ?: throw RuntimeException("Usecase is not registered: $usecaseClass")
 
 
-                val result = execute(usecase, input)
+                result = execute(usecase, input)
             }.let {
                 logger.trace("Время выполнения метода варианта использования: ${usecaseClass.qualifiedName} через executor GET = $it милисекунд")
             }

@@ -45,6 +45,8 @@ class UpdateSessionStateUsecase(val database: DatabasePort, val kktPortFactory: 
             output.shiftState = ShiftState.UNDEFINED
         }
 
+
+
         return output
     }
 

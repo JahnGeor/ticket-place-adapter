@@ -6,8 +6,8 @@ import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
 import ru.kidesoft.ticketplace.adapter.application.port.ApiFactory
 import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
-import ru.kidesoft.ticketplace.adapter.application.presenter.Presenter
-import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
+import ru.kidesoft.ticketplace.adapter.application.presenter.*
+import ru.kidesoft.ticketplace.adapter.application.usecase.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
 import ru.kidesoft.ticketplace.adapter.domain.login.Login
 import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
@@ -97,17 +97,11 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
 
         databasePort.getSession().setActive(sessionAsync.await().id)
 
-        // TODO: обновление профиля пользователя
-        // TODO: databasePort.getProfile().Merge(profile)
-
-        // TODO: обновление сеанса пользователя
-        // TODO: databasePort.getSession().Merge(session)
-
         return Output()
     }
 
-    override fun present(output: Output, presenter: Presenter) {
-        presenter.getSceneManager().openScene(Scene.MAIN)
+    override fun present(output: Output, presenter: SceneManager) {
+
     }
 
 
