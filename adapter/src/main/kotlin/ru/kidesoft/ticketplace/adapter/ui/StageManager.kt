@@ -5,32 +5,42 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.control.Alert
+import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
 import javafx.stage.Modality
 import javafx.stage.Stage
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene
+import javafx.stage.Window
+import org.controlsfx.dialog.ExceptionDialog
+import ru.kidesoft.ticketplace.adapter.application.presenter.*
 import ru.kidesoft.ticketplace.adapter.ui.view.FxmlView
 import ru.kidesoft.ticketplace.adapter.ui.view.ViewController
 
-class StageManager(var stage: Stage, baseViewController: ViewController) : SceneManager {
-    private val viewControllers : MutableList<ViewController> = mutableListOf()
+class StageManager(var stage: Stage, baseViewController: ViewController) : SceneManager, ApplicationManager,
+    Notification, ru.kidesoft.ticketplace.adapter.application.presenter.Alert {
+    private val viewControllers: MutableList<ViewController> = mutableListOf()
 
     init {
         baseViewController.stageManager = this
         val root = getRoot(baseViewController)
-        stage.scene = javafx.scene.Scene(root as Parent?, 600.0, 415.0)
+        stage.apply {
+            scene = javafx.scene.Scene(root as Parent?, 600.0, 415.0)
+        }.also {
+            setOwnerProperties(it)
+        }
+
     }
 
-    fun addScene(scene: ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene, viewController : ViewController) {
+    fun addScene(
+        viewController: ViewController
+    ) {
         viewController.stageManager = this
         viewControllers.add(viewController)
     }
 
 
-    override fun openScene(scene : ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene) {
-        require(scene != Scene.BASE)
+    override fun openScene(scene: ru.kidesoft.ticketplace.adapter.application.presenter.Scene) {
+        require(scene != ru.kidesoft.ticketplace.adapter.application.presenter.Scene.BASE)
 
         val view = viewControllers.firstOrNull { view ->
             val fxmlViewAnnotation = view::class.annotations.find { it is FxmlView } as? FxmlView
@@ -39,25 +49,33 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
 
         var root = getRoot(view)
 
-        val borderPane  = stage.scene.root as BorderPane
+        val borderPane = stage.scene.root as BorderPane
+
+        if (scene == Scene.AUTH) {
+            borderPane.top.isVisible = false
+            borderPane.top.isDisable = true
+        } else {
+            borderPane.top.isDisable = false
+            borderPane.top.isVisible = true
+        }
+
         val stackPane = borderPane.center as StackPane
 
         stackPane.children.clear()
         stackPane.children.addAll(root)
+
+
     }
 
-    override fun closeApplication() {
-        Platform.exit()
-    }
-
-    private fun getRoot(viewController : ViewController) : Node {
+    private fun getRoot(viewController: ViewController): Node {
         val annotationFxml = viewController::class.annotations.find { it is FxmlView }?.let {
             it as FxmlView
         } ?: throw IllegalArgumentException("fxml view not found")
 
         val fxmlLoader: FXMLLoader = FXMLLoader()
 
-        fxmlLoader.location = viewController.javaClass.getResource(annotationFxml.path) ?: throw IllegalArgumentException("fxml file not found")
+        fxmlLoader.location = viewController.javaClass.getResource(annotationFxml.path)
+            ?: throw IllegalArgumentException("fxml file not found")
 
         fxmlLoader.setController(viewController)
 
@@ -66,29 +84,65 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
         return pane
     }
 
-    override fun onError(e : Exception) {
 
+    private fun setOwnerProperties(window: Window) {
+        stage.icons.add(Image("/ru/kidesoft/ticketplace/adapter/assets/icon.png"))
+        stage.title = "Ticket Place"
     }
 
-    override fun onWarning() {
 
-    }
-
-    override fun onErrorAlert(e : Exception) {
-        val alert = Alert(Alert.AlertType.ERROR).apply {
-            headerText = "Во время выполнения программы произошла ошибка"
-            contentText = e.localizedMessage
+    fun createNewStage(): Stage {
+        return Stage().apply { centerOnScreen() }.also {
+            setOwnerProperties(it)
         }
-        alert.initOwner(stage)
-        alert.initModality(Modality.APPLICATION_MODAL)
-        alert.showAndWait()
+
     }
 
-    override fun onWarningAlert() {
-        TODO("Not yet implemented")
+    override fun closeApplication(code: Int) {
+        Platform.exit()
     }
 
-    override fun onInformationAlert() {
-        TODO("Not yet implemented")
+    override fun showNotification(notificationType: NotificationType, message: String, title: String) {
+
+    }
+
+    override fun showAlert(alertType: AlertType, message: String, title: String, exception: Exception?) {
+
+        when (alertType) {
+            AlertType.ERROR -> {
+                exception?.run {
+                    showErrorAlert(message, title, exception)
+                } ?: run {
+                    defaultAlert(Alert.AlertType.ERROR, message, title)
+                }
+                // TODO: подумать, нужен ли здесь throw NullPointerException(exception must be non-null with Error Alert Type (но это не всегда правда, поскольку есть кейсы, где нет Exception)
+            }
+
+            AlertType.WARN -> {
+                defaultAlert(Alert.AlertType.WARNING, message, title)
+            }
+
+            AlertType.INFO -> {
+                defaultAlert(Alert.AlertType.INFORMATION, message, title)
+            }
+        }
+    }
+
+    companion object {
+        fun showErrorAlert(message: String, title: String, exception: Exception) {
+            val dialog = ExceptionDialog(exception)
+            dialog.contentText = message
+            dialog.headerText = title
+            dialog.initModality(Modality.APPLICATION_MODAL)
+            dialog.showAndWait()
+        }
+
+        fun defaultAlert(type: Alert.AlertType, message: String, title: String) {
+            val alert = Alert(type)
+            alert.headerText = title
+            alert.contentText = message
+            alert.initModality(Modality.APPLICATION_MODAL)
+            alert.showAndWait()
+        }
     }
 }

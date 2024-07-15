@@ -1,9 +1,17 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase
 
-abstract class Usecase<I : Usecase.InputValues, O : Usecase.OutputBoundary> {
-    abstract fun execute(inputValues: I, outputBoundary: O)
+import ru.kidesoft.ticketplace.adapter.application.presenter.Presenter
 
-    interface InputValues {}
 
-    interface OutputBoundary {}
+interface SceneManager {
+    fun openScene(scene: Scene)
+}
+
+abstract class _Usecase<I : _Usecase.Input, O : _Usecase.Output, P : Presenter> {
+    interface Input {}
+    interface Output {}
+
+    abstract suspend fun execute(input: I): O
+
+    abstract fun present(output: O, presenter: P)
 }

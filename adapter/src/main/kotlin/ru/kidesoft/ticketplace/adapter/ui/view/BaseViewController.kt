@@ -1,19 +1,23 @@
 package ru.kidesoft.ticketplace.adapter.ui.view
 
+import javafx.event.ActionEvent
 import javafx.fxml.FXML
+
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.layout.StackPane
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.AuthPresenter
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.BasePresenter
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.BaseView
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene
+import org.flywaydb.core.api.logging.Log
+import ru.kidesoft.ticketplace.adapter.application.presenter.Presenter
+
+import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
+import ru.kidesoft.ticketplace.adapter.application.usecase.login.LogoutUsecase
+import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import java.net.URL
 import java.util.*
 
 
 @FxmlView("base.fxml", Scene.BASE)
-class BaseViewController(private val presenter: BasePresenter, private val authPresenter: AuthPresenter) : ViewController(), BaseView {
+class BaseViewController() : ViewController() {
     @FXML
     private lateinit var aboutMenuItem: MenuItem
 
@@ -56,20 +60,84 @@ class BaseViewController(private val presenter: BasePresenter, private val authP
     @FXML
     private lateinit var updateMenuItem: MenuItem
 
-    override fun setActions() {
-        updateMenuItem.setOnAction { presenter.openScene(Scene.UPDATE, stageManager) }
-        logoutMenuItem.setOnAction { authPresenter.logout(this) }
-        exitMenuItem.setOnAction { presenter.exit(this) }
-        settingMenuItem.setOnAction { presenter.openScene(Scene.SETTING, stageManager) }
-        homeMenuItem.setOnAction { presenter.openScene(Scene.MAIN, stageManager) }
-        historyMenuItem.setOnAction { presenter.openScene(Scene.HISTORY, stageManager) }
-        adminMenuItem.setOnAction { presenter.openScene(Scene.ADMIN, stageManager) }
-        aboutMenuItem.setOnAction { presenter.openScene(Scene.ABOUT, stageManager) }
-        diagnosticMenuItem.setOnAction { presenter.runDiagnostic(this) }
-    }
-
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         setActions()
     }
+
+    // --- Action section
+
+    override fun setActions() {
+        updateMenuItem.setOnAction(::onUpdateMenuItemAction)
+        logoutMenuItem.setOnAction(::onLogoutMenuItemAction)
+        exitMenuItem.setOnAction(::onExitMenuItemAction)
+        settingMenuItem.setOnAction(::onSettingMenuItemAction)
+        homeMenuItem.setOnAction(::onHomeMenuItemAction)
+        historyMenuItem.setOnAction(::onHistoryMenuItemAction)
+        adminMenuItem.setOnAction (::onAdminMenuItemAction)
+        aboutMenuItem.setOnAction(::onAboutMenuItemAction)
+        diagnosticMenuItem.setOnAction(::onDiagnosticMenuItemAction)
+    }
+
+    private fun onUpdateMenuItemAction(actionEvent: ActionEvent) {
+        getSceneManager().openScene(Scene.UPDATE)
+    }
+
+    private fun onLogoutMenuItemAction(actionEvent: ActionEvent) {
+        UsecaseExecutor.Executor(this as Presenter).present(LogoutUsecase::class, LogoutUsecase.Input())
+    }
+
+    private fun onExitMenuItemAction(actionEvent: ActionEvent) {
+        getApplicationManager().closeApplication(0)
+    }
+    private fun onSettingMenuItemAction(actionEvent: ActionEvent) {
+        getSceneManager().openScene(Scene.SETTING)
+    }
+
+    private fun onHomeMenuItemAction(actionEvent: ActionEvent) {
+        getSceneManager().openScene(Scene.MAIN)
+    }
+
+    private fun onHistoryMenuItemAction(actionEvent: ActionEvent) {
+        getSceneManager().openScene(Scene.HISTORY)
+    }
+
+    private fun onAdminMenuItemAction(actionEvent: ActionEvent) {
+        getSceneManager().openScene(Scene.ADMIN)
+    }
+
+    private fun onAboutMenuItemAction(actionEvent: ActionEvent) {
+        getSceneManager().openScene(Scene.ABOUT)
+    }
+
+    private fun onDiagnosticMenuItemAction(actionEvent: ActionEvent) {
+        // TODO: Executor(DiagnosticUsecase::class)
+    }
+
+
+
+    // --- View section
+
+
+
+
+//    override fun showPasswordRequest() {
+////        var dialog = javafx.scene.control.Dialog<Node>()
+////
+////        dialog.graphic = VBox().apply {
+////            children.addAll(
+////                Label("Hello"), Label("Text")
+////            )
+////        }
+//
+//
+//            stageManager.createNewStage().apply {}
+//
+//
+//
+//        //dialog.initOwner(stageManager.createNewStage())
+//
+//
+//        //dialog.showAndWait()
+//    }
 
 }

@@ -5,7 +5,7 @@ import java.util.*
 
 class ApplicationProperties : PropertiesPort {
     override fun getVersion() : String {
-        val properties = javaClass.classLoader.getResourceAsStream("ru/kidesoft/ticketplace/adapter/application.properties").use {
+        val properties = javaClass.classLoader.getResourceAsStream("application.properties").use {
             Properties().apply { load(it) }
         }
 

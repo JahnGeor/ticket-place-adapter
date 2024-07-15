@@ -10,17 +10,6 @@ create table LOGIN
         unique (EMAIL, URL)
 );
 
-create table CONSTANT
-(
-    NAME CHARACTER VARYING not null,
-    VAL  CHARACTER VARYING,
-    constraint CONSTANT_PK
-        primary key (NAME)
-);
-
-INSERT INTO CONSTANT (NAME, VAL) VALUES ('ACTIVE_LOGIN_UUID', null);
-INSERT INTO CONSTANT (NAME, VAL) VALUES ('DEFAULT_URL', 'https://ticket-place.ru');
-
 create table CLICK
 (
     ID       UUID default RANDOM_UUID() not null,
@@ -44,7 +33,7 @@ create table HISTORY
     ERROR          CHARACTER VARYING,
     ORDER_ID       INTEGER                    not null,
     OPERATION_TYPE TINYINT                    not null,
-    SOURCE_TYPE TINYINT                    not null,
+    SOURCE_TYPE    TINYINT                    not null,
     constraint HISTORY_PK
         primary key (ID),
     constraint HISTORY_PK_UNIQUE
@@ -75,6 +64,7 @@ create table SESSION
 (
     ID           UUID default RANDOM_UUID() not null,
     LOGIN_ID     UUID                       not null,
+    ACTIVE       BOOLEAN                    not null,
     CREATED_AT   TIMESTAMP WITH TIME ZONE   not null,
     EXPIRED_AT   TIMESTAMP WITH TIME ZONE   not null,
     TOKEN_TYPE   CHARACTER VARYING(30)      not null,
@@ -83,24 +73,25 @@ create table SESSION
         primary key (ID),
     constraint SESSION_LOGIN_ID_FK
         foreign key (LOGIN_ID) references LOGIN
-            on update cascade on delete cascade
+            on update cascade on delete cascade,
+    check ((SELECT COUNT(*) WHERE ACTIVE = TRUE) <= 1)
 );
 
 create table SETTING
 (
-    ID                      UUID              not null, --default RANDOM_UUID()
-    KKT_AUTO_RECONNECT      BOOLEAN           not null, --default TRUE
-    KKT_DRIVER_PATH         CHARACTER VARYING not null, --default './drivers/kkt/10.9.5.0/'
-    PRINTER_NAME            CHARACTER VARYING,  --default ''
-    PAGE_SIZE               TINYINT           not null, --default 1
-    PAGE_ORIENTATION        TINYINT           not null, --default 1
-    PRINT_CHECK             BOOLEAN           not null, --default TRUE
-    PRINT_TICKET            BOOLEAN           not null, --default TRUE
-    UPDATE_REPOSITORY_URL   CHARACTER VARYING not null, --default 'https://example.com'
-    UPDATE_AUTOMATICALLY    BOOLEAN           not null, --default FALSE
-    SERVER_REQUEST_TIMEOUT  NUMERIC           not null, --default 10000000000
-    SERVER_REQUEST_INTERVAL NUMERIC                           not null, --default 5000000000
-    LOGIN_ID                UUID                                                not null,
+    ID                      UUID              not null,
+    KKT_AUTO_RECONNECT      BOOLEAN           not null,
+    KKT_DRIVER_PATH         CHARACTER VARYING not null,
+    PRINTER_NAME            CHARACTER VARYING,
+    PAGE_SIZE               TINYINT           not null,
+    PAGE_ORIENTATION        TINYINT           not null,
+    PRINT_CHECK             BOOLEAN           not null,
+    PRINT_TICKET            BOOLEAN           not null,
+    UPDATE_REPOSITORY_URL   CHARACTER VARYING not null,
+    UPDATE_AUTOMATICALLY    BOOLEAN           not null,
+    SERVER_REQUEST_TIMEOUT  NUMERIC           not null,
+    SERVER_REQUEST_INTERVAL NUMERIC           not null,
+    LOGIN_ID                UUID              not null,
     constraint SETTING_PK
         primary key (ID),
     constraint SETTING_LOGIN_ID_FK

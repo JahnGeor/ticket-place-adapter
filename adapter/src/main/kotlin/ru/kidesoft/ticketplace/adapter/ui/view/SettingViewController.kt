@@ -5,14 +5,13 @@ import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.SettingPresenter
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.SettingView
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene
+import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
+import ru.kidesoft.ticketplace.adapter.application.presenter.SettingPresenter
 import java.net.URL
 import java.util.*
 
 @FxmlView("setting.fxml", Scene.SETTING)
-class SettingViewController(private val settingPresenter: SettingPresenter) : ViewController(), SettingView {
+class SettingViewController() : ViewController(), SettingPresenter {
 
     @FXML
     private lateinit var kktDriverPathButton: Button
@@ -56,10 +55,16 @@ class SettingViewController(private val settingPresenter: SettingPresenter) : Vi
     @FXML
     private lateinit var timeoutBox: ComboBox<Any>
 
+    override fun initialize(location: URL?, resources: ResourceBundle?) {}
+
+    // --- Action session
+
     override fun setActions() {
         TODO("Not yet implemented")
     }
 
-    override fun initialize(location: URL?, resources: ResourceBundle?) {
-    }
+    // --- View section
+
+
+
 }

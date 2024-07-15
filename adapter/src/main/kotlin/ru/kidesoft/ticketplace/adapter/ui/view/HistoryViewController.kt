@@ -1,15 +1,16 @@
 package ru.kidesoft.ticketplace.adapter.ui.view
 
+import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.control.*
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.HistoryView
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.Presenter
-import ru.kidesoft.ticketplace.adapter.infrastructure.presenter.ui.Scene
+
+import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
+import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import java.net.URL
 import java.util.*
 
 @FxmlView("history.fxml", Scene.HISTORY)
-class HistoryViewController(private val presenter: Presenter) : ViewController(), HistoryView {
+class HistoryViewController() : ViewController(), ru.kidesoft.ticketplace.adapter.application.presenter.HistoryPresenter {
     @FXML
     private lateinit var checkCol: TableColumn<Any, Any>
 
@@ -49,11 +50,18 @@ class HistoryViewController(private val presenter: Presenter) : ViewController()
     @FXML
     private lateinit var statusTypeCol: TableColumn<Any, Any>
 
-    override fun setActions() {
-        TODO("Not yet implemented")
+    override fun initialize(location: URL?, resources: ResourceBundle?) {
     }
 
-    override fun initialize(location: URL?, resources: ResourceBundle?) {
-       // TODO("Not yet implemented")
+    // --- Action section
+
+    override fun setActions() {
+        printButton.setOnAction(::onPrintButtonAction)
     }
+
+    private fun onPrintButtonAction(actionEvent: ActionEvent) {
+
+    }
+
+    // --- View section
 }
