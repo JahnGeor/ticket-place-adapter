@@ -14,13 +14,20 @@ class GetProfileByCurrentUser(val database: DatabasePort) : _Usecase<GetProfileB
 
     }
 
-    override suspend fun execute(inputValues: Input?, sceneManager: SceneManager? = null): Output {
+    override suspend fun execute(inputValues: Input?, sceneManager: SceneManager?): Output {
         val profile = database.getProfile().getCurrentProfile()?: throw IllegalArgumentException("Профиль текущего пользователя не найден")
 
+        val output = Output(profile)
+
         sceneManager?.let {
-            it.getPresenter(MainPresenter::class)?.setProfile(profile)
+            _present(output, it)
         }
 
-        return Output(profile)
+        return output
+    }
+
+    private fun _present(output: Output, sceneManager: SceneManager) {
+        val presenter = sceneManager.getPresenter(MainPresenter::class)?: throw NullPointerException("${MainPresenter::class::simpleName} is not found")
+        presenter.setProfile(output.profile)
     }
 }
