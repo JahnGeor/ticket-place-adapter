@@ -8,17 +8,16 @@ import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.WebServerApiFactory
 
 class GetAllLoginUsecase(private val databasePort: DatabasePort, private val apiFactory: WebServerApiFactory) :
-    _Usecase<GetAllLoginUsecase.GetAllLoginUsecaseInput, GetAllLoginUsecase.GetAllLoginUsecaseOutput>() {
+    _Usecase<GetAllLoginUsecase.Input, GetAllLoginUsecase.Output>() {
 
-    class GetAllLoginUsecaseInput : _Usecase.Input {}
-    class GetAllLoginUsecaseOutput : _Usecase.Output {
+    class Input : _Usecase.Input {}
+    class Output : _Usecase.Output {
         var emails = listOf<String>()
         var urls = listOf<String>()
     }
 
-    override suspend fun execute(inputValues: GetAllLoginUsecaseInput?): GetAllLoginUsecaseOutput {
+    override suspend fun execute(inputValues: Input?, sceneManager: SceneManager?): Output {
         val list = databasePort.getLogin().GetAll()
-        var output = GetAllLoginUsecaseOutput()
 
         var emails = mutableListOf<String>()
         var urls = mutableListOf<String>()
@@ -28,20 +27,21 @@ class GetAllLoginUsecase(private val databasePort: DatabasePort, private val api
             urls.add(it.url)
         }
 
-        if (output.urls.isEmpty()) {
-            output.urls = apiFactory.getApis()
-        } else {
-            output.urls = urls.distinct()
+        if (urls.isEmpty()) {
+            urls = apiFactory.getApis().toMutableList()
         }
 
+
+        sceneManager?.let { it ->
+            it.getPresenter(AuthPresenter::class)?.let {
+                it -> it.also { it.setEmails(emails) }.also { it.setUrls(urls) }
+            }
+        }
+
+        val output = Output()
+        output.urls = urls.distinct()
         output.emails = emails.distinct()
 
         return output
     }
-
-    override fun present(output: GetAllLoginUsecaseOutput, sceneManager: SceneManager) {
-        sceneManager.getPresenter(AuthPresenter::class)?.setEmails(output.emails)
-        sceneManager.getPresenter(AuthPresenter::class)?.setUrls(output.urls)
-    }
-
 }

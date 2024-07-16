@@ -1,5 +1,6 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.profile
 
+import ru.kidesoft.ticketplace.adapter.Main
 import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
 import ru.kidesoft.ticketplace.adapter.application.presenter.AuthPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
@@ -13,16 +14,13 @@ class GetProfileByCurrentUser(val database: DatabasePort) : _Usecase<GetProfileB
 
     }
 
-    override suspend fun execute(inputValues: Input?): Output {
-        val profile = database.getProfile().getCurrentProfile()
+    override suspend fun execute(inputValues: Input?, sceneManager: SceneManager? = null): Output {
+        val profile = database.getProfile().getCurrentProfile()?: throw IllegalArgumentException("Профиль текущего пользователя не найден")
 
-        profile?.let {
-            return Output(profile)
-        } ?: throw IllegalArgumentException("Profile not found")
+        sceneManager?.let {
+            it.getPresenter(MainPresenter::class)?.setProfile(profile)
+        }
 
-    }
-
-    override fun present(output: Output, sceneManager: SceneManager) {
-        sceneManager.getPresenter(MainPresenter::class)?.setProfile(profile = output.profile)
+        return Output(profile)
     }
 }

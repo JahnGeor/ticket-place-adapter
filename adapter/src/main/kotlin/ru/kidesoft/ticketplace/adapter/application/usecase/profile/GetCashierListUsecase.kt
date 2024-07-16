@@ -16,12 +16,13 @@ class GetCashierListUsecase(private val databasePort: DatabasePort) :
 
     class GetCashierListInput : _Usecase.Input {}
 
-    override suspend fun execute(inputValues: GetCashierListInput?): GetCashierListOutput {
+    override suspend fun execute(inputValues: GetCashierListInput?, sceneManager: SceneManager?): GetCashierListOutput {
         val cashiers = databasePort.getProfile().getCashierList()
-        return GetCashierListOutput(cashiers)
-    }
 
-    override fun present(output: GetCashierListOutput, sceneManager: SceneManager) {
-        sceneManager.getPresenter(AuthPresenter::class)?.setCashiers(cashiers = output.cashierList)
+        sceneManager?.let {
+            it.getPresenter(AuthPresenter::class)?.setCashiers(cashiers = cashiers)
+        }
+
+        return GetCashierListOutput(cashiers)
     }
 }

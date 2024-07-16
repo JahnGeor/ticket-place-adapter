@@ -24,7 +24,7 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
 
     class Output : _Usecase.Output {}
 
-    override suspend fun execute(inputValues: Input?): Output {
+    override suspend fun execute(inputValues: Input?, sceneManager: SceneManager?): Output {
 
         if (inputValues == null) {
             throw NullPointerException("${this::class.simpleName} Input cannot be null.")
