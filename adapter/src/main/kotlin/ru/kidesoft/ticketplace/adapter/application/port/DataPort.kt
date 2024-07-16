@@ -53,9 +53,12 @@ interface ProfilePort {
 }
 
 interface SettingPort {
-    fun getCurrentSetting(): Setting?
+    fun getByCurrentUser(): Setting?
     fun create(setting: SettingExposed): Setting
     fun update(id: UUID, setting: SettingExposed): Setting
+    fun getById(id: UUID): Setting?
+    fun getByLoginId(loginId: UUID): Setting?
+    fun createDefault(loginId: UUID): Setting?
 }
 
 interface HistoryPort {

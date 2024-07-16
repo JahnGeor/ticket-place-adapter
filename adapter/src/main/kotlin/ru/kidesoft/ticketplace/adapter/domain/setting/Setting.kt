@@ -14,8 +14,21 @@ enum class PageOrientation {
     PORTRAIT, LANDSCAPE
 }
 
-class Setting: SettingExposed() {
+class Setting(): SettingExposed() {
     var id by Delegates.notNull<UUID>()
+
+    constructor(settingExposed: SettingExposed) : this() {
+        this.loginId = settingExposed.loginId
+        this.kkt = settingExposed.kkt
+        this.print = settingExposed.print
+        this.update = settingExposed.update
+        this.server = settingExposed.server
+    }
+
+    constructor(id : UUID, settingExposed: SettingExposed) : this(settingExposed) {
+        this.id = id
+    }
+
 }
 
 open class SettingExposed {

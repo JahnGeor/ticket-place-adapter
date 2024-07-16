@@ -22,7 +22,7 @@ class UpdateSessionStateUsecase(val database: DatabasePort, val kktPortFactory: 
 
     override suspend fun execute(input: Input?, sceneManager: SceneManager?): Output {
         val profile = database.getProfile().getCurrentProfile() ?: throw NullPointerException("profile is null")
-        val setting = database.getSetting().getCurrentSetting() ?: throw NullPointerException("setting is null")
+        val setting = database.getSetting().getByCurrentUser() ?: throw NullPointerException("setting is null")
 
         val kktPort = kktPortFactory.getInstance(KktType.ATOL, profile.loginId)?: kktPortFactory.createInstance(
             KktType.ATOL, setting.kkt,

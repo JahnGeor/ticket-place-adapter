@@ -1,13 +1,10 @@
 package ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2
 
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.duration
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import ru.kidesoft.ticketplace.adapter.application.port.SettingPort
 import ru.kidesoft.ticketplace.adapter.domain.setting.PageOrientation
 import ru.kidesoft.ticketplace.adapter.domain.setting.PageSize
@@ -45,6 +42,7 @@ class SettingRepository(database: Database) : SettingPort {
      *
      *
      */
+
     object Settings : UUIDTable("SETTING") {
         val kktAutoRecconect = bool("KKT_AUTO_RECONNECT").default(false)
         val kktDriverPath = text("KKT_DRIVER_PATH").default("./driver/kkt")
@@ -61,11 +59,42 @@ class SettingRepository(database: Database) : SettingPort {
     }
 
     fun ResultRow.toEntity() : Setting {
-
+        return Setting().apply {
+            id = this@toEntity[Settings.id].value
+            loginId = this@toEntity[Settings.loginId]
+            kkt.path = this@toEntity[Settings.kktDriverPath]
+            kkt.autoRecconect = this@toEntity[Settings.kktAutoRecconect]
+            server.requestInterval = this@toEntity[Settings.serverRequestInterval]
+            server.requestTimeout = this@toEntity[Settings.serverRequestTimeout]
+            print.isPrintingCheck = this@toEntity[Settings.printCheck]
+            print.isPrintingTicket = this@toEntity[Settings.printTicket]
+            print.pageSize = this@toEntity[Settings.pageSize]
+            print.pageOrientation = this@toEntity[Settings.pageOrientation]
+            print.printerName = this@toEntity[Settings.printerName]
+            update.isAuto = this@toEntity[Settings.updateAutomatically]
+            update.repositoryUrl = this@toEntity[Settings.updateRepositoryUrl]
+        }
     }
 
     override fun create(setting: SettingExposed) : Setting  {
+        return transaction {
+            val id = Settings.insert {
+                it[Settings.loginId] = setting.loginId
+                it[Settings.updateAutomatically] = setting.update.isAuto
+                it[Settings.updateRepositoryUrl] = setting.update.repositoryUrl
+                it[Settings.printCheck] = setting.print.isPrintingCheck
+                it[Settings.printTicket] = setting.print.isPrintingTicket
+                it[Settings.pageSize] = setting.print.pageSize
+                it[Settings.pageOrientation] = setting.print.pageOrientation
+                it[Settings.kktDriverPath] = setting.kkt.path
+                it[Settings.kktAutoRecconect] = setting.kkt.autoRecconect
+                it[Settings.printerName] = setting.print.printerName
+                it[Settings.serverRequestInterval] = setting.server.requestInterval
+                it[Settings.serverRequestTimeout] = setting.server.requestTimeout
+            } get Settings.id
 
+            Setting(id.value, setting)
+        }
     }
 
     override fun update(id : UUID, setting: SettingExposed) : Setting {
@@ -96,8 +125,38 @@ class SettingRepository(database: Database) : SettingPort {
         }
     }
 
-    override fun getCurrentSetting(): Setting? {
+    override fun getByLoginId(loginId : UUID) : Setting? {
+        return transaction {
+            Settings.selectAll().where { Settings.loginId eq loginId }.map { it.toEntity() }.singleOrNull()
+        }
+    }
 
+    override fun getById(id : UUID) : Setting? {
+        return transaction {
+            Settings.selectAll().where { Settings.id eq id }.map { it.toEntity() }.singleOrNull()
+        }
+    }
+
+    override fun getByCurrentUser(): Setting? {
+        return transaction {
+            Settings.join(
+                SessionRepository.Sessions,
+                JoinType.INNER,
+                additionalConstraint = { (SessionRepository.Sessions.loginId eq Settings.loginId) and (SessionRepository.Sessions.active eq true) })
+                .selectAll().map {
+                    it.toEntity()
+                }.singleOrNull()
+        }
+    }
+
+    override fun createDefault(loginId: UUID) : Setting {
+        return transaction {
+            val id = Settings.insert {
+                it[Settings.loginId] = loginId
+            } get Settings.id
+
+            Settings.selectAll().where { Settings.id eq id }.map{ it.toEntity() }.single()
+        }
     }
 
 }
