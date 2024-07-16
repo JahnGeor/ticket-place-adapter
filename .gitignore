@@ -10,3 +10,4 @@
 .DS_Store
 /client
 /adapter/src/module-info.java.dump
+/adapter/build/
