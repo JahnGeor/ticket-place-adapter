@@ -8,6 +8,7 @@ import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileExposed
 import ru.kidesoft.ticketplace.adapter.domain.session.Session
 import ru.kidesoft.ticketplace.adapter.domain.session.SessionExposed
 import ru.kidesoft.ticketplace.adapter.domain.setting.Setting
+import ru.kidesoft.ticketplace.adapter.domain.setting.SettingExposed
 import java.util.UUID
 
 interface DatabasePort {
@@ -53,6 +54,8 @@ interface ProfilePort {
 
 interface SettingPort {
     fun getCurrentSetting(): Setting?
+    fun create(setting: SettingExposed): Setting
+    fun update(id: UUID, setting: SettingExposed): Setting
 }
 
 interface HistoryPort {
