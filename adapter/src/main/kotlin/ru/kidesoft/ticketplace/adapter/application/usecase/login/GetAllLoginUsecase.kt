@@ -1,5 +1,6 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.login
 
+import ru.kidesoft.ticketplace.adapter.application.port.ApiFactory
 import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
 import ru.kidesoft.ticketplace.adapter.application.presenter.AuthPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.Presenter
@@ -7,7 +8,7 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.WebServerApiFactory
 
-class GetAllLoginUsecase(private val databasePort: DatabasePort, private val apiFactory: WebServerApiFactory) :
+class GetAllLoginUsecase(private val databasePort: DatabasePort, private val apiFactory: ApiFactory) :
     _Usecase<GetAllLoginUsecase.Input, GetAllLoginUsecase.Output>() {
 
     class Input : _Usecase.Input {}

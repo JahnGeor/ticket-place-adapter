@@ -6,13 +6,16 @@ import kotlinx.coroutines.async
 import org.apache.logging.log4j.LogManager
 import ru.kidesoft.ticketplace.adapter.application.port.ApiFactory
 import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
+import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
+import ru.kidesoft.ticketplace.adapter.application.port.KktType
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartSessionUsecase
 
 import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
 import java.time.LocalDateTime
 
-class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort: DatabasePort) :
+class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort: DatabasePort, val kktPortFactory: KktPortFactory) :
     _Usecase<LoginUsecase.Input, LoginUsecase.Output>() {
     private val logger = LogManager.getLogger(LoginUsecase::class.java)
 
@@ -98,11 +101,9 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
 
         databasePort.getSession().setActive(sessionAsync.await().id)
 
+        StartSessionUsecase(databasePort, kktPortFactory).execute() // Start Kkt Session
+
         return Output()
-    }
-
-    override fun present(output: Output, sceneManager: SceneManager) {
-
     }
 
 
