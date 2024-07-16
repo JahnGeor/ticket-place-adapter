@@ -2,18 +2,20 @@ package ru.kidesoft.ticketplace.adapter.application.usecase.kkt
 
 import ru.kidesoft.ticketplace.adapter.application.port.*
 import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
+import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 
-class StartSessionUsecase(val database : DatabasePort, val kktPortFactory: KktPortFactory) : _Usecase<StartSessionUsecase.Input, StartSessionUsecase.Output, MainPresenter>() {
+class StartSessionUsecase(val database : DatabasePort, val kktPortFactory: KktPortFactory) : _Usecase<StartSessionUsecase.Input, StartSessionUsecase.Output>() {
     class Input : _Usecase.Input
     class Output : _Usecase.Output {
 
     }
 
-    override suspend fun execute(input: Input): Output {
+    override suspend fun execute(input: Input?): Output {
 
         val profile = database.getProfile().getCurrentProfile()?: throw IllegalArgumentException("Profile can't be null")
+
         val setting = database.getSetting().getCurrentSetting() ?: throw IllegalArgumentException("Setting can't be null")
 
 
@@ -34,7 +36,7 @@ class StartSessionUsecase(val database : DatabasePort, val kktPortFactory: KktPo
         return Output()
     }
 
-    override fun present(output: Output, presenter: MainPresenter) {
+    override fun present(output: Output, sceneManager: SceneManager) {
 
     }
 }

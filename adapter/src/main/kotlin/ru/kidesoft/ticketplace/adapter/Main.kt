@@ -5,8 +5,10 @@ import javafx.application.Application
 import javafx.application.Platform
 import javafx.stage.Stage
 import kotlinx.coroutines.runBlocking
+import org.apache.logging.log4j.LogManager
 import org.flywaydb.core.api.logging.Log
 import ru.kidesoft.ticketplace.adapter.application.port.*
+import ru.kidesoft.ticketplace.adapter.application.presenter.Alert
 import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
 import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartSessionUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.UpdateSessionStateUsecase
@@ -36,7 +38,22 @@ import java.util.*
 // Класс-наследник JavaFX Application, выполняет все в потоке JavaFX
 class Main : Application() {
     override fun start(stage: Stage) {
+        var lock = SocketLock(12111)
+
+        if (!lock.tryLock()) {
+                StageManager.showErrorAlert(
+                    "Приложение уже запущено",
+                    "Во время запуска приложения произошла ошибка",
+                    IllegalStateException("Application is already running")
+                )
+
+                Platform.exit()
+                return
+        }
+
         try {
+
+
             val appProps = ru.kidesoft.ticketplace.adapter.ApplicationProperties()
 
 
@@ -54,6 +71,7 @@ class Main : Application() {
             val getProfileByCurrentUser = GetProfileByCurrentUser(h2DatabaseRepository) // mock/h2DatabaseRepository
             val startSessionUsecase = StartSessionUsecase(h2DatabaseRepository, kktFactory)
             val updateSessionStateUsecase = UpdateSessionStateUsecase(h2DatabaseRepository, kktFactory)
+
             UsecaseExecutor.registerUsecase(
                 loginUsecase,
                 logoutUsecase,
@@ -128,21 +146,15 @@ class Main : Application() {
         }
     }
 }
+class Launcher {
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val logger = LogManager.getLogger()
 
-fun main() {
-    UsecaseExecutor.registerUsecase()
+            logger.trace("Запуск приложения: ${args.joinToString { " " }}")
 
-//    UsecaseExecutor.Executor(object : Presenter{
-//        override fun getSceneManager(): SceneManager {
-//            TODO("Not yet implemented Presenter")
-//        }
-//    }).apply {  }.execute(TestUsecase::class, TestUsecase.Input())
-
-
-//    }.Executor(TestUsecase::class, object : Presenter {
-//        override fun getSceneManager(): SceneManager {
-//            TODO("Not yet implemented")
-//        }
-//    })
-    Application.launch(Main::class.java)
+            Application.launch(Main::class.java)
+        }
+    }
 }

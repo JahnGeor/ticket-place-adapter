@@ -68,8 +68,10 @@ class MainViewController() : ViewController(), MainPresenter {
     }
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-        UsecaseExecutor.Executor(this as MainPresenter).present(GetProfileByCurrentUser::class, GetProfileByCurrentUser.Input())
-        UsecaseExecutor.Executor(this as MainPresenter).present(UpdateSessionStateUsecase::class, UpdateSessionStateUsecase.Input())
+        UsecaseExecutor.Executor(this as MainPresenter).present(GetProfileByCurrentUser::class)
+        // QUESTION: Возможно стоит объединить все в один case
+        // TODO: Нужна обработка ошибок ЗДЕСЬ (не вызывать метод UpdateSessionStateUsecase, если профиль не обновлен)
+        UsecaseExecutor.Executor(this as MainPresenter).present(UpdateSessionStateUsecase::class) // QUESTION: Возможно стоит объединить все в один case
     }
 
     override fun setProfile(profile: Profile) {

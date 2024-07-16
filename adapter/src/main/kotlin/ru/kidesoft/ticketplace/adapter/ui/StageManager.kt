@@ -21,7 +21,7 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
     Notification, ru.kidesoft.ticketplace.adapter.application.presenter.Alert {
     private val viewControllers: MutableList<ViewController> = mutableListOf()
 
-    fun <P : Presenter> getPresenter(presenter : KClass<P>): P? {
+    override fun <P : Presenter> getPresenter(presenter : KClass<P>): P? {
         return viewControllers.firstOrNull { presenter.java.isAssignableFrom(it.javaClass) } ?.let {
             presenter.java.cast(it)
         }

@@ -95,8 +95,8 @@ class AuthViewController : ViewController(), ru.kidesoft.ticketplace.adapter.app
         }
 
 
-        UsecaseExecutor.Executor(this).get(LoginUsecase, input)?.let {
-            UsecaseExecutor.Executor(this).get(StartSessionUsecase)
+        UsecaseExecutor.Executor(this).get(LoginUsecase::class, input)?.let {
+            UsecaseExecutor.Executor(this).get(StartSessionUsecase::class, StartSessionUsecase.Input())
             getSceneManager().openScene(Scene.MAIN)
         }
 

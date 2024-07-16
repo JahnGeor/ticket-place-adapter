@@ -6,10 +6,11 @@ import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
 import ru.kidesoft.ticketplace.adapter.application.port.KktType
 import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.NotificationType
+import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 
-class UpdateSessionStateUsecase(val database: DatabasePort, val kktPortFactory: KktPortFactory) : _Usecase<UpdateSessionStateUsecase.Input, UpdateSessionStateUsecase.Output, MainPresenter>() {
+class UpdateSessionStateUsecase(val database: DatabasePort, val kktPortFactory: KktPortFactory) : _Usecase<UpdateSessionStateUsecase.Input, UpdateSessionStateUsecase.Output>() {
     private val logger = LogManager.getLogger()
     class Input : _Usecase.Input {
 
@@ -20,7 +21,8 @@ class UpdateSessionStateUsecase(val database: DatabasePort, val kktPortFactory: 
         var shiftState : ShiftState = ShiftState.UNDEFINED
     }
 
-    override suspend fun execute(input: Input): Output {
+
+    override suspend fun execute(input: Input?): Output {
         val profile = database.getProfile().getCurrentProfile() ?: throw IllegalArgumentException("profile is null")
         val setting = database.getSetting().getCurrentSetting() ?: throw IllegalArgumentException("setting is null")
 
@@ -50,12 +52,12 @@ class UpdateSessionStateUsecase(val database: DatabasePort, val kktPortFactory: 
         return output
     }
 
-    override fun present(output: Output, presenter: MainPresenter) {
+    override fun present(output: Output, sceneManager: SceneManager) {
         if (!output.isConnected || output.shiftState == ShiftState.UNDEFINED) {
-            presenter.getSceneManager().showNotification(NotificationType.ERROR, "Во время проверки состояния кассы произошла ошибка", "Неизвестное состояние соединения и/или смены ККТ")
+            sceneManager.showNotification(NotificationType.ERROR, "Во время проверки состояния кассы произошла ошибка", "Неизвестное состояние соединения и/или смены ККТ")
         }
 
-        presenter.setKktState(output.isConnected, output.shiftState)
+        sceneManager.getPresenter(MainPresenter::class)?.setKktState(output.isConnected, output.shiftState)
     }
 
 

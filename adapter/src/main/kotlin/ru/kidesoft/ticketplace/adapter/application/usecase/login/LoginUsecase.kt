@@ -2,21 +2,18 @@ package ru.kidesoft.ticketplace.adapter.application.usecase.login
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+
 import org.apache.logging.log4j.LogManager
 import ru.kidesoft.ticketplace.adapter.application.port.ApiFactory
 import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
-import ru.kidesoft.ticketplace.adapter.application.usecase.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
-import ru.kidesoft.ticketplace.adapter.domain.login.Login
+
 import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
-import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.ticketplace.LoginData
 import java.time.LocalDateTime
-import kotlin.system.measureTimeMillis
 
 class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort: DatabasePort) :
-    _Usecase<LoginUsecase.Input, LoginUsecase.Output, Presenter>() {
+    _Usecase<LoginUsecase.Input, LoginUsecase.Output>() {
     private val logger = LogManager.getLogger(LoginUsecase::class.java)
 
     class Input : _Usecase.Input {
@@ -27,15 +24,19 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
 
     class Output : _Usecase.Output {}
 
-    override suspend fun execute(inputValues: Input): Output {
+    override suspend fun execute(inputValues: Input?): Output {
+
+        if (inputValues == null) {
+            throw NullPointerException("${this::class.simpleName} Input cannot be null.")
+        }
 
         val async = GlobalScope.async {
-            logger.trace("Начато выполнение метода async@LoginUsecase : ${LocalDateTime.now().toLocalTime()}")
+            logger.trace("Начато выполнение метода async@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
             apiFactory.getInstance(inputValues.url).login(inputValues.email, inputValues.password)
         }
 
         async.invokeOnCompletion {
-            logger.trace("Завершено выполнение метода async@LoginUsecase : ${LocalDateTime.now().toLocalTime()}")
+            logger.trace("Завершено выполнение метода async@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
         }
 
         val loginExposed = LoginExposed().apply {
@@ -45,7 +46,7 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
         }
 
         val asyncLogin = GlobalScope.async {
-            logger.trace("Начато выполнение метода asyncLogin@LoginUsecase : ${LocalDateTime.now().toLocalTime()}")
+            logger.trace("Начато выполнение метода asyncLogin@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
 
             databasePort.getLogin().GetLoginId(inputValues.email, inputValues.url)?.let {
                 databasePort.getLogin()
@@ -57,7 +58,7 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
         }
 
         asyncLogin.invokeOnCompletion {
-            logger.trace("Завершено выполнение метода asyncLogin@LoginUsecase : ${LocalDateTime.now().toLocalTime()}")
+            logger.trace("Завершено выполнение метода asyncLogin@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
         }
 
 
@@ -66,7 +67,7 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
         }
 
         val profileAsync = GlobalScope.async {
-            logger.trace("Начато выполнение метода profileAsync@LoginUsecase : ${LocalDateTime.now().toLocalTime()}")
+            logger.trace("Начато выполнение метода profileAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
 
             databasePort.getProfile().getByLoginId(asyncLogin.await().id)?.let {
                 databasePort.getProfile().Update(it.id, profileExposed)
@@ -74,11 +75,11 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
         }
 
         profileAsync.invokeOnCompletion {
-            logger.trace("Завершено выполнение метода profileAsync@LoginUsecase : ${LocalDateTime.now().toLocalTime()}")
+            logger.trace("Завершено выполнение метода profileAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
         }
 
         val sessionAsync = GlobalScope.async {
-            logger.trace("Начато выполнение метода sessionAsync@LoginUsecase : ${LocalDateTime.now().toLocalTime()}")
+            logger.trace("Начато выполнение метода sessionAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
 
             val sessionExposed = async.await().mapToSession().apply {
                 loginId = asyncLogin.await().id
@@ -92,7 +93,7 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
         }
 
         sessionAsync.invokeOnCompletion {
-            logger.trace("Завершено выполнение метода sessionAsync@LoginUsecase : ${LocalDateTime.now().toLocalTime()}")
+            logger.trace("Завершено выполнение метода sessionAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
         }
 
         databasePort.getSession().setActive(sessionAsync.await().id)
@@ -100,7 +101,7 @@ class LoginUsecase(private val apiFactory: ApiFactory, private val databasePort:
         return Output()
     }
 
-    override fun present(output: Output, presenter: SceneManager) {
+    override fun present(output: Output, sceneManager: SceneManager) {
 
     }
 

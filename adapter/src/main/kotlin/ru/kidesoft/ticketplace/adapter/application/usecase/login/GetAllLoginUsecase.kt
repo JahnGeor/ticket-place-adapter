@@ -3,11 +3,12 @@ package ru.kidesoft.ticketplace.adapter.application.usecase.login
 import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
 import ru.kidesoft.ticketplace.adapter.application.presenter.AuthPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.Presenter
+import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.WebServerApiFactory
 
 class GetAllLoginUsecase(private val databasePort: DatabasePort, private val apiFactory: WebServerApiFactory) :
-    _Usecase<GetAllLoginUsecase.GetAllLoginUsecaseInput, GetAllLoginUsecase.GetAllLoginUsecaseOutput, AuthPresenter>() {
+    _Usecase<GetAllLoginUsecase.GetAllLoginUsecaseInput, GetAllLoginUsecase.GetAllLoginUsecaseOutput>() {
 
     class GetAllLoginUsecaseInput : _Usecase.Input {}
     class GetAllLoginUsecaseOutput : _Usecase.Output {
@@ -15,7 +16,7 @@ class GetAllLoginUsecase(private val databasePort: DatabasePort, private val api
         var urls = listOf<String>()
     }
 
-    override suspend fun execute(inputValues: GetAllLoginUsecaseInput): GetAllLoginUsecaseOutput {
+    override suspend fun execute(inputValues: GetAllLoginUsecaseInput?): GetAllLoginUsecaseOutput {
         val list = databasePort.getLogin().GetAll()
         var output = GetAllLoginUsecaseOutput()
 
@@ -38,9 +39,9 @@ class GetAllLoginUsecase(private val databasePort: DatabasePort, private val api
         return output
     }
 
-    override fun present(output: GetAllLoginUsecaseOutput, presenter: AuthPresenter) {
-        presenter.setEmails(output.emails)
-        presenter.setUrls(output.urls)
+    override fun present(output: GetAllLoginUsecaseOutput, sceneManager: SceneManager) {
+        sceneManager.getPresenter(AuthPresenter::class)?.setEmails(output.emails)
+        sceneManager.getPresenter(AuthPresenter::class)?.setUrls(output.urls)
     }
 
 }
