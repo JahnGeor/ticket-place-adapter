@@ -75,4 +75,17 @@ class LoginRepository(private val database: Database) : LoginPort {
         }
     }
 
+    override fun getCurrent(): Login? {
+        return transaction {
+            Logins.selectAll().map {
+                Login().apply {
+                    id = it[Logins.id].value
+                    email = it[Logins.email]
+                    password = it[Logins.password]
+                    url = it[Logins.url]
+                }
+            }.singleOrNull()
+        }
+    }
+
 }

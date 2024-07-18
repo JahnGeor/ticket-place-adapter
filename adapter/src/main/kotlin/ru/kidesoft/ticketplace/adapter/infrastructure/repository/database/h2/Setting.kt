@@ -49,12 +49,12 @@ class SettingRepository(database: Database) : SettingPort {
         val printerName = text("PRINTER_NAME").default("")
         val pageSize = enumeration<PageSize>("PAGE_SIZE").default(PageSize.A4)
         val pageOrientation = enumeration<PageOrientation>("PAGE_ORIENTATION").default(PageOrientation.PORTRAIT)
-        val printCheck = bool("PRINT_CHECK").default(false)
+        val printCheck = bool("PRINT_CHECK").default(true)
         val printTicket = bool("PRINT_TICKET").default(false)
         val updateRepositoryUrl = text("UPDATE_REPOSITORY_URL").default("")
         val updateAutomatically = bool("UPDATE_AUTOMATICALLY").default(false)
-        val serverRequestTimeout = duration("SERVER_REQUEST_TIMEOUT").default(Duration.ZERO)
-        val serverRequestInterval = duration("SERVER_REQUEST_INTERVAL").default(Duration.ZERO)
+        val serverRequestTimeout = duration("SERVER_REQUEST_TIMEOUT").default(Duration.ofSeconds(30))
+        val serverRequestInterval = duration("SERVER_REQUEST_INTERVAL").default(Duration.ofSeconds(5))
         val loginId = uuid("LOGIN_ID").references(LoginRepository.Logins.id)
     }
 
@@ -151,6 +151,7 @@ class SettingRepository(database: Database) : SettingPort {
 
     override fun createDefault(loginId: UUID) : Setting {
         return transaction {
+
             val id = Settings.insert {
                 it[Settings.loginId] = loginId
             } get Settings.id

@@ -4,6 +4,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.image.ImageView
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
+import ru.kidesoft.ticketplace.adapter.application.usecase.updater.UpdateAbout
 
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import java.net.URL
@@ -17,7 +18,7 @@ class AboutViewController() : ViewController(), ru.kidesoft.ticketplace.adapter.
     override fun setActions() {}
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-        //UsecaseExecutor.Executor(this).present(TestUsecase::class, TestUsecase.Input())
+        UsecaseExecutor.Executor().execute(UpdateAbout::class, sceneManager = stageManager)
     }
 
     // --- View section

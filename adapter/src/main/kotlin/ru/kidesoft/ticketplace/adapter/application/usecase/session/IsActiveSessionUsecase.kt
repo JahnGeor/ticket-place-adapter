@@ -12,7 +12,7 @@ class IsActiveSessionUsecase(private val databasePort: DatabasePort) : _Usecase<
 
     class Output(val isActive : Boolean) : _Usecase.Output {}
 
-    override suspend fun execute(inputValues: Input?, sceneManager: SceneManager?): Output {
+    override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
         return Output(isActive = databasePort.getSession().getActive() != null )
     }
 

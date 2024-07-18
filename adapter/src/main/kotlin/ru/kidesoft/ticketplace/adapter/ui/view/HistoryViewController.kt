@@ -5,6 +5,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.*
 
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
+import ru.kidesoft.ticketplace.adapter.domain.history.History
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import java.net.URL
 import java.util.*
@@ -60,6 +61,14 @@ class HistoryViewController() : ViewController(), ru.kidesoft.ticketplace.adapte
     }
 
     private fun onPrintButtonAction(actionEvent: ActionEvent) {
+
+    }
+
+    override fun setHistory(history: List<History>) {
+
+    }
+
+    override fun addHistory(history: History) {
 
     }
 

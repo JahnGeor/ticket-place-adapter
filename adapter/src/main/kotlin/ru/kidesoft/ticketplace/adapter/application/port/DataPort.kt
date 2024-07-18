@@ -1,5 +1,7 @@
 package ru.kidesoft.ticketplace.adapter.application.port
 
+import net.datafaker.providers.base.Bool
+import ru.kidesoft.ticketplace.adapter.domain.history.History
 import ru.kidesoft.ticketplace.adapter.domain.login.Login
 import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
@@ -18,6 +20,8 @@ interface DatabasePort {
     fun getProfile() : ProfilePort
     fun getSetting() : SettingPort
     fun getHistory() : HistoryPort
+
+    fun execTransaction(transaction: () -> Boolean)
 }
 
 interface LoginPort {
@@ -25,6 +29,7 @@ interface LoginPort {
     fun Create(login: LoginExposed): Login
     fun Update(id: UUID, login: LoginExposed): Login
     fun GetAll(): List<Login>
+    fun getCurrent(): Login?
 }
 
 interface SessionPort {
@@ -62,7 +67,7 @@ interface SettingPort {
 }
 
 interface HistoryPort {
-
+    fun getListByCurrentUser(): List<History>
 }
 
 interface PropertiesPort {

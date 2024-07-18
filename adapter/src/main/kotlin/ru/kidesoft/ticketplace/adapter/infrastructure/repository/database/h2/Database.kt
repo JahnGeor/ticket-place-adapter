@@ -1,15 +1,20 @@
 package ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2
 
+import net.datafaker.providers.base.Bool
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.statements.GlobalStatementInterceptor
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.transactionManager
 import ru.kidesoft.ticketplace.adapter.DatabaseProperties
 import ru.kidesoft.ticketplace.adapter.application.port.*
 
 class Database(databaseProperties: DatabaseProperties) : DatabasePort {
     private val database: Database
-
 
     init {
         val flyway : Flyway = Flyway.configure().schemas("PUBLIC").dataSource(databaseProperties.url, databaseProperties.username, databaseProperties.password).locations(databaseProperties.locations).load()
@@ -52,4 +57,21 @@ class Database(databaseProperties: DatabaseProperties) : DatabasePort {
     override fun getHistory(): HistoryPort {
         TODO("Not yet implemented")
     }
+
+    override fun execTransaction(block: () -> Boolean) {
+        val t = database.transactionManager.newTransaction()
+
+        try {
+            val isSuccess = block.invoke()
+            if (isSuccess) t.commit() else t.rollback()
+        } catch (e : Exception) {
+            t.rollback()
+            throw e
+        } finally {
+            t.close()
+        }
+
+    }
+
+
 }

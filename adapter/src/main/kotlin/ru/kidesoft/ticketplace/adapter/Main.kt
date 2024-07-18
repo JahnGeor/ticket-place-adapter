@@ -4,35 +4,31 @@ import atlantafx.base.theme.CupertinoLight
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.stage.Stage
-import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
-import org.flywaydb.core.api.logging.Log
-import ru.kidesoft.ticketplace.adapter.application.port.*
-import ru.kidesoft.ticketplace.adapter.application.presenter.Alert
-import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
-import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartSessionUsecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.StartApplication
+import ru.kidesoft.ticketplace.adapter.application.usecase.action.LoginAction
+import ru.kidesoft.ticketplace.adapter.application.usecase.action.PrintAction
+import ru.kidesoft.ticketplace.adapter.application.usecase.action.SaveSettingAction
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartKktSession
 import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.UpdateSessionStateUsecase
 
 
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.login.LoginUsecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.login.LogoutUsecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.login.Login
+import ru.kidesoft.ticketplace.adapter.application.usecase.login.Logout
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetCashierListUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetProfileByCurrentUser
 import ru.kidesoft.ticketplace.adapter.application.usecase.session.IsActiveSessionUsecase
-import ru.kidesoft.ticketplace.adapter.domain.login.Login
-import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
+import ru.kidesoft.ticketplace.adapter.application.usecase.updater.*
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.kkt.KktFactory
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.WebServerApiFactory
 import ru.kidesoft.ticketplace.adapter.ui.StageManager
 
 import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2.Database
-import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.mock.DatabaseMock
 import ru.kidesoft.ticketplace.adapter.infrastructure.repository.properties.ApplicationProperties
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import ru.kidesoft.ticketplace.adapter.ui.handler.DefaultHandler
 import ru.kidesoft.ticketplace.adapter.ui.view.*
-import java.util.*
 
 
 // Класс-наследник JavaFX Application, выполняет все в потоке JavaFX
@@ -52,67 +48,88 @@ class Main : Application() {
         }
 
         try {
-
-
             val appProps = ru.kidesoft.ticketplace.adapter.ApplicationProperties()
 
-
+            val applicationRepository = ApplicationProperties()
             val apiFactory = WebServerApiFactory()
             val h2DatabaseRepository = Database(appProps.database)
-            val mock = DatabaseMock()
+            // val mock = DatabaseMock() // COMM: Mock-database
             val kktFactory = KktFactory()
 
 
-            val loginUsecase = LoginUsecase(apiFactory, h2DatabaseRepository)  // mock/h2DatabaseRepository)
-            val logoutUsecase = LogoutUsecase(h2DatabaseRepository) // mock/h2DatabaseRepository)
+            val login = Login(h2DatabaseRepository, apiFactory)  // mock/h2DatabaseRepository)
+            val logout = Logout(h2DatabaseRepository, kktFactory) // mock/h2DatabaseRepository)
             val getAllLoginUsecase = GetAllLoginUsecase(h2DatabaseRepository, apiFactory) // mock/h2DatabaseRepository,
             val getCashierListUsecase = GetCashierListUsecase(h2DatabaseRepository) // mock/h2DatabaseRepository
             val isActiveSessionUsecase = IsActiveSessionUsecase(h2DatabaseRepository) // mock/h2DatabaseRepository
             val getProfileByCurrentUser = GetProfileByCurrentUser(h2DatabaseRepository) // mock/h2DatabaseRepository
-            val startSessionUsecase = StartSessionUsecase(h2DatabaseRepository, kktFactory)
+            val startKktSession = StartKktSession(h2DatabaseRepository, kktFactory)
             val updateSessionStateUsecase = UpdateSessionStateUsecase(h2DatabaseRepository, kktFactory)
+            val startApplication = StartApplication(h2DatabaseRepository, apiFactory, kktFactory)
+            val loginAction = LoginAction(databasePort = h2DatabaseRepository, apiFactory, kktFactory)
+            val saveSettingAction = SaveSettingAction(h2DatabaseRepository)
+            val printAction = PrintAction(h2DatabaseRepository, apiFactory, kktFactory)
 
-            UsecaseExecutor.registerUsecase(
-                loginUsecase,
-                logoutUsecase,
-                getAllLoginUsecase,
-                getCashierListUsecase,
-                isActiveSessionUsecase,
-                getProfileByCurrentUser,
-                startSessionUsecase,
-                updateSessionStateUsecase
-            )
+            // COMM: Варианты использования обновления сцены
+            val updateMain = UpdateMain(h2DatabaseRepository, kktFactory) // COMM: обновление главного окна
+            val updateAbout = UpdateAbout(applicationRepository) // COMM: обновление окна о программе
+            val updateSetting = UpdateSetting(h2DatabaseRepository) // COMM: обновление окна настроек
+            val updateHistory = UpdateHistory(h2DatabaseRepository) // COMM: обновление окна истории
+            val updateAuth = UpdateAuth(h2DatabaseRepository, apiFactory) // COMM: обновление окна авторизации
+
+
+            UsecaseExecutor.registerUsecase( // FIXME: Необходимо переделать данный метод, в него нужно передавать лишь port implementation
+                login, // FIXME:
+                logout, // FIXME:
+                getAllLoginUsecase, // FIXME:
+                getCashierListUsecase, // FIXME:
+                isActiveSessionUsecase, // FIXME:
+                getProfileByCurrentUser, // FIXME:
+                startKktSession, // FIXME:
+                updateSessionStateUsecase, // FIXME:
+                startApplication, // FIXME:
+                updateAuth, // FIXME:
+                updateHistory, // FIXME:
+                updateSetting, // FIXME:
+                updateAbout, // FIXME:
+                updateMain, // FIXME:
+                loginAction,
+                saveSettingAction,
+                printAction
+
+            ) // FIXME:
 
 
 
-            // Устанавливаем тему от AtlantaFX
+            // COMM: Устанавливаем тему от AtlantaFX
             setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)
 
-            val applicationRepository = ApplicationProperties()
 
-            // Инициализация View/Presenter окна авторизации
+            // COMM: Инициализация View/Presenter окна авторизации
             val authViewController = AuthViewController()
 
-            // Инициализация ViewController главной сцены
+            // COMM: Инициализация ViewController главной сцены
             val mainViewController = MainViewController()
-            // Инициализация ViewController сцены "О приложении"
+            // COMM: Инициализация ViewController сцены "О приложении"
             val aboutViewController = AboutViewController()
-            // Инициализация ViewController сцены истории печати пользователей
+            // COMM: Инициализация ViewController сцены истории печати пользователей
             val historyViewController = HistoryViewController()
-            // Инициализация ViewController сцены настроек
+            // COMM: Инициализация ViewController сцены настроек
             val settingViewController = SettingViewController()
-            // Инициализация ViewController дополнительных возможностей для администратора системы
+            // COMM: Инициализация ViewController дополнительных возможностей для администратора системы
             val adminViewController = AdminViewController()
-            // Инициализация ViewController сцены обновления приложения
+            // COMM: Инициализация ViewController сцены обновления приложения
             val updateViewController = UpdateViewController()
 
-            // Инициализация View/Presenter базовой формы сцены
+            // COMM: Инициализация View/Presenter базовой формы сцены
             val baseViewController = BaseViewController()
 
-            // Инициализируем менеджер окон
-            val stageManager = StageManager(stage, baseViewController)
 
-            // Добавляем сцену в менеджер
+            // COMM: Инициализируем менеджер окон
+            val stageManager = StageManager(stage, baseViewController)
+            UsecaseExecutor.defaultHandler = DefaultHandler(stageManager)
+
+            // COMM: Добавляем сцену в менеджер
             stageManager.addScene(authViewController)
             stageManager.addScene(mainViewController)
             stageManager.addScene(aboutViewController)
@@ -121,19 +138,10 @@ class Main : Application() {
             stageManager.addScene(adminViewController)
             stageManager.addScene(updateViewController)
 
-            stageManager.openScene(
-                if (runBlocking {
-                        isActiveSessionUsecase.execute(IsActiveSessionUsecase.Input()).isActive
-                    }
-                ) {
-                    UsecaseExecutor.Executor(mainViewController as MainPresenter)
-                        .present(StartSessionUsecase::class, StartSessionUsecase.Input())
-                    ru.kidesoft.ticketplace.adapter.application.presenter.Scene.MAIN
-                } else ru.kidesoft.ticketplace.adapter.application.presenter.Scene.AUTH
-            )
-
-            // Делаем окно видимым
+            // COMM: stage -> делаем окно видимым
             stage.show()
+
+            UsecaseExecutor.Executor().execute(StartApplication::class, sceneManager = stageManager)
         } catch (e: Exception) {
             StageManager.showErrorAlert(
                 "${e.cause?.message ?: e.message}",

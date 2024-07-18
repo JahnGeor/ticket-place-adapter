@@ -15,9 +15,9 @@
             <children>
                 <InputGroup alignment="CENTER" prefHeight="53.0" prefWidth="600.0">
                     <children>
-                        <TextField fx:id="printRefundFromCheckLabel" prefHeight="40.0" prefWidth="323.0"
+                        <TextField fx:id="printRefundFromOrderField" prefHeight="40.0" prefWidth="323.0"
                                    promptText="Печать чека возврата"/>
-                        <Button fx:id="printRefundFromCheckButton" mnemonicParsing="false" prefHeight="40.0"
+                        <Button fx:id="printRefundFromOrderButton" mnemonicParsing="false" prefHeight="40.0"
                                 prefWidth="40.0" styleClass="button-icon" text="Button">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2s-subdirectory-arrow-left"/>
@@ -27,9 +27,9 @@
                 </InputGroup>
                 <InputGroup alignment="CENTER" prefHeight="53.0" prefWidth="600.0">
                     <children>
-                        <TextField fx:id="printSellFromCheckLabel" prefHeight="40.0" prefWidth="323.0"
+                        <TextField fx:id="printSellFromOrderField" prefHeight="40.0" prefWidth="323.0"
                                    promptText="Печать чека продажи"/>
-                        <Button fx:id="printSellFromCheckButton" mnemonicParsing="false" prefHeight="40.0"
+                        <Button fx:id="printSellFromOrderButton" mnemonicParsing="false" prefHeight="40.0"
                                 prefWidth="40.0" styleClass="button-icon" text="Button">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2s-subdirectory-arrow-left"/>

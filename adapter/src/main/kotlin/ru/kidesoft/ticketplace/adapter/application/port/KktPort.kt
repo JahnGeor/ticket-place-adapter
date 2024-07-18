@@ -1,6 +1,8 @@
 package ru.kidesoft.ticketplace.adapter.application.port
 
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
+import ru.kidesoft.ticketplace.adapter.domain.order.OperationType
+import ru.kidesoft.ticketplace.adapter.domain.order.OrderExposed
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 import ru.kidesoft.ticketplace.adapter.domain.setting.KktSetting
 import java.util.UUID
@@ -9,7 +11,7 @@ enum class KktType {
     ATOL
 }
 
-interface KktPort : KktConnection, KktShift {
+interface KktPort : KktConnection, KktShift, KktPrinter {
 
 }
 
@@ -33,7 +35,7 @@ interface KktOperation {
 }
 
 interface KktPrinter {
-    fun print(cashier: Cashier)
+    fun print(cashier: Cashier, orderExposed: OrderExposed, operationType: OperationType)
 }
 
 interface KktPortFactory {

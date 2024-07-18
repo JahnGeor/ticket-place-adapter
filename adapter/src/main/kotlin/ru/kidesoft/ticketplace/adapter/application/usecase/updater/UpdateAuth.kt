@@ -7,7 +7,6 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetCashierListUsecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetProfileByCurrentUser
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 
 class UpdateAuth(val databasePort: DatabasePort, val webApiFactory: ApiFactory) :
@@ -24,10 +23,10 @@ class UpdateAuth(val databasePort: DatabasePort, val webApiFactory: ApiFactory) 
 
     }
 
-    override suspend fun execute(input: Input?, sceneManager: SceneManager?): Output {
-        val loginOutput = GetAllLoginUsecase(databasePort, webApiFactory).execute()
+    override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
+        val loginOutput = GetAllLoginUsecase(databasePort, webApiFactory).invoke()
 
-        val cashierOutput = GetCashierListUsecase(databasePort).execute()
+        val cashierOutput = GetCashierListUsecase(databasePort).invoke()
 
         val output = Output().apply {
             this.cashiers = cashierOutput.cashierList
@@ -35,7 +34,7 @@ class UpdateAuth(val databasePort: DatabasePort, val webApiFactory: ApiFactory) 
             this.emails = loginOutput.emails
         }
 
-        sceneManager?.let { _present(output, it) }
+        sceneManager?.let { _present(output, sceneManager) }
 
         return output
     }

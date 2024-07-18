@@ -26,6 +26,11 @@ class DatabaseMock : DatabasePort{
     override fun getHistory(): HistoryPort {
         TODO("Not yet implemented")
     }
+
+    override fun execTransaction(transaction: () -> Boolean) {
+        TODO("Not yet implemented")
+    }
+
 }
 
 class Login : LoginPort {
@@ -36,6 +41,8 @@ class Login : LoginPort {
     override fun Update(id: UUID, login: LoginExposed): Login = Login()
 
     override fun GetAll(): List<Login> = listOf(Login())
+
+    override fun getCurrent(): Login? = Login()
 
 }
 

@@ -14,7 +14,7 @@ class GetProfileByCurrentUser(val database: DatabasePort) : _Usecase<GetProfileB
 
     }
 
-    override suspend fun execute(inputValues: Input?, sceneManager: SceneManager?): Output {
+    override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
         val profile = database.getProfile().getCurrentProfile()?: throw IllegalArgumentException("Профиль текущего пользователя не найден")
 
         val output = Output(profile)

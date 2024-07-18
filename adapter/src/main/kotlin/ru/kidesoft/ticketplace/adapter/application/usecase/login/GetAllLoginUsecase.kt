@@ -17,7 +17,7 @@ class GetAllLoginUsecase(private val databasePort: DatabasePort, private val api
         var urls = listOf<String>()
     }
 
-    override suspend fun execute(inputValues: Input?, sceneManager: SceneManager?): Output {
+    override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
         val list = databasePort.getLogin().GetAll()
 
         var emails = mutableListOf<String>()

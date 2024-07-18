@@ -27,7 +27,7 @@ class KktFactory : KktPortFactory {
         return _kktInstance.kktPort
     }
 
-    override fun createInstance(kktType: KktType, kktSetting: KktSetting, loginId: UUID): KktPort {
+    override fun createInstance(kktType: KktType, kktSetting: KktSetting, loginId: UUID): KktPort { // TODO: Добавить сюда сразу пользователя, чтобы каждый раз не лазить в базу данных
         val kktPort = when(kktType) {
             KktType.ATOL -> AtolKktImpl()
         }

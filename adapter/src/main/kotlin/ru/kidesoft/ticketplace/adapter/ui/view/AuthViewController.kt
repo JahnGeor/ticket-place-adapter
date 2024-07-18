@@ -7,14 +7,15 @@ import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.util.StringConverter
 import org.apache.logging.log4j.LogManager
-import ru.kidesoft.ticketplace.adapter.Main
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
-import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartSessionUsecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.action.LoginAction
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartKktSession
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.login.LoginUsecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.login.Login
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetCashierListUsecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.updater.UpdateAuth
+import ru.kidesoft.ticketplace.adapter.application.usecase.updater.UpdateMain
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
-import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.mock.Login
 
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import ru.kidesoft.ticketplace.adapter.ui.handler.DefaultHandler
@@ -67,8 +68,8 @@ class AuthViewController : ViewController(), ru.kidesoft.ticketplace.adapter.app
 
         }
 
-        UsecaseExecutor.Executor(this as AuthPresenter).present(GetAllLoginUsecase::class, GetAllLoginUsecase.GetAllLoginUsecaseInput())
-        UsecaseExecutor.Executor(this as AuthPresenter).present(GetCashierListUsecase::class, GetCashierListUsecase.GetCashierListInput())
+        UsecaseExecutor.Executor().execute(UpdateAuth::class, sceneManager = stageManager)
+
         setActions()
     }
 
@@ -81,38 +82,22 @@ class AuthViewController : ViewController(), ru.kidesoft.ticketplace.adapter.app
     }
 
     private fun onLoginButtonClick(event: ActionEvent) {
-        try {
-            validateLoginAction()
-        } catch (e: IllegalArgumentException) {
-            DefaultHandler().handle(e, this)
-            return
-        }
+        //        try { // FIXME: Вынести в Usecase
+        //            validateLoginAction() // FIXME: Вынести в Usecase
+        //        } catch (e: IllegalArgumentException) { // FIXME: Вынести в Usecase
+        //            DefaultHandler(stageManager).handle(e) // FIXME: Вынести в Usecase
+        //            return // FIXME: Вынести в Usecase
+        //        } // FIXME: Вынести в Usecase
 
-        val input = LoginUsecase.Input().apply {
+
+
+        val input = Login.Input().apply {
             email = emailFields.value
             password = passwordField.password
             url = urlFields.value
         }
 
-
-        UsecaseExecutor.Executor(this).get(LoginUsecase::class, input)?.let {
-            UsecaseExecutor.Executor(this).get(StartSessionUsecase::class, StartSessionUsecase.Input())
-            getSceneManager().openScene(Scene.MAIN)
-        }
-
-//        UsecaseExecutor.Executor<Presenter>(this).get(LoginUsecase::class, input)?.let {
-//
-//            getSceneManager().getViewController(MainPresenter::class)?.let {
-//                UsecaseExecutor.Executor(it as MainPresenter).get(StartSessionUsecase::class, StartSessionUsecase.Input()).let {
-//
-//                }
-//            }
-//
-//            getSceneManager().openScene(Scene.MAIN)
-//
-//        }
-
-        // UsecaseExecutor.Executor(this).present(StartSessionUsecase::class, StartSessionUsecase.Input())
+        UsecaseExecutor.Executor().execute(LoginAction::class, input, stageManager)
     }
 
     fun onPrintLastButtonClick(event: ActionEvent) {

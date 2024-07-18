@@ -1,6 +1,7 @@
 package ru.kidesoft.ticketplace.adapter.ui.view
 
 import atlantafx.base.controls.Card
+import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -12,6 +13,7 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.UpdateSessionStateUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetProfileByCurrentUser
+import ru.kidesoft.ticketplace.adapter.application.usecase.updater.UpdateMain
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
@@ -63,15 +65,17 @@ class MainViewController() : ViewController(), MainPresenter {
     private lateinit var timeLabel: Label
 
 
+    // --- Action section
+
     override fun setActions() {
-        TODO("Not yet implemented")
+
     }
 
+
+
+
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-        UsecaseExecutor.Executor(this as MainPresenter).present(GetProfileByCurrentUser::class)
-        // QUESTION: Возможно стоит объединить все в один case
-        // TODO: Нужна обработка ошибок ЗДЕСЬ (не вызывать метод UpdateSessionStateUsecase, если профиль не обновлен)
-        UsecaseExecutor.Executor(this as MainPresenter).present(UpdateSessionStateUsecase::class) // QUESTION: Возможно стоит объединить все в один case
+        UsecaseExecutor.Executor().execute(UpdateMain::class, sceneManager = stageManager)
     }
 
     override fun setProfile(profile: Profile) {

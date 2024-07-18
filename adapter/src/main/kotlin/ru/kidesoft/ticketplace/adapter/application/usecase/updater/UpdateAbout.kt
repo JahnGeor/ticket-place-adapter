@@ -9,13 +9,18 @@ class UpdateAbout(val properties : PropertiesPort): _Usecase<UpdateAbout.Input, 
     class Input: _Usecase.Input
     class Output(val version: String) : _Usecase.Output {}
 
-    override suspend fun execute(input: Input?, sceneManager: SceneManager?): Output {
+    override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val version = properties.getVersion()
 
-        sceneManager?.getPresenter(AboutPresenter::class)?.setVersion(version)
+        val output = Output(version)
+
+        sceneManager?.let { present(output, it) }
 
         return Output(version)
     }
 
-
+    override fun present(output: Output, sceneManager: SceneManager) {
+        val presenter = sceneManager.getPresenter(AboutPresenter::class)?:throw NullPointerException("${AboutPresenter::class} is not found")
+        presenter.setVersion(output.version)
+    }
 }

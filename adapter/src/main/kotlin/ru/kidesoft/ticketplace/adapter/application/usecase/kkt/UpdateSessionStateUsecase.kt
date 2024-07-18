@@ -10,7 +10,7 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 
-class UpdateSessionStateUsecase(val database: DatabasePort, val kktPortFactory: KktPortFactory) : _Usecase<UpdateSessionStateUsecase.Input, UpdateSessionStateUsecase.Output>() {
+class UpdateSessionStateUsecase(val databasePort: DatabasePort, val kktPortFactory: KktPortFactory) : _Usecase<UpdateSessionStateUsecase.Input, UpdateSessionStateUsecase.Output>() {
     private val logger = LogManager.getLogger()
     class Input : _Usecase.Input {}
 
@@ -20,9 +20,9 @@ class UpdateSessionStateUsecase(val database: DatabasePort, val kktPortFactory: 
     }
 
 
-    override suspend fun execute(input: Input?, sceneManager: SceneManager?): Output {
-        val profile = database.getProfile().getCurrentProfile() ?: throw NullPointerException("profile is null")
-        val setting = database.getSetting().getByCurrentUser() ?: throw NullPointerException("setting is null")
+    override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
+        val profile = databasePort.getProfile().getCurrentProfile() ?: throw NullPointerException("profile is null")
+        val setting = databasePort.getSetting().getByCurrentUser() ?: throw NullPointerException("setting is null")
 
         val kktPort = kktPortFactory.getInstance(KktType.ATOL, profile.loginId)?: kktPortFactory.createInstance(
             KktType.ATOL, setting.kkt,

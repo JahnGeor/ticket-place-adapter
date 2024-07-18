@@ -9,3 +9,7 @@ interface LoginData {
     fun mapToProfile() : ProfileExposed
     fun mapToSession() : SessionExposed
 }
+
+interface Mapper<I> {
+    fun mapToEntity() : I
+}

@@ -6,11 +6,9 @@ import javafx.fxml.FXML
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuItem
 import javafx.scene.layout.StackPane
-import org.flywaydb.core.api.logging.Log
-import ru.kidesoft.ticketplace.adapter.application.presenter.Presenter
 
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
-import ru.kidesoft.ticketplace.adapter.application.usecase.login.LogoutUsecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.login.Logout
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import java.net.URL
 import java.util.*
@@ -62,6 +60,8 @@ class BaseViewController() : ViewController() {
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         setActions()
+
+        updateMenuItem.isDisable = true // TODO: pre-release version
     }
 
     // --- Action section
@@ -83,7 +83,7 @@ class BaseViewController() : ViewController() {
     }
 
     private fun onLogoutMenuItemAction(actionEvent: ActionEvent) {
-        UsecaseExecutor.Executor(this as Presenter).present(LogoutUsecase::class, LogoutUsecase.Input())
+        UsecaseExecutor.Executor().execute(Logout::class, sceneManager = stageManager)
     }
 
     private fun onExitMenuItemAction(actionEvent: ActionEvent) {
@@ -110,7 +110,7 @@ class BaseViewController() : ViewController() {
     }
 
     private fun onDiagnosticMenuItemAction(actionEvent: ActionEvent) {
-        // TODO: Executor(DiagnosticUsecase::class)
+
     }
 
 

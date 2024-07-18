@@ -16,7 +16,7 @@ class GetCashierListUsecase(private val databasePort: DatabasePort) :
 
     class GetCashierListInput : _Usecase.Input {}
 
-    override suspend fun execute(inputValues: GetCashierListInput?, sceneManager: SceneManager?): GetCashierListOutput {
+    override suspend fun invoke(inputValues: GetCashierListInput?, sceneManager: SceneManager?): GetCashierListOutput {
         val cashiers = databasePort.getProfile().getCashierList()
 
         sceneManager?.let {

@@ -113,12 +113,15 @@ class SessionRepository(private val database: Database) : SessionPort {
     }
 
     override fun deleteAll() {
-        Sessions.deleteAll()
+        return transaction { Sessions.deleteAll() }
     }
 
     override fun deleteById(id: UUID) {
-        Sessions.deleteWhere {
-            Sessions.id eq id
+        return transaction {
+            connection.autoCommit = false
+            Sessions.deleteWhere {
+                Sessions.id eq id
+            }
         }
     }
 
