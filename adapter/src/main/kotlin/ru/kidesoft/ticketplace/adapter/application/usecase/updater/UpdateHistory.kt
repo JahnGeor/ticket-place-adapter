@@ -1,17 +1,22 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.updater
 
-import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.HistoryPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.domain.history.History
+import java.time.ZonedDateTime
 
-class UpdateHistory(private val databasePort: DatabasePort) : _Usecase<UpdateHistory.Input, UpdateHistory.Output>() {
-    class Input : _Usecase.Input {}
-    class Output(val historyList: List<History>) : _Usecase.Output {}
+class UpdateHistory(commonPort: CommonPort) : Usecase<UpdateHistory.Input, UpdateHistory.Output>(commonPort) {
+    class Input(var from: ZonedDateTime? = null) : Usecase.Input {
+
+    }
+    class Output(val historyList: List<History>) : Usecase.Output {}
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val list = databasePort.getHistory().getListByCurrentUser()
+        val from = input?.from?: null
+
+        val list = commonPort.databasePort.getHistory().getListByCurrent(from)
 
         val output = Output(list)
 

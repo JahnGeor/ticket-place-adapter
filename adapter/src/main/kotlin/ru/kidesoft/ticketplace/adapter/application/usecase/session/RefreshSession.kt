@@ -1,23 +1,17 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.session
 
+import ru.kidesoft.ticketplace.adapter.application.port.ApiPortFactory
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
+import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
+import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
-class RefreshSession : _Usecase<RefreshSession.Input, RefreshSession.Output>() {
-    class Input : _Usecase.Input
-    class Output : _Usecase.Output
+class RefreshSession(commonPort: CommonPort) : Usecase<RefreshSession.Input, RefreshSession.Output>(commonPort) {
+    class Input : Usecase.Input
+    class Output : Usecase.Output
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        // TODO: val login = getCurrentLogin()
-
-        // TODO: webport.login(login.email, login.password, login.url)
-
-        // TODO: Profile.update()
-
-        // TODO: Session.update()
-
-        // + TODO: Если не выходит выполнить авторизацию -> делаем выход (обязательно выключить Listener)
-
         return Output()
     }
 }

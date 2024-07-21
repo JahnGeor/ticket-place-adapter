@@ -17,7 +17,7 @@
    <top>
       <ImageView fitHeight="76.0" fitWidth="413.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
          <image>
-            <Image url="@..\..\assets\logo.png" />
+            <Image url="@/ru/kidesoft/ticketplace/adapter/assets/logo.png" />
          </image>
       </ImageView>
    </top>

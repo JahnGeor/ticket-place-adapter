@@ -1,39 +1,38 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.updater
 
-import ru.kidesoft.ticketplace.adapter.Main
-import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
-import ru.kidesoft.ticketplace.adapter.application.port.KktConnection
-import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
-import ru.kidesoft.ticketplace.adapter.application.port.KktType
+import org.apache.logging.log4j.LogManager
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.GetStates
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
+import java.lang.Exception
 
 
-class UpdateMain(val databasePort: DatabasePort, val kktPortFactory: KktPortFactory) :
-    _Usecase<UpdateMain.Input, UpdateMain.Output>() {
-    class Input : _Usecase.Input {}
-    class Output(val profile: Profile, val kktConnection: Boolean, val shiftState: ShiftState) : _Usecase.Output {}
+class UpdateMain(commonPort: CommonPort) :
+    Usecase<UpdateMain.Input, UpdateMain.Output>(commonPort) {
+
+        class Input : Usecase.Input {}
+    class Output() : Usecase.Output {
+        var profile: Profile? = null
+        lateinit var status: GetStates.Output
+    }
 
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val profile =
-            databasePort.getProfile().getCurrentProfile() ?: throw NullPointerException("Current user profile is null")
-        val setting = databasePort.getSetting().getByLoginId(profile.loginId)
-            ?: throw NullPointerException("Current user setting is null")
-        val kktPort = kktPortFactory.getInstance(KktType.ATOL, profile.loginId) ?: kktPortFactory.createInstance(
-            KktType.ATOL,
-            setting.kkt,
-            setting.loginId
-        )
+        var output = Output()
 
-        val shiftState = kktPort.getShiftState()
-        val kktConnection = kktPort.getConnection()
-        // TODO: listenerStatus = listener.getStatus()
+        output.profile = commonPort.databasePort.getProfile().getByCurrent()
+            ?: throw NullPointerException("Current user profile is null")
 
-        val output = Output(profile, kktConnection, shiftState)
+        try {
+            var states = GetStates(commonPort).invoke()
+            output.status = states
+        } catch (e: Exception) {
+            logger.error("Во время получения статусов главного окна произошла ошибка: $e")
+        }
 
         sceneManager?.let {
             present(output, sceneManager)
@@ -45,8 +44,24 @@ class UpdateMain(val databasePort: DatabasePort, val kktPortFactory: KktPortFact
     override fun present(output: Output, sceneManager: SceneManager) {
         val presenter = sceneManager.getPresenter(MainPresenter::class)
             ?: throw NullPointerException("${MainPresenter::class} not found")
-        presenter.setProfile(output.profile)
-        presenter.setKktState(output.kktConnection, output.shiftState)
+
+        output.profile?.let {
+            presenter.setProfile(it)
+        }
+
+        output.status.shiftState?.let {
+            presenter.setShiftState(it)
+        }
+
+        output.status.connectionIsOpened?.let {
+            presenter.setKktConnectionStatus(it)
+        }
+
+        output.status.isPoolingServiceStarted?.let {
+            presenter.setPoolingStatus(it)
+        }
+
     }
+
 
 }

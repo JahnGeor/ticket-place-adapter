@@ -12,8 +12,8 @@ import ru.kidesoft.ticketplace.adapter.domain.session.SessionExposed
 import java.util.*
 
 class SessionRepository(private val database: Database) : SessionPort {
-    object Sessions : UUIDTable("SESSION") {
-        val loginId = uuid("LOGIN_ID").references(LoginRepository.Logins.id)
+    object SessionTable : UUIDTable("SESSION") {
+        val loginId = uuid("LOGIN_ID").references(LoginRepository.LoginTable.id)
         val createdAt = timestampWithTimeZone("CREATED_AT")
         val expiredAt = timestampWithTimeZone("EXPIRED_AT")
         val tokenType = varchar("TOKEN_TYPE", 30)
@@ -22,18 +22,18 @@ class SessionRepository(private val database: Database) : SessionPort {
     }
 
     private fun ResultRow.toSession() = Session().apply {
-        this.token.value = this@toSession[Sessions.token]
-        this.token.type = this@toSession[Sessions.tokenType]
-        this.token.createdTime = this@toSession[Sessions.createdAt].toZonedDateTime()
-        this.token.expiredTime = this@toSession[Sessions.expiredAt].toZonedDateTime()
-        this.loginId = this@toSession[Sessions.loginId]
-        this.id = this@toSession[Sessions.id].value
-        this.active = this@toSession[Sessions.active]
+        this.token.value = this@toSession[SessionTable.token]
+        this.token.type = this@toSession[SessionTable.tokenType]
+        this.token.createdTime = this@toSession[SessionTable.createdAt].toZonedDateTime()
+        this.token.expiredTime = this@toSession[SessionTable.expiredAt].toZonedDateTime()
+        this.loginId = this@toSession[SessionTable.loginId]
+        this.id = this@toSession[SessionTable.id].value
+        this.active = this@toSession[SessionTable.active]
     }
 
     override fun getActive(): Session? {
         return transaction {
-            Sessions.selectAll().where { Sessions.active eq true }.map {
+            SessionTable.selectAll().where { SessionTable.active eq true }.map {
                 it.toSession()
             }.singleOrNull()
         }
@@ -41,14 +41,14 @@ class SessionRepository(private val database: Database) : SessionPort {
 
     override fun create(sessionExposed: SessionExposed): Session {
         return transaction {
-            val id = Sessions.insert {
-                it[Sessions.loginId] = sessionExposed.loginId
-                it[Sessions.token] = sessionExposed.token.value
-                it[Sessions.createdAt] = sessionExposed.token.createdTime.toOffsetDateTime()
-                it[Sessions.expiredAt] = sessionExposed.token.expiredTime.toOffsetDateTime()
-                it[Sessions.active] = sessionExposed.active
-                it[Sessions.tokenType] = sessionExposed.token.type
-            } get Sessions.id
+            val id = SessionTable.insert {
+                it[SessionTable.loginId] = sessionExposed.loginId
+                it[SessionTable.token] = sessionExposed.token.value
+                it[SessionTable.createdAt] = sessionExposed.token.createdTime.toOffsetDateTime()
+                it[SessionTable.expiredAt] = sessionExposed.token.expiredTime.toOffsetDateTime()
+                it[SessionTable.active] = sessionExposed.active
+                it[SessionTable.tokenType] = sessionExposed.token.type
+            } get SessionTable.id
 
             Session().apply {
                 this.id = id.value
@@ -61,13 +61,13 @@ class SessionRepository(private val database: Database) : SessionPort {
 
     override fun update(sessionId: UUID, sessionExposed: SessionExposed): Session {
         return transaction {
-            Sessions.update({ Sessions.id eq sessionId }) {
-                it[Sessions.loginId] = sessionExposed.loginId
-                it[Sessions.token] = sessionExposed.token.value
-                it[Sessions.createdAt] = sessionExposed.token.createdTime.toOffsetDateTime()
-                it[Sessions.expiredAt] = sessionExposed.token.expiredTime.toOffsetDateTime()
-                it[Sessions.active] = sessionExposed.active
-                it[Sessions.tokenType] = sessionExposed.token.type
+            SessionTable.update({ SessionTable.id eq sessionId }) {
+                it[SessionTable.loginId] = sessionExposed.loginId
+                it[SessionTable.token] = sessionExposed.token.value
+                it[SessionTable.createdAt] = sessionExposed.token.createdTime.toOffsetDateTime()
+                it[SessionTable.expiredAt] = sessionExposed.token.expiredTime.toOffsetDateTime()
+                it[SessionTable.active] = sessionExposed.active
+                it[SessionTable.tokenType] = sessionExposed.token.type
             }
 
             Session().apply {
@@ -81,7 +81,7 @@ class SessionRepository(private val database: Database) : SessionPort {
 
     override fun getByLoginId(loginId: UUID): Session? {
         return transaction {
-            Sessions.selectAll().where { Sessions.loginId eq loginId }.map {
+            SessionTable.selectAll().where { SessionTable.loginId eq loginId }.map {
                 it.toSession()
             }.singleOrNull()
         }
@@ -91,8 +91,8 @@ class SessionRepository(private val database: Database) : SessionPort {
         transaction {
             setDeactive()
 
-            Sessions.update({ Sessions.id eq sessionId }) {
-                it[Sessions.active] = true
+            SessionTable.update({ SessionTable.id eq sessionId }) {
+                it[SessionTable.active] = true
             }
 
         }
@@ -100,27 +100,27 @@ class SessionRepository(private val database: Database) : SessionPort {
 
     override fun setDeactive() {
         transaction {
-            Sessions.update(where = { Sessions.active eq true }) {
-                it[Sessions.active] = false
+            SessionTable.update(where = { SessionTable.active eq true }) {
+                it[SessionTable.active] = false
             }
         }
     }
 
     override fun deleteActive() {
         transaction {
-            Sessions.deleteWhere {active eq true}
+            SessionTable.deleteWhere {active eq true}
         }
     }
 
     override fun deleteAll() {
-        return transaction { Sessions.deleteAll() }
+        return transaction { SessionTable.deleteAll() }
     }
 
     override fun deleteById(id: UUID) {
         return transaction {
             connection.autoCommit = false
-            Sessions.deleteWhere {
-                Sessions.id eq id
+            SessionTable.deleteWhere {
+                SessionTable.id eq id
             }
         }
     }

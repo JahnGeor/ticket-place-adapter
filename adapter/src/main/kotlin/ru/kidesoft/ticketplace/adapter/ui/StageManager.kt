@@ -2,6 +2,7 @@ package ru.kidesoft.ticketplace.adapter.ui
 
 import javafx.application.Platform
 import javafx.fxml.FXMLLoader
+import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.control.Alert
@@ -11,6 +12,7 @@ import javafx.scene.layout.StackPane
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.Window
+import org.controlsfx.control.Notifications
 import org.controlsfx.dialog.ExceptionDialog
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
 import ru.kidesoft.ticketplace.adapter.ui.view.FxmlView
@@ -32,8 +34,6 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
         val root = getRoot(baseViewController)
         stage.apply {
             scene = javafx.scene.Scene(root as Parent?, 600.0, 415.0)
-        }.also {
-            setOwnerProperties(it)
         }
 
     }
@@ -92,12 +92,6 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
     }
 
 
-    private fun setOwnerProperties(window: Window) {
-        stage.icons.add(Image("/ru/kidesoft/ticketplace/adapter/assets/icon.png"))
-        stage.title = "Ticket Place"
-    }
-
-
     fun createNewStage(): Stage {
         return Stage().apply { centerOnScreen() }.also {
             setOwnerProperties(it)
@@ -109,12 +103,24 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
         Platform.exit()
     }
 
-    override fun showNotification(notificationType: NotificationType, message: String, title: String) {
+    override fun showNotification(notificationType: NotificationType, title: String, message: String) {
+        Platform.runLater {
+            val path = javaClass.getResource("/ru/kidesoft/ticketplace/adapter/assets/css/notification.css").toExternalForm()
+            stage.scene.stylesheets.removeAll(path)
+            stage.scene.stylesheets.add(path)
+
+            val notification = Notifications.create().title(title).text(message).position(Pos.TOP_RIGHT)
+
+            when(notificationType) {
+                NotificationType.INFO -> notification.show()
+                NotificationType.WARN -> notification.showWarning()
+                NotificationType.ERROR -> notification.showError()
+            }
+        }
 
     }
 
-    override fun showAlert(alertType: AlertType, message: String, title: String, exception: Exception?) {
-
+    override fun showAlert(alertType: AlertType, title: String, message: String, exception: Throwable?) {
         when (alertType) {
             AlertType.ERROR -> {
                 exception?.run {
@@ -136,7 +142,7 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
     }
 
     companion object {
-        fun showErrorAlert(message: String, title: String, exception: Exception) {
+        fun showErrorAlert(message: String, title: String, exception: Throwable) {
             val dialog = ExceptionDialog(exception)
             dialog.contentText = message
             dialog.headerText = title
@@ -150,6 +156,11 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
             alert.contentText = message
             alert.initModality(Modality.APPLICATION_MODAL)
             alert.showAndWait()
+        }
+
+        fun setOwnerProperties(owner: Stage) {
+            owner.icons.add(Image("/ru/kidesoft/ticketplace/adapter/assets/icon.png"))
+            owner.title = "Ticket Place"
         }
     }
 }

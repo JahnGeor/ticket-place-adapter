@@ -1,17 +1,22 @@
 package ru.kidesoft.ticketplace.adapter.domain.history
 
+import ru.kidesoft.ticketplace.adapter.domain.order.OperationType
 import ru.kidesoft.ticketplace.adapter.domain.order.SourceType
 import java.time.ZonedDateTime
 import java.util.UUID
-import kotlin.properties.Delegates
 
-class History() {
-    lateinit var id : UUID
-    lateinit var loginId : UUID
-    var orderId by Delegates.notNull<Int>()
-    lateinit var createdAt : ZonedDateTime
-    lateinit var error : String
-    lateinit var statusType : StatusType
-    lateinit var reasonType : ReasonType
-    lateinit var sourceType : SourceType
-}
+data class History(
+    var id: UUID,
+    var loginId: UUID,
+    var orderId: Int,
+    var step: Step,
+    var historyExposed: HistoryPayload,
+)
+
+data class HistoryPayload(
+    var sourceType: SourceType,
+    var createdAt: ZonedDateTime,
+    var error: String,
+    var statusType: ErrorStatus,
+    var operationType: OperationType
+)

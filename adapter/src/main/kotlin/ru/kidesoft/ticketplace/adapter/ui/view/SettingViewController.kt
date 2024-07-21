@@ -98,7 +98,7 @@ class SettingViewController() : ViewController(), SettingPresenter {
 
     private fun onSaveButtonClick(actionEvent: ActionEvent) {
         val input = SaveSettingAction.Input(SettingExposed().apply {
-            kkt.path = kktPathLabel.text
+            kkt.path = kktDriverPathField.text
             kkt.autoRecconect = kktAutoReconnectBox.isSelected
             server.requestTimeout = timeoutBox.selectionModel.selectedItem
             server.requestInterval = intervalBox.selectionModel.selectedItem

@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.transactions.transactionManager
 import ru.kidesoft.ticketplace.adapter.DatabaseProperties
 import ru.kidesoft.ticketplace.adapter.application.port.*
+import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.ticketplace.ClickData
 
 class Database(databaseProperties: DatabaseProperties) : DatabasePort {
     private val database: Database
@@ -43,7 +44,7 @@ class Database(databaseProperties: DatabaseProperties) : DatabasePort {
     }
 
     override fun getClick(): ClickPort {
-        TODO("Not yet implemented")
+        return ClickRepository(database)
     }
 
     override fun getProfile(): ProfilePort {
@@ -55,7 +56,7 @@ class Database(databaseProperties: DatabaseProperties) : DatabasePort {
     }
 
     override fun getHistory(): HistoryPort {
-        TODO("Not yet implemented")
+        return HistoryRepository(database)
     }
 
     override fun execTransaction(block: () -> Boolean) {

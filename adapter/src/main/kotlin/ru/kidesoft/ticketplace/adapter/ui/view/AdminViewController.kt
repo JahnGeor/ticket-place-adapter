@@ -13,14 +13,18 @@ import java.net.URL
 import java.util.*
 
 @FxmlView("admin.fxml", Scene.ADMIN)
-class AdminViewController() : ViewController()  {
-    @FXML private lateinit var printRefundFromOrderButton: Button
+class AdminViewController() : ViewController() {
+    @FXML
+    private lateinit var printRefundFromOrderButton: Button
 
-    @FXML private lateinit var printRefundFromOrderField: TextField
+    @FXML
+    private lateinit var printRefundFromOrderField: TextField
 
-    @FXML private lateinit var printSellFromOrderButton: Button
+    @FXML
+    private lateinit var printSellFromOrderButton: Button
 
-    @FXML private lateinit var printSellFromOrderField: TextField
+    @FXML
+    private lateinit var printSellFromOrderField: TextField
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         stageManager.stage.scene.root.requestFocus()
@@ -30,19 +34,19 @@ class AdminViewController() : ViewController()  {
     // --- Action section
 
     private fun onPrintRefundFromOrderAction(actionEvent: ActionEvent) {
-        UsecaseExecutor.Executor().execute(PrintAction::class, PrintAction.Input().apply {
-            orderId = printRefundFromOrderField.text.toInt()
-            sourceType = SourceType.ORDER
-            operationType = OperationType.REFUND
-        })
+        UsecaseExecutor.Executor().execute(
+            PrintAction::class, PrintAction.Input(
+                printRefundFromOrderField.text.toInt(), SourceType.ORDER, OperationType.REFUND
+            )
+        )
     }
 
     private fun onPrintSellFromOrderAction(actionEvent: ActionEvent) {
-        UsecaseExecutor.Executor().execute(PrintAction::class, PrintAction.Input().apply {
-            orderId = printSellFromOrderField.text.toInt()
-            sourceType = SourceType.ORDER
-            operationType = OperationType.ORDER
-        })
+        UsecaseExecutor.Executor().execute(
+            PrintAction::class, PrintAction.Input(
+                printSellFromOrderField.text.toInt(), SourceType.ORDER, OperationType.ORDER
+            )
+        )
     }
 
     override fun setActions() {

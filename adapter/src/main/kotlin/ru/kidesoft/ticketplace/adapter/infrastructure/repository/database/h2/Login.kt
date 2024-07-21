@@ -12,7 +12,7 @@ import java.util.UUID
 
 
 class LoginRepository(private val database: Database) : LoginPort {
-    object Logins : UUIDTable("LOGIN") {
+    object LoginTable : UUIDTable("LOGIN") {
         val email: Column<String> = varchar("email", 256)
         val password: Column<String> = varchar("password", 256)
         val url: Column<String> = varchar("url", 256)
@@ -20,13 +20,13 @@ class LoginRepository(private val database: Database) : LoginPort {
         val uniqueEmailUrl = uniqueIndex(email, url)
     }
 
-    override fun Create(login: LoginExposed): Login {
+    override fun create(login: LoginExposed): Login {
         return transaction(database) {
-            val id = Logins.insert {
+            val id = LoginTable.insert {
                 it[email] = login.email
                 it[password] = login.password
                 it[url] = login.url
-            } get Logins.id
+            } get LoginTable.id
 
             Login().apply {
                 this.email = login.email
@@ -37,9 +37,9 @@ class LoginRepository(private val database: Database) : LoginPort {
         }
     }
 
-    override fun Update(id: UUID, login: LoginExposed): Login {
+    override fun update(id: UUID, login: LoginExposed): Login {
         return transaction {
-            Logins.update({Logins.id eq id}) {
+            LoginTable.update({LoginTable.id eq id}) {
                 it[email] = login.email
                 it[password] = login.password
                 it[url] = login.url
@@ -54,38 +54,39 @@ class LoginRepository(private val database: Database) : LoginPort {
         }
     }
 
-    override fun GetLoginId(email: String, url: String): UUID? {
+    override fun getLoginId(email: String, url: String): UUID? {
         return transaction {
-            Logins.select(Logins.id).where(Logins.email.eq(email) and Logins.url.eq(url)).singleOrNull()?.let {
-                it[Logins.id].value
+            LoginTable.select(LoginTable.id).where(LoginTable.email.eq(email) and LoginTable.url.eq(url)).singleOrNull()?.let {
+                it[LoginTable.id].value
             }
         }
     }
 
-    override fun GetAll(): List<Login> {
+    override fun getAll(): List<Login> {
         return transaction {
-            Logins.selectAll().map{
+            LoginTable.selectAll().map{
                 Login().apply {
-                    id = it[Logins.id].value
-                    email = it[Logins.email]
-                    password = it[Logins.password]
-                    url = it[Logins.url]
+                    id = it[LoginTable.id].value
+                    email = it[LoginTable.email]
+                    password = it[LoginTable.password]
+                    url = it[LoginTable.url]
                 }
             }
         }
     }
 
-    override fun getCurrent(): Login? {
+    override fun getByCurrent(): Login? {
         return transaction {
-            Logins.selectAll().map {
+            LoginTable.join(SessionRepository.SessionTable, JoinType.INNER, additionalConstraint = {(SessionRepository.SessionTable.loginId eq LoginTable.id) and (SessionRepository.SessionTable.active eq true)}).selectAll().map {
                 Login().apply {
-                    id = it[Logins.id].value
-                    email = it[Logins.email]
-                    password = it[Logins.password]
-                    url = it[Logins.url]
+                    id = it[LoginTable.id].value
+                    email = it[LoginTable.email]
+                    password = it[LoginTable.password]
+                    url = it[LoginTable.url]
                 }
             }.singleOrNull()
         }
+
     }
 
 }

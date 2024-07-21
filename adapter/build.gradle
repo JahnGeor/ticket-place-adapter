@@ -20,6 +20,10 @@ run {
     doFirst {
         mkdir("$buildDir/workingDir")
         workingDir = './build/workingDir'
+
+        copy {
+            from("$projectDir/driver/nt-x64-msvc2015") into "$workingDir/driver/kkt/atol"
+        }
     }
 
     jvmArgs += ['-Dlog4j2.configurationFile=classpath:log4j2.xml']
@@ -121,18 +125,25 @@ runtime {
         noConsole = true
     }
 
-
-
     jpackage {
+
         //mainJar = "$buildDir/libs/Ticket Place-2.0.0.jar"
         jvmArgs += ['-Dfile.encoding=utf-8']
         imageOptions += ['--icon', 'src/main/resources/ru/kidesoft/ticketplace/adapter/assets/icon.ico']
         installerOptions += ['--resource-dir', 'src/main/resources']
         installerOptions += ['--vendor', 'Kidesoft']
         installerOptions += ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+
+
     }
 
 
+}
+
+tasks.jpackage.doFirst {
+    copy {
+        from("$projectDir/driver/nt-x64-msvc2015") into "$buildDir/jpackage/$project.name/driver/kkt/atol"
+    }
 }
 
 //jlink {

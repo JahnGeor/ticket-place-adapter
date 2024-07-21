@@ -1,16 +1,17 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.updater
 
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.port.PropertiesPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.AboutPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
-class UpdateAbout(val properties : PropertiesPort): _Usecase<UpdateAbout.Input, UpdateAbout.Output>() {
-    class Input: _Usecase.Input
-    class Output(val version: String) : _Usecase.Output {}
+class UpdateAbout(commonPort: CommonPort): Usecase<UpdateAbout.Input, UpdateAbout.Output>(commonPort) {
+    class Input: Usecase.Input
+    class Output(val version: String) : Usecase.Output {}
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val version = properties.getVersion()
+        val version = commonPort.propertiesPort.getVersion()
 
         val output = Output(version)
 

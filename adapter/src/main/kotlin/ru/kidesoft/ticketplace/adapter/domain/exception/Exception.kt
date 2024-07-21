@@ -9,3 +9,7 @@ class WebException() : Exception() {
     override var cause : Throwable? = null
     override var message : String? = null
 }
+
+class ValidationException : Exception() {
+
+}

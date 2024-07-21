@@ -1,17 +1,17 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.updater
 
-import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.presenter.SettingPresenter
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.domain.setting.Setting
 
-class UpdateSetting(val databasePort: DatabasePort) : _Usecase<UpdateSetting.Input, UpdateSetting.Output>() {
-    class Input : _Usecase.Input
-    class Output(val setting : Setting) : _Usecase.Output {}
+class UpdateSetting(commonPort: CommonPort) : Usecase<UpdateSetting.Input, UpdateSetting.Output>(commonPort) {
+    class Input : Usecase.Input
+    class Output(val setting : Setting) : Usecase.Output {}
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val setting = databasePort.getSetting().getByCurrentUser()?: throw NullPointerException("Setting of current user not found")
+        val setting = commonPort.databasePort.getSetting().getByCurrent()?: throw NullPointerException("Setting of current user not found")
 
         val output = Output(setting)
 

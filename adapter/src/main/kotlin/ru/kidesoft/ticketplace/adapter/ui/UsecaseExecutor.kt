@@ -3,8 +3,7 @@ package ru.kidesoft.ticketplace.adapter.ui
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.updater.UpdateMain
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.ui.handler.DefaultHandler
 import ru.kidesoft.ticketplace.adapter.ui.handler.Handler
 import kotlin.reflect.KClass
@@ -15,9 +14,9 @@ object UsecaseExecutor {
 
     private val logger = LogManager.getLogger(this.javaClass)
 
-    val usecaseMap = mutableMapOf<KClass<out _Usecase<*, *>>, _Usecase<*, *>>()
+    val usecaseMap = mutableMapOf<KClass<out Usecase<*, *>>, Usecase<*, *>>()
 
-    fun registerUsecase(vararg usecase: _Usecase<*, *>) {
+    fun registerUsecase(vararg usecase: Usecase<*, *>) {
         usecase.forEach { uc -> usecaseMap[uc::class] = uc }
     }
 
@@ -25,7 +24,7 @@ object UsecaseExecutor {
         var handler: Handler? = defaultHandler
         var maxAttempts: Int = 1
 
-        fun <I : _Usecase.Input, O : _Usecase.Output, UC : _Usecase<I, O>> execute(
+        fun <I : Usecase.Input, O : Usecase.Output, UC : Usecase<I, O>> execute(
             usecaseClass: KClass<UC>,
             input: I? = null,
             sceneManager: SceneManager? = null
@@ -44,8 +43,8 @@ object UsecaseExecutor {
             }
         }
 
-        private fun <I : _Usecase.Input, O : _Usecase.Output, UC : _Usecase<I, O>> execute(
-            usecase: _Usecase<I, O>,
+        private fun <I : Usecase.Input, O : Usecase.Output, UC : Usecase<I, O>> execute(
+            usecase: Usecase<I, O>,
             input: I? = null, sceneManager: SceneManager? = null
         ): O? {
 

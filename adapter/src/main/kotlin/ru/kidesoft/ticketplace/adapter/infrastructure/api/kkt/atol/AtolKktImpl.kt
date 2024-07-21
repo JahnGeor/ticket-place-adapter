@@ -13,29 +13,23 @@ import ru.kidesoft.ticketplace.adapter.domain.order.Ticket
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 import ru.kidesoft.ticketplace.adapter.domain.setting.KktSetting
 import java.io.File
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
-class AtolKktImpl : KktPort {
+class AtolKktImpl(val cashier : Cashier) : KktPort {
+    private var ifptr : IFptr? = null
 
-    private lateinit var ifptr: IFptr
-
-    constructor() {
-        ifptr = Fptr()
-        ifptr.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_RECONNECT, "false")
-        ifptr.applySingleSettings()
-    }
-
-    constructor(kktSetting: KktSetting) {
+    constructor(cashier: Cashier, kktSetting: KktSetting) : this(cashier) {
         setConnection(kktSetting)
     }
-
 
     override fun setConnection(kktSetting: KktSetting?) {
         var driverDir = kktSetting?.let {
             val driverDir = File(kktSetting.path)
 
             if (!driverDir.exists() || !driverDir.isDirectory) {
-                throw IllegalArgumentException("driver dir does not exist or isn't a directory")
+                throw IllegalArgumentException("${driverDir.path} does not exist or isn't a directory")
             }
 
             driverDir
@@ -46,57 +40,71 @@ class AtolKktImpl : KktPort {
         ifptr = driverDir?.let { Fptr(it.canonicalPath) } ?: Fptr()
 
         kktSetting?.let {
-            ifptr.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_RECONNECT, it.autoRecconect.toString())
-            ifptr.applySingleSettings()
+            ifptr!!.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_RECONNECT, it.autoRecconect.toString())
+            ifptr!!.applySingleSettings()
         }
+    }
+
+    fun setOperator() {
+        ifptr!!.setParam(1021, cashier.fullName)
+        ifptr!!.setParam(1203, cashier.inn.toString())
+        ifptr!!.operatorLogin().takeIf { it != 0 }?.let { _processError() }
+    }
+
+    override fun destroy() {
+        ifptr?.destroy()
     }
 
     override fun getConnection(): Boolean {
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS)
 
-        ifptr.queryData().takeIf { it != 0 }?.let {
+        ifptr!!.queryData().takeIf { it != 0 }?.let {
             return@getConnection false
         }
 
-        return ifptr.isOpened
+        return ifptr!!.isOpened
     }
 
     override fun openConnection() {
-        ifptr.open().takeIf { it != 0 }?.let {
-            _processError(it)
+        ifptr!!.open().takeIf { it != 0 }?.let {
+            _processError()
         }
     }
 
     override fun closeConnection() {
-        ifptr.close().takeIf { it != 0 }?.let {
-            _processError(it)
+        ifptr!!.close().takeIf { it != 0 }?.let {
+            _processError()
         }
     }
 
-    override fun openShift(cashier: Cashier) {
-        ifptr.openShift().takeIf { it != 0 }?.let {
-            _processError(it)
+    override fun openShift() {
+        setOperator()
+
+        ifptr!!.openShift().takeIf { it != 0 }?.let {
+            _processError()
         }
     }
 
-    override fun closeShift(cashier: Cashier) {
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_CLOSE_SHIFT)
-        ifptr.report().takeIf { it != 0 }?.let {
-            _processError(it)
+    override fun closeShift() {
+        setOperator()
+
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_CLOSE_SHIFT)
+        ifptr!!.report().takeIf { it != 0 }?.let {
+            _processError()
         }
-        ifptr.checkDocumentClosed().takeIf { it != 0 }?.let {
-            _processError(it)
+        ifptr!!.checkDocumentClosed().takeIf { it != 0 }?.let {
+            _processError()
         }
     }
 
     override fun getShiftState(): ShiftState {
-        ifptr.setParam(Fptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS)
+        ifptr!!.setParam(Fptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS)
 
-        ifptr.queryData().takeIf { it != 0 }?.let {
-            _processError(it)
+        ifptr!!.queryData().takeIf { it != 0 }?.let {
+            _processError()
         }
 
-        val state = ifptr.getParamInt(IFptr.LIBFPTR_PARAM_SHIFT_STATE)
+        val state = ifptr!!.getParamInt(IFptr.LIBFPTR_PARAM_SHIFT_STATE)
 
         return when(state) {
             IFptr.LIBFPTR_SS_CLOSED.toLong() -> ShiftState.CLOSED
@@ -106,24 +114,26 @@ class AtolKktImpl : KktPort {
         }
     }
 
-    override fun print(cashier: Cashier, orderExposed: OrderExposed, operationType: OperationType) {
+    override fun print(orderExposed: OrderExposed, operationType: OperationType) {
+        setOperator()
+
         when(operationType) {
-            OperationType.REFUND -> ifptr.setParam(IFptr.LIBFPTR_PARAM_RECEIPT_TYPE, IFptr.LIBFPTR_RT_SELL)
-            OperationType.ORDER -> ifptr.setParam(IFptr.LIBFPTR_PARAM_RECEIPT_TYPE, IFptr.LIBFPTR_RT_SELL_RETURN)
+            OperationType.REFUND -> ifptr!!.setParam(IFptr.LIBFPTR_PARAM_RECEIPT_TYPE, IFptr.LIBFPTR_RT_SELL)
+            OperationType.ORDER -> ifptr!!.setParam(IFptr.LIBFPTR_PARAM_RECEIPT_TYPE, IFptr.LIBFPTR_RT_SELL_RETURN)
             else -> _cancelAndProcessException(throw IllegalArgumentException("Unprocessed operation type $operationType"))
         }
 
-        ifptr.openReceipt().takeIf { it != 0 }?.let {
+        ifptr!!.openReceipt().takeIf { it != 0 }?.let {
             _cancelAndProcessError(it)
         }
 
-        ifptr.setParam(1212, 4)
-        ifptr.setParam(1214, 4)
+        ifptr!!.setParam(1212, 4)
+        ifptr!!.setParam(1214, 4)
 
         if (operationType == OperationType.REFUND) {
-            ifptr.setParam(IFptr.LIBFPTR_PARAM_TEXT, "Возврат")
-            ifptr.setParam(IFptr.LIBFPTR_PARAM_ALIGNMENT, IFptr.LIBFPTR_ALIGNMENT_CENTER)
-            ifptr.printText().takeIf { it != 0 }?.let {
+            ifptr!!.setParam(IFptr.LIBFPTR_PARAM_TEXT, "Возврат")
+            ifptr!!.setParam(IFptr.LIBFPTR_PARAM_ALIGNMENT, IFptr.LIBFPTR_ALIGNMENT_CENTER)
+            ifptr!!.printText().takeIf { it != 0 }?.let {
                 _cancelAndProcessError(it)
             }
         }
@@ -134,28 +144,29 @@ class AtolKktImpl : KktPort {
 
         val sum = orderExposed.tickets.sumOf {it.amount.toDouble()}
 
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_SUM, sum)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_SUM, sum)
 
-        ifptr.receiptTotal()
+        ifptr!!.receiptTotal()
 
         when (orderExposed.paymentType) {
-            PaymentType.CASH -> ifptr.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_CASH)
-            PaymentType.CARD, PaymentType.ACCOUNT_INDIVIDUAL -> ifptr.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_ELECTRONICALLY)
+            PaymentType.CASH -> ifptr!!.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_CASH)
+            PaymentType.CARD, PaymentType.ACCOUNT_INDIVIDUAL -> ifptr!!.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_ELECTRONICALLY)
             else -> _cancelAndProcessException(throw IllegalArgumentException("Unprocessed payment type ${orderExposed.paymentType}"))
         }
 
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_SUM, sum)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_SUM, sum)
 
-        ifptr.payment().takeIf { it != 0 }?.let {
+        ifptr!!.payment().takeIf { it != 0 }?.let {
             _cancelAndProcessError(it)
         }
 
-        ifptr.closeReceipt().takeIf { it != 0 }?.let { _cancelAndProcessError(it) }
+        ifptr!!.closeReceipt().takeIf { it != 0 }?.let { _cancelAndProcessError(it) }
 
-        val closed = false
+        var closed = false
 
          closeLoop@ for (i in 1..5) {
-             if (ifptr.checkDocumentClosed() == 0) {
+             if (ifptr!!.checkDocumentClosed() == 0) {
+                 closed = true
                  break@closeLoop
              }
             runBlocking {
@@ -167,62 +178,94 @@ class AtolKktImpl : KktPort {
             _cancelAndProcessException(IllegalArgumentException("Can't close document"))
         }
 
-        if (!ifptr.getParamBool(IFptr.LIBFPTR_PARAM_DOCUMENT_CLOSED)) {
+        if (!ifptr!!.getParamBool(IFptr.LIBFPTR_PARAM_DOCUMENT_CLOSED)) {
             _cancelAndProcessException(IllegalStateException("Document isn't closed"))
         }
 
-        if (!ifptr.getParamBool(IFptr.LIBFPTR_PARAM_DOCUMENT_PRINTED)) {
+        if (!ifptr!!.getParamBool(IFptr.LIBFPTR_PARAM_DOCUMENT_PRINTED)) {
             for(i in 1..10) {
-                if (ifptr.continuePrint() == 0) break
+                if (ifptr!!.continuePrint() == 0) break
                 runBlocking { delay(500) }
             } // FIXME: возможно, стоит добавить какой-то cancelReceipt с проверкой
         }
 
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_FN_DATA_TYPE, IFptr.LIBFPTR_FNDT_LAST_DOCUMENT)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FN_DATA_TYPE, IFptr.LIBFPTR_FNDT_LAST_DOCUMENT)
 
-        ifptr.fnQueryData().takeIf { it != 0 }?.let {
+        ifptr!!.fnQueryData().takeIf { it != 0 }?.let {
             _cancelAndProcessError(it)
         }
     }
 
+    override fun printXReport() {
+        setOperator()
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_X)
+        ifptr!!.report().takeIf { it != 0 }?.let { _processError() }
+    }
+
+    override fun printLastReceipt() {
+        setOperator()
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_REPORT_TYPE, IFptr.LIBFPTR_RT_LAST_DOCUMENT)
+        ifptr!!.report().takeIf { it != 0 }?.let { _processError() }
+    }
+
+    override fun cashIncome(income: Float) {
+        setOperator()
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_SUM, income.toDouble())
+        ifptr!!.cashIncome().takeIf { it != 0 }?.let { _processError() }
+    }
+
+    override fun setTime(zonedDateTime: ZonedDateTime) {
+        val dateTime: Date = ifptr!!.getParamDateTime(IFptr.LIBFPTR_PARAM_DATE_TIME)
+
+        println("$dateTime")
+
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_DATE_TIME, Date.from(zonedDateTime.toInstant()))
+
+        ifptr!!.writeDateTime().takeIf { it != 0 }?.let { _processError() }
+    }
+
     private fun registerPosition(ticket: Ticket) : Int {
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_COMMODITY_NAME, "" +
+        val commodityName = "" +
                 "${ticket.number}, " +
-                "${ticket.showName}, " +
+                "Шоу: ${ticket.showName} " +
                 "${ticket.ageLimit}, " +
-                "${ticket.dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))}, " +
-                "${ticket.zone}, " +
-                "${ticket.rowSector}, " +
-                "${ticket.seatNumber}")
+                "Дата проведения: ${ticket.dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))}, " +
+                "Зона: ${ticket.zone}, " +
+                "Ряд: ${ticket.rowSector}, " +
+                "Место: ${ticket.seatNumber}"
 
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_PRICE, ticket.amount.toDouble())
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_QUANTITY, 1)
-        ifptr.setParam(IFptr.LIBFPTR_PARAM_TAX_TYPE, IFptr.LIBFPTR_TAX_NO)
 
-        ifptr.setParam(1212, 4)
-        ifptr.setParam(1214, 4)
 
-        return ifptr.registration()
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_COMMODITY_NAME, commodityName)
+
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_PRICE, ticket.amount.toDouble())
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_QUANTITY, 1)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_TAX_TYPE, IFptr.LIBFPTR_TAX_NO)
+
+        ifptr!!.setParam(1212, 4)
+        ifptr!!.setParam(1214, 4)
+
+        return ifptr!!.registration()
     }
 
     private fun _cancelAndProcessError(code: Int) {
-        ifptr.cancelReceipt().takeIf { it != 0 }?.let {
-            _processError(it)
+        ifptr!!.cancelReceipt().takeIf { it != 0 }?.let {
+            _processError()
         }
 
-        _processError(code)
+        _processError()
     }
 
     private fun _cancelAndProcessException(e: Throwable) {
-        ifptr.cancelReceipt().takeIf { it != 0 }?.let {
-            _processError(it)
+        ifptr!!.cancelReceipt().takeIf { it != 0 }?.let {
+            _processError()
         }
 
         throw e
     }
 
-    private fun _processError(code: Int) {
-        throw KktException(code, ifptr.errorDescription(), ifptr.errorRecommendation())
+    private fun _processError() {
+        throw KktException(ifptr!!.errorCode(), ifptr!!.errorDescription(), ifptr!!.errorRecommendation())
     }
 }
 

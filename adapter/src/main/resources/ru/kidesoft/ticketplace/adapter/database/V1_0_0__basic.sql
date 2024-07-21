@@ -34,10 +34,11 @@ create table HISTORY
     ORDER_ID       INTEGER                    not null,
     OPERATION_TYPE TINYINT                    not null,
     SOURCE_TYPE    TINYINT                    not null,
+    STEP_TYPE      TINYINT                    not null,
     constraint HISTORY_PK
         primary key (ID),
     constraint HISTORY_PK_UNIQUE
-        unique (LOGIN_ID, ORDER_ID),
+        unique (LOGIN_ID, ORDER_ID, STEP_TYPE),
     constraint HISTORY_LOGIN_ID_FK
         foreign key (LOGIN_ID) references LOGIN
             on update cascade on delete cascade
@@ -74,7 +75,10 @@ create table SESSION
     constraint SESSION_LOGIN_ID_FK
         foreign key (LOGIN_ID) references LOGIN
             on update cascade on delete cascade,
-    check ((SELECT COUNT(*) WHERE ACTIVE = TRUE) <= 1)
+    constraint SESSION_LOGIN_ID_UNIQ
+        unique (LOGIN_ID),
+    check ((SELECT COUNT(*)
+            WHERE ACTIVE = TRUE) <= 1)
 );
 
 create table SETTING

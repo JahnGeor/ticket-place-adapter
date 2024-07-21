@@ -1,21 +1,22 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.updater
 
-import ru.kidesoft.ticketplace.adapter.application.port.ApiFactory
+import ru.kidesoft.ticketplace.adapter.application.port.ApiPortFactory
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
 import ru.kidesoft.ticketplace.adapter.application.presenter.AuthPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetCashierListUsecase
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 
-class UpdateAuth(val databasePort: DatabasePort, val webApiFactory: ApiFactory) :
-    _Usecase<UpdateAuth.Input, UpdateAuth.Output>() {
-    class Input : _Usecase.Input {
+class UpdateAuth(commonPort: CommonPort) :
+    Usecase<UpdateAuth.Input, UpdateAuth.Output>(commonPort) {
+    class Input : Usecase.Input {
 
     }
 
-    class Output : _Usecase.Output {
+    class Output : Usecase.Output {
 
         var emails = listOf<String>()
         var urls = listOf<String>()
@@ -24,9 +25,9 @@ class UpdateAuth(val databasePort: DatabasePort, val webApiFactory: ApiFactory) 
     }
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val loginOutput = GetAllLoginUsecase(databasePort, webApiFactory).invoke()
+        val loginOutput = GetAllLoginUsecase(commonPort).invoke()
 
-        val cashierOutput = GetCashierListUsecase(databasePort).invoke()
+        val cashierOutput = GetCashierListUsecase(commonPort).invoke()
 
         val output = Output().apply {
             this.cashiers = cashierOutput.cashierList

@@ -1,9 +1,16 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+import ru.kidesoft.ticketplace.adapter.application.port.ApiPortFactory
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
+import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
+import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase.updater.UpdateAbout.Output
 
-abstract class _Usecase<I : _Usecase.Input, O : _Usecase.Output> {
+abstract class Usecase<I : Usecase.Input, O : Usecase.Output>(val commonPort: CommonPort) {
+    val logger: Logger = LogManager.getLogger(this::class.java)
+
     interface Input {}
     interface Output {}
 

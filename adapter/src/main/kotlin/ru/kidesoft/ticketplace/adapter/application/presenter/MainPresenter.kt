@@ -6,6 +6,7 @@ import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
 
 interface MainPresenter : Presenter {
     fun setProfile(profile : Profile)
-
-    fun setKktState(isConnected: Boolean, shiftState: ShiftState)
+    fun setShiftState(shiftState: ShiftState)
+    fun setKktConnectionStatus(connectionStatus : Boolean)
+    fun setPoolingStatus(poolingStatus : Boolean)
 }

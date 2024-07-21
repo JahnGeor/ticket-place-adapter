@@ -1,35 +1,35 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.login
 
-import ru.kidesoft.ticketplace.adapter.application.port.ApiFactory
-import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
-import ru.kidesoft.ticketplace.adapter.application.presenter.MainPresenter
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.NotificationType
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
+import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
+import ru.kidesoft.ticketplace.adapter.domain.session.Session
+import ru.kidesoft.ticketplace.adapter.domain.setting.Setting
 
-class ReactivateAuthorization(val databasePort: DatabasePort, val apiFactory: ApiFactory) : _Usecase<ReactivateAuthorization.Input, ReactivateAuthorization.Output>() {
-    class Input : _Usecase.Input {}
-    class Output : _Usecase.Output {}
+class ReactivateAuthorization(commonPort: CommonPort) : Usecase<ReactivateAuthorization.Input, Login.Output>(commonPort) {
+    class Input : Usecase.Input {}
 
-    override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val currentLogin = databasePort.getLogin().getCurrent()?: throw NullPointerException("current login is null")
+    override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Login.Output {
+        val currentLogin = commonPort.databasePort.getLogin().getByCurrent()?: throw NullPointerException("current login is null")
 
-        Login(databasePort, apiFactory).invoke(Login.Input().apply {
+        var loginOutput = Login(commonPort).invoke(Login.Input().apply {
             url = currentLogin.url
             password = currentLogin.password
             email = currentLogin.email
         })
 
-        val output = Output()
+        logger.info("Текущая сессия переактивирована: ${loginOutput.profile.userId} ${loginOutput.session.token.createdTime} -> ${loginOutput.session.token.expiredTime}")
 
         sceneManager?.let {
-            present(output, it)
+            present(loginOutput, it)
         }
 
-        return output
+        return loginOutput
     }
 
-    override fun present(output: Output, sceneManager: SceneManager) {
-        sceneManager.showNotification(NotificationType.INFO, "Обновлена текущая сессия", "Реавторизация")
+    override fun present(output: Login.Output, sceneManager: SceneManager) {
+        sceneManager.showNotification(NotificationType.INFO, "Реавторизация", "Обновлена текущая сессия")
     }
 }

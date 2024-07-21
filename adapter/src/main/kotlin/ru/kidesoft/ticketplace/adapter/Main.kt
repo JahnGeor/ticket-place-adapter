@@ -5,12 +5,10 @@ import javafx.application.Application
 import javafx.application.Platform
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
-import ru.kidesoft.ticketplace.adapter.application.usecase.StartApplication
-import ru.kidesoft.ticketplace.adapter.application.usecase.action.LoginAction
-import ru.kidesoft.ticketplace.adapter.application.usecase.action.PrintAction
-import ru.kidesoft.ticketplace.adapter.application.usecase.action.SaveSettingAction
-import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartKktSession
-import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.UpdateSessionStateUsecase
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
+import ru.kidesoft.ticketplace.adapter.application.usecase.*
+import ru.kidesoft.ticketplace.adapter.application.usecase.action.*
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.*
 
 
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
@@ -20,11 +18,14 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetCashierLis
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetProfileByCurrentUser
 import ru.kidesoft.ticketplace.adapter.application.usecase.session.IsActiveSessionUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.updater.*
+import ru.kidesoft.ticketplace.adapter.application.usecase.web.GetWebPort
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.kkt.KktFactory
-import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.WebServerApiFactory
+import ru.kidesoft.ticketplace.adapter.infrastructure.api.printer.JavaFXPrinterRepository
+import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.WebServerApiPortFactory
 import ru.kidesoft.ticketplace.adapter.ui.StageManager
 
 import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2.Database
+import ru.kidesoft.ticketplace.adapter.infrastructure.repository.memory.JobRepository
 import ru.kidesoft.ticketplace.adapter.infrastructure.repository.properties.ApplicationProperties
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import ru.kidesoft.ticketplace.adapter.ui.handler.DefaultHandler
@@ -34,6 +35,10 @@ import ru.kidesoft.ticketplace.adapter.ui.view.*
 // Класс-наследник JavaFX Application, выполняет все в потоке JavaFX
 class Main : Application() {
     override fun start(stage: Stage) {
+        StageManager.setOwnerProperties(stage)
+
+        setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)
+
         var lock = SocketLock(12111)
 
         if (!lock.tryLock()) {
@@ -47,36 +52,51 @@ class Main : Application() {
                 return
         }
 
+        // COMM: Устанавливаем тему от AtlantaFX
+
         try {
             val appProps = ru.kidesoft.ticketplace.adapter.ApplicationProperties()
 
             val applicationRepository = ApplicationProperties()
-            val apiFactory = WebServerApiFactory()
+            val apiFactory = WebServerApiPortFactory()
             val h2DatabaseRepository = Database(appProps.database)
             // val mock = DatabaseMock() // COMM: Mock-database
             val kktFactory = KktFactory()
+            val jobRepository = JobRepository()
+            val printerRepository = JavaFXPrinterRepository()
+
+            val commonPort = CommonPort(h2DatabaseRepository, kktFactory, apiFactory, applicationRepository, jobRepository, printerRepository)
 
 
-            val login = Login(h2DatabaseRepository, apiFactory)  // mock/h2DatabaseRepository)
-            val logout = Logout(h2DatabaseRepository, kktFactory) // mock/h2DatabaseRepository)
-            val getAllLoginUsecase = GetAllLoginUsecase(h2DatabaseRepository, apiFactory) // mock/h2DatabaseRepository,
-            val getCashierListUsecase = GetCashierListUsecase(h2DatabaseRepository) // mock/h2DatabaseRepository
-            val isActiveSessionUsecase = IsActiveSessionUsecase(h2DatabaseRepository) // mock/h2DatabaseRepository
-            val getProfileByCurrentUser = GetProfileByCurrentUser(h2DatabaseRepository) // mock/h2DatabaseRepository
-            val startKktSession = StartKktSession(h2DatabaseRepository, kktFactory)
-            val updateSessionStateUsecase = UpdateSessionStateUsecase(h2DatabaseRepository, kktFactory)
-            val startApplication = StartApplication(h2DatabaseRepository, apiFactory, kktFactory)
-            val loginAction = LoginAction(databasePort = h2DatabaseRepository, apiFactory, kktFactory)
-            val saveSettingAction = SaveSettingAction(h2DatabaseRepository)
-            val printAction = PrintAction(h2DatabaseRepository, apiFactory, kktFactory)
+            val login = Login(commonPort)
+            val logout = Logout(commonPort)
+            val getAllLoginUsecase = GetAllLoginUsecase(commonPort)
+            val getCashierListUsecase = GetCashierListUsecase(commonPort)
+            val isActiveSessionUsecase = IsActiveSessionUsecase(commonPort)
+            val getProfileByCurrentUser = GetProfileByCurrentUser(commonPort)
+            val startKktSession = StartKktSession(commonPort)
+            val startApplication = StartApplication(commonPort)
+            val loginAction = LoginAction(commonPort)
+            val saveSettingAction = SaveSettingAction(commonPort)
+            val printAction = PrintAction(commonPort)
+            val kktSyncTime = KktSyncTime(commonPort)
+            val changeShift = ChangeShift(commonPort)
+            val diagnosticAction = DiagnosticAction(commonPort)
+            val printLastReceipt = PrintLastReceipt(commonPort)
+            val printXReportAction = PrintXReportAction(commonPort)
+            val cashIncomeAction = CashIncomeAction(commonPort)
+//            val poolingServiceStart = PoolingServiceStart(commonPort)
+//            val poolingServiceStop = PoolingServiceStop(commonPort)
+            val poolingService = PoolingService(commonPort)
+            val saveHistory = SaveHistory(commonPort)
+            val getWebPort = GetWebPort(commonPort)
 
             // COMM: Варианты использования обновления сцены
-            val updateMain = UpdateMain(h2DatabaseRepository, kktFactory) // COMM: обновление главного окна
-            val updateAbout = UpdateAbout(applicationRepository) // COMM: обновление окна о программе
-            val updateSetting = UpdateSetting(h2DatabaseRepository) // COMM: обновление окна настроек
-            val updateHistory = UpdateHistory(h2DatabaseRepository) // COMM: обновление окна истории
-            val updateAuth = UpdateAuth(h2DatabaseRepository, apiFactory) // COMM: обновление окна авторизации
-
+            val updateMain = UpdateMain(commonPort) // COMM: обновление главного окна
+            val updateAbout = UpdateAbout(commonPort) // COMM: обновление окна о программе
+            val updateSetting = UpdateSetting(commonPort) // COMM: обновление окна настроек
+            val updateHistory = UpdateHistory(commonPort) // COMM: обновление окна истории
+            val updateAuth = UpdateAuth(commonPort) // COMM: обновление окна авторизации
 
             UsecaseExecutor.registerUsecase( // FIXME: Необходимо переделать данный метод, в него нужно передавать лишь port implementation
                 login, // FIXME:
@@ -86,7 +106,6 @@ class Main : Application() {
                 isActiveSessionUsecase, // FIXME:
                 getProfileByCurrentUser, // FIXME:
                 startKktSession, // FIXME:
-                updateSessionStateUsecase, // FIXME:
                 startApplication, // FIXME:
                 updateAuth, // FIXME:
                 updateHistory, // FIXME:
@@ -95,15 +114,15 @@ class Main : Application() {
                 updateMain, // FIXME:
                 loginAction,
                 saveSettingAction,
-                printAction
-
+                printAction,
+                kktSyncTime,
+                changeShift,
+                diagnosticAction,
+                printLastReceipt,
+                cashIncomeAction,
+                printXReportAction,
+                poolingService
             ) // FIXME:
-
-
-
-            // COMM: Устанавливаем тему от AtlantaFX
-            setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)
-
 
             // COMM: Инициализация View/Presenter окна авторизации
             val authViewController = AuthViewController()

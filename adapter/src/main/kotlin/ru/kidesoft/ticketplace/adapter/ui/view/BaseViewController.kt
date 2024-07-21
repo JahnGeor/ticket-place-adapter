@@ -8,6 +8,8 @@ import javafx.scene.control.MenuItem
 import javafx.scene.layout.StackPane
 
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
+import ru.kidesoft.ticketplace.adapter.application.usecase.action.DiagnosticAction
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.KktSyncTime
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.Logout
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import java.net.URL
@@ -76,6 +78,11 @@ class BaseViewController() : ViewController() {
         adminMenuItem.setOnAction (::onAdminMenuItemAction)
         aboutMenuItem.setOnAction(::onAboutMenuItemAction)
         diagnosticMenuItem.setOnAction(::onDiagnosticMenuItemAction)
+        syncKktMenuItem.setOnAction(::syncKktMenuItemAction)
+    }
+
+    private fun syncKktMenuItemAction(event: ActionEvent) {
+        UsecaseExecutor.Executor().execute(KktSyncTime::class, sceneManager = stageManager)
     }
 
     private fun onUpdateMenuItemAction(actionEvent: ActionEvent) {
@@ -110,7 +117,7 @@ class BaseViewController() : ViewController() {
     }
 
     private fun onDiagnosticMenuItemAction(actionEvent: ActionEvent) {
-
+        UsecaseExecutor.Executor().execute(DiagnosticAction::class, sceneManager = stageManager)
     }
 
 

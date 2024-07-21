@@ -1,6 +1,8 @@
 package ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.mock
 
 import ru.kidesoft.ticketplace.adapter.application.port.*
+import ru.kidesoft.ticketplace.adapter.domain.click.ClickDatabase
+import ru.kidesoft.ticketplace.adapter.domain.click.ClickExposed
 import ru.kidesoft.ticketplace.adapter.domain.login.Login
 import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
@@ -34,15 +36,15 @@ class DatabaseMock : DatabasePort{
 }
 
 class Login : LoginPort {
-    override fun GetLoginId(email: String, url: String): UUID = UUID.randomUUID()
+    override fun getLoginId(email: String, url: String): UUID = UUID.randomUUID()
 
-    override fun Create(login: LoginExposed): Login = Login()
+    override fun create(login: LoginExposed): Login = Login()
 
-    override fun Update(id: UUID, login: LoginExposed): Login = Login()
+    override fun update(id: UUID, login: LoginExposed): Login = Login()
 
-    override fun GetAll(): List<Login> = listOf(Login())
+    override fun getAll(): List<Login> = listOf(Login())
 
-    override fun getCurrent(): Login? = Login()
+    override fun getByCurrent(): Login? = Login()
 
 }
 
@@ -72,6 +74,13 @@ class Session : SessionPort {
 }
 
 class Click : ClickPort {
+    override fun save(clickExposed: ClickExposed): UUID {
+        TODO("Not yet implemented")
+    }
+
+    override fun getByCurrent(): ClickDatabase? {
+        TODO("Not yet implemented")
+    }
 
 }
 
@@ -81,13 +90,13 @@ class Profile : ProfilePort {
         inn = 12312341234
     })
 
-    override fun Create(profile: ProfileExposed): Profile = Profile()
+    override fun create(profile: ProfileExposed): Profile = Profile()
 
-    override fun Update(id: UUID, profile: ProfileExposed): Profile = Profile()
+    override fun update(id: UUID, profile: ProfileExposed): Profile = Profile()
 
     override fun getByLoginId(loginId: UUID): Profile? = Profile()
 
-    override fun getCurrentProfile(): Profile = Profile().apply { cashier =
+    override fun getByCurrent(): Profile = Profile().apply { cashier =
         Cashier().apply {
             fullName = "Администратор"
             inn = 12312341234 } }

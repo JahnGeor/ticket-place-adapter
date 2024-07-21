@@ -5,14 +5,19 @@ import ru.kidesoft.ticketplace.adapter.domain.order.OperationType
 import ru.kidesoft.ticketplace.adapter.domain.order.OrderExposed
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 import ru.kidesoft.ticketplace.adapter.domain.setting.KktSetting
+import java.time.ZonedDateTime
 import java.util.UUID
 
 enum class KktType {
     ATOL
 }
 
-interface KktPort : KktConnection, KktShift, KktPrinter {
+interface KktPort : KktConnection, KktShift, KktPrinter, KktOperation, KktSystem {
+    fun destroy()
+}
 
+interface KktSystem {
+    fun setTime(zonedDateTime: ZonedDateTime)
 }
 
 interface KktConnection {
@@ -23,22 +28,22 @@ interface KktConnection {
 }
 
 interface KktShift {
-    fun openShift(cashier: Cashier)
-    fun closeShift(cashier: Cashier)
+    fun openShift()
+    fun closeShift()
     fun getShiftState() : ShiftState
 }
 
 interface KktOperation {
-    fun printXReport(cashier: Cashier)
-    fun printLastReceipt(cashier: Cashier)
-    fun cashIncome(income: Float, cashier: Cashier)
+    fun printXReport()
+    fun printLastReceipt()
+    fun cashIncome(income: Float)
 }
 
 interface KktPrinter {
-    fun print(cashier: Cashier, orderExposed: OrderExposed, operationType: OperationType)
+    fun print(orderExposed: OrderExposed, operationType: OperationType)
 }
 
 interface KktPortFactory {
     fun getInstance(kktType: KktType, loginId : UUID) : KktPort?
-    fun createInstance(kktType: KktType, kktSetting: KktSetting, loginId: UUID) : KktPort
+    fun createInstance(kktType: KktType, cashierData : Cashier, kktSetting: KktSetting, loginId: UUID) : KktPort
 }

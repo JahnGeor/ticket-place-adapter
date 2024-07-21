@@ -3,24 +3,18 @@ package ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import ru.kidesoft.ticketplace.adapter.application.port.LoginPort
 import ru.kidesoft.ticketplace.adapter.application.port.ProfilePort
-import ru.kidesoft.ticketplace.adapter.domain.login.Login
-import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
 import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileExposed
 import ru.kidesoft.ticketplace.adapter.domain.profile.RoleType
-import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2.LoginRepository.Logins.id
-import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2.LoginRepository.Logins.uniqueIndex
 import java.util.*
 
 class ProfileRepository(private val database: Database) : ProfilePort {
-    object Profiles : UUIDTable("PROFILE") {
+    object ProfileTable : UUIDTable("PROFILE") {
         val inn: Column<Long> = long("INN")
-        val loginId: Column<UUID> = uuid("LOGIN_ID").references(LoginRepository.Logins.id)
+        val loginId: Column<UUID> = uuid("LOGIN_ID").references(LoginRepository.LoginTable.id)
         val fullName: Column<String> = varchar("FULLNAME", 256)
         val avatar: Column<String> = varchar("AVATAR", 1024)
         val userName: Column<String> = varchar("USERNAME", 1024)
@@ -28,9 +22,9 @@ class ProfileRepository(private val database: Database) : ProfilePort {
         val roleType: Column<RoleType> = enumeration("ROLE", RoleType::class)
     }
 
-    override fun Create(profile: ProfileExposed): Profile {
+    override fun create(profile: ProfileExposed): Profile {
         return transaction(database) {
-            val id = Profiles.insert {
+            val id = ProfileTable.insert {
                 it[inn] = profile.cashier.inn
                 it[fullName] = profile.cashier.fullName
                 it[loginId] = profile.loginId
@@ -38,7 +32,7 @@ class ProfileRepository(private val database: Database) : ProfilePort {
                 it[userName] = profile.userName
                 it[userId] = profile.userId
                 it[roleType] = profile.roleType
-            } get Profiles.id
+            } get ProfileTable.id
 
             Profile().apply {
                 this.cashier = profile.cashier
@@ -52,10 +46,10 @@ class ProfileRepository(private val database: Database) : ProfilePort {
         }
     }
 
-    override fun Update(id: UUID, profile: ProfileExposed): Profile {
+    override fun update(id: UUID, profile: ProfileExposed): Profile {
         return transaction(database) {
 
-            Profiles.update({ Profiles.id eq id }) {
+            ProfileTable.update({ ProfileTable.id eq id }) {
                 it[inn] = profile.cashier.inn
                 it[fullName] = profile.cashier.fullName
                 it[loginId] = profile.loginId
@@ -78,30 +72,30 @@ class ProfileRepository(private val database: Database) : ProfilePort {
     }
 
     private fun ResultRow.toProfile() = Profile().apply {
-        this.cashier.inn = this@toProfile[Profiles.inn]
-        this.cashier.fullName = this@toProfile[Profiles.fullName]
-        this.avatar = this@toProfile[Profiles.avatar]
-        this.userId = this@toProfile[Profiles.userId]
-        this.loginId = this@toProfile[Profiles.loginId]
-        this.userName = this@toProfile[Profiles.userName]
-        this.roleType = this@toProfile[Profiles.roleType]
-        this.id = this@toProfile[Profiles.id].value
+        this.cashier.inn = this@toProfile[ProfileTable.inn]
+        this.cashier.fullName = this@toProfile[ProfileTable.fullName]
+        this.avatar = this@toProfile[ProfileTable.avatar]
+        this.userId = this@toProfile[ProfileTable.userId]
+        this.loginId = this@toProfile[ProfileTable.loginId]
+        this.userName = this@toProfile[ProfileTable.userName]
+        this.roleType = this@toProfile[ProfileTable.roleType]
+        this.id = this@toProfile[ProfileTable.id].value
     }
 
     override fun getByLoginId(loginId: UUID): Profile? {
         return transaction {
-            Profiles.selectAll().where { Profiles.loginId eq loginId }.map {
+            ProfileTable.selectAll().where { ProfileTable.loginId eq loginId }.map {
                 it.toProfile()
             }.singleOrNull()
         }
     }
 
-    override fun getCurrentProfile(): Profile? {
+    override fun getByCurrent(): Profile? {
        return transaction {
-            Profiles.join(
-                SessionRepository.Sessions,
+            ProfileTable.join(
+                SessionRepository.SessionTable,
                 JoinType.INNER,
-                additionalConstraint = { (SessionRepository.Sessions.loginId eq Profiles.loginId) and (SessionRepository.Sessions.active eq true) })
+                additionalConstraint = { (SessionRepository.SessionTable.loginId eq ProfileTable.loginId) and (SessionRepository.SessionTable.active eq true) })
                 .selectAll().map {
                     it.toProfile()
                 }.singleOrNull()
@@ -113,10 +107,10 @@ class ProfileRepository(private val database: Database) : ProfilePort {
         return transaction(database) {
             val cashiers = mutableListOf<Cashier>()
 
-            Profiles.selectAll().map {
+            ProfileTable.selectAll().map {
                 cashiers.add(Cashier().apply {
-                    this.inn = it[Profiles.inn]
-                    this.fullName = it[Profiles.fullName]
+                    this.inn = it[ProfileTable.inn]
+                    this.fullName = it[ProfileTable.fullName]
                 })
             }
 
@@ -125,13 +119,17 @@ class ProfileRepository(private val database: Database) : ProfilePort {
     }
 
     override fun getCurrentCashier() : Cashier? {
-        return transaction(database) {
-            Profiles.selectAll().map {
-                Cashier().apply {
-                    this.inn = it[Profiles.inn]
-                    this.fullName = it[Profiles.fullName]
-                }
-            }.singleOrNull()
+        return transaction {
+            ProfileTable.join(
+                SessionRepository.SessionTable,
+                JoinType.INNER,
+                additionalConstraint = { (SessionRepository.SessionTable.loginId eq ProfileTable.loginId) and (SessionRepository.SessionTable.active eq true) })
+                .selectAll().map {
+                    Cashier().apply {
+                        this.inn = it[ProfileTable.inn]
+                        this.fullName = it[ProfileTable.fullName]
+                    }
+                }.singleOrNull()
         }
     }
 

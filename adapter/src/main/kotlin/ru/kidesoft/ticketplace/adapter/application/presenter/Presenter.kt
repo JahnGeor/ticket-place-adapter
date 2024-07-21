@@ -17,11 +17,11 @@ interface ApplicationManager {
 }
 
 interface Notification {
-    fun showNotification(notificationType: NotificationType, message: String, title: String)
+    fun showNotification(notificationType: NotificationType, title: String, message: String)
 }
 
 
 interface Alert {
-    fun showAlert(alertType: AlertType, message: String, title: String, exception: Exception? = null)
+    fun showAlert(alertType: AlertType, title: String, message: String, exception: Throwable? = null)
 }
 

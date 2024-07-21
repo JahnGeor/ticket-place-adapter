@@ -3,6 +3,7 @@ package ru.kidesoft.ticketplace.adapter.infrastructure.api.kkt
 import ru.kidesoft.ticketplace.adapter.application.port.KktPort
 import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
 import ru.kidesoft.ticketplace.adapter.application.port.KktType
+import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 import ru.kidesoft.ticketplace.adapter.domain.setting.KktSetting
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.kkt.atol.AtolKktImpl
 import java.util.*
@@ -27,9 +28,11 @@ class KktFactory : KktPortFactory {
         return _kktInstance.kktPort
     }
 
-    override fun createInstance(kktType: KktType, kktSetting: KktSetting, loginId: UUID): KktPort { // TODO: Добавить сюда сразу пользователя, чтобы каждый раз не лазить в базу данных
+    override fun createInstance(kktType: KktType, cashierData : Cashier, kktSetting: KktSetting, loginId: UUID): KktPort { // TODO: Добавить сюда сразу пользователя, чтобы каждый раз не лазить в базу данных
+        _kktInstance?.kktPort?.destroy()
+
         val kktPort = when(kktType) {
-            KktType.ATOL -> AtolKktImpl()
+            KktType.ATOL -> AtolKktImpl(cashierData, kktSetting)
         }
 
         _kktInstance = _KktInstance().apply {

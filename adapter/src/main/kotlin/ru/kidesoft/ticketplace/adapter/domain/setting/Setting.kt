@@ -1,10 +1,7 @@
 package ru.kidesoft.ticketplace.adapter.domain.setting
 
-import org.h2.mvstore.Page
-import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2.SettingRepository.Settings
 import java.util.UUID
 import kotlin.properties.Delegates
-import kotlin.time.Duration
 
 enum class PageSize {
     A4, A5

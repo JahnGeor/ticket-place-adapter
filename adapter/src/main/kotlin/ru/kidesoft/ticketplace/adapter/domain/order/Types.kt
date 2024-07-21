@@ -1,7 +1,7 @@
 package ru.kidesoft.ticketplace.adapter.domain.order
 
 enum class SourceType {
-    ORDER, REFUND;
+    UNDEFINED, ORDER, REFUND;
 }
 
 enum class PaymentType(val value: String) {

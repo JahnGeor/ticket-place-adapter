@@ -1,36 +1,33 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.login
 
 import org.apache.logging.log4j.LogManager
-import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
-import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
-import ru.kidesoft.ticketplace.adapter.application.port.KktType
+import ru.kidesoft.ticketplace.adapter.application.port.*
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
-class Logout(private val databasePort: DatabasePort, val kktPortFactory: KktPortFactory) :
-    _Usecase<Logout.Input, Logout.Output>() {
-    private val logger = LogManager.getLogger(Logout::class.java)
+class Logout(commonPort: CommonPort) :
+    Usecase<Logout.Input, Logout.Output>(commonPort) {
 
-    class Input : _Usecase.Input {
+    class Input : Usecase.Input {
         val closeShift = true
     }
 
-    class Output : _Usecase.Output {}
+    class Output : Usecase.Output {}
 
     override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
-        databasePort.execTransaction {
-            val session = databasePort.getSession().getActive()?: throw NullPointerException("Active session cannot be null")
+        commonPort.databasePort.execTransaction {
+            val session = commonPort.databasePort.getSession().getActive()?: throw NullPointerException("Active session cannot be null")
 
-            kktPortFactory.getInstance(KktType.ATOL, session.loginId)?.let {
+            commonPort.kktPortFactory.getInstance(KktType.ATOL, session.loginId)?.let {
                 if (it.getConnection()) {
-                    val profile = databasePort.getProfile().getCurrentProfile() ?: throw NullPointerException("Profile can not be null")
-                    it.closeShift(profile.cashier)
+                    val profile = commonPort.databasePort.getProfile().getByCurrent() ?: throw NullPointerException("Profile can not be null")
+                    it.closeShift()
                     it.closeConnection()
                 }
             }
 
-            databasePort.getSession().deleteById(session.id)
+            commonPort.databasePort.getSession().deleteById(session.id)
 
             return@execTransaction true
         }

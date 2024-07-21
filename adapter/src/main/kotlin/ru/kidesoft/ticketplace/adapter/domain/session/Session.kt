@@ -1,5 +1,6 @@
 package ru.kidesoft.ticketplace.adapter.domain.session
 
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.properties.Delegates
@@ -9,6 +10,10 @@ class Session {
     lateinit var loginId: UUID
     var active = false
     var token : Token = Token()
+
+    fun isExpired() : Boolean {
+        return this.token.expiredTime.isBefore(ZonedDateTime.now())
+    }
 }
 
 class Token {

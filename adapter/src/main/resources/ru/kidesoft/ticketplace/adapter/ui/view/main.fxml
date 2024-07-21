@@ -26,7 +26,7 @@
                     <header>
                         <HBox alignment="CENTER">
                             <VBox spacing="10.0">
-                                <Label fx:id="fullNameLabel" text="Ишуткин Егор Иванович">
+                                <Label fx:id="fullNameLabel">
                                     <font>
                                         <Font name="Arial" size="14.0" />
                                     </font>
@@ -38,7 +38,7 @@
                                 </Label>
                             </VBox>
                             <Spacer />
-                            <Button ellipsisString="" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button">
+                            <Button fx:id="refreshButton" ellipsisString="" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button">
                                 <graphic>
                                     <FontIcon iconLiteral="mdi2r-refresh" />
                                 </graphic>

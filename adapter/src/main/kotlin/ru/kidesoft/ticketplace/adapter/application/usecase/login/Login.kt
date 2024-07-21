@@ -3,28 +3,29 @@ package ru.kidesoft.ticketplace.adapter.application.usecase.login
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 
-import org.apache.logging.log4j.LogManager
-import ru.kidesoft.ticketplace.adapter.application.port.ApiFactory
-import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
-import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
-import ru.kidesoft.ticketplace.adapter.application.usecase._Usecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartKktSession
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
 import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
+import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
+import ru.kidesoft.ticketplace.adapter.domain.session.Session
+import ru.kidesoft.ticketplace.adapter.domain.setting.Setting
+
 import java.time.LocalDateTime
 
-class Login(private val databasePort: DatabasePort, private val apiFactory: ApiFactory) :
-    _Usecase<Login.Input, Login.Output>() {
-    private val logger = LogManager.getLogger(Login::class.java)
+class Login(commonPort: CommonPort) :
+    Usecase<Login.Input, Login.Output>(commonPort) {
 
-    class Input : _Usecase.Input {
+    class Input : Usecase.Input {
         lateinit var email: String
         lateinit var password: String
         lateinit var url: String
     }
 
-    class Output : _Usecase.Output {}
+    class Output(var session: Session, var profile: Profile, var setting: Setting) : Usecase.Output {
+
+    }
 
     override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
 
@@ -36,7 +37,7 @@ class Login(private val databasePort: DatabasePort, private val apiFactory: ApiF
 
         val async = GlobalScope.async {
             logger.trace("Начато выполнение метода async@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-            apiFactory.getInstance(inputValues.url).login(inputValues.email, inputValues.password)
+            commonPort.apiPortFactory.getInstance(inputValues.url).login(inputValues.email, inputValues.password)
         }
 
         async.invokeOnCompletion {
@@ -52,12 +53,12 @@ class Login(private val databasePort: DatabasePort, private val apiFactory: ApiF
         val asyncLogin = GlobalScope.async {
             logger.trace("Начато выполнение метода asyncLogin@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
 
-            databasePort.getLogin().GetLoginId(inputValues.email, inputValues.url)?.let {
-                databasePort.getLogin()
-                    .Update(it, loginExposed)
+            commonPort.databasePort.getLogin().getLoginId(inputValues.email, inputValues.url)?.let {
+                commonPort.databasePort.getLogin()
+                    .update(it, loginExposed)
             } ?: run {
-                databasePort.getLogin()
-                    .Create(loginExposed)
+                commonPort.databasePort.getLogin()
+                    .create(loginExposed)
             }
         }
 
@@ -74,9 +75,9 @@ class Login(private val databasePort: DatabasePort, private val apiFactory: ApiF
         val profileAsync = GlobalScope.async {
             logger.trace("Начато выполнение метода profileAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
 
-            databasePort.getProfile().getByLoginId(loginId)?.let {
-                databasePort.getProfile().Update(it.id, profileExposed)
-            } ?: databasePort.getProfile().Create(profileExposed)
+            commonPort.databasePort.getProfile().getByLoginId(loginId)?.let {
+                commonPort.databasePort.getProfile().update(it.id, profileExposed)
+            } ?: commonPort.databasePort.getProfile().create(profileExposed)
         }
 
         profileAsync.invokeOnCompletion {
@@ -90,10 +91,10 @@ class Login(private val databasePort: DatabasePort, private val apiFactory: ApiF
                 this.loginId = loginId
             }
 
-            databasePort.getSession().getByLoginId(loginId)?.let {
-                databasePort.getSession().update(it.id, sessionExposed)
+            commonPort.databasePort.getSession().getByLoginId(loginId)?.let {
+                commonPort.databasePort.getSession().update(it.id, sessionExposed)
             } ?: let {
-                databasePort.getSession().create(sessionExposed)
+                commonPort.databasePort.getSession().create(sessionExposed)
             }
         }
 
@@ -101,11 +102,13 @@ class Login(private val databasePort: DatabasePort, private val apiFactory: ApiF
             logger.trace("Завершено выполнение метода sessionAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
         }
 
-        databasePort.getSession().setActive(sessionAsync.await().id)
+        commonPort.databasePort.getSession().setActive(sessionAsync.await().id)
 
-        databasePort.getSetting().getByLoginId(loginId)?: databasePort.getSetting().createDefault(loginId) // Инициализация настроек по-умолчанию
+        var setting = commonPort.databasePort.getSetting().getByLoginId(loginId) ?: commonPort.databasePort.getSetting().createDefault(loginId) // Инициализация настроек по-умолчанию
 
-        return Output()
+        var output = Output(sessionAsync.getCompleted(), profileAsync.getCompleted(), setting)
+
+        return output
     }
 
 
