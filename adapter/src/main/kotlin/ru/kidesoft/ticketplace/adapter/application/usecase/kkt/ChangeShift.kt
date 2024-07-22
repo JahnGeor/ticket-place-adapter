@@ -13,8 +13,8 @@ import ru.kidesoft.ticketplace.adapter.ui.view.MainViewController
 
 class ChangeShift(commonPort: CommonPort) :
     Usecase<ChangeShift.Input, ChangeShift.Output>(commonPort) {
-    class Input() : Usecase.Input {}
-    class Output(val shiftState: ShiftState) : Usecase.Output {}
+    class Input()
+    class Output(val shiftState: ShiftState)
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val kktPort = GetCurrentKktPort(commonPort).invoke().kktPort

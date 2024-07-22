@@ -8,11 +8,8 @@ import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
 import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 
-abstract class Usecase<I : Usecase.Input, O : Usecase.Output>(val commonPort: CommonPort) {
+abstract class Usecase<I, O>(val commonPort: CommonPort) {
     val logger: Logger = LogManager.getLogger(this::class.java)
-
-    interface Input {}
-    interface Output {}
 
     abstract suspend fun invoke(input: I? = null, sceneManager: SceneManager? = null): O
 

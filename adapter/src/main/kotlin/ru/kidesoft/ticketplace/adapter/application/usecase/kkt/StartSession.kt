@@ -8,8 +8,8 @@ import java.time.ZonedDateTime
 import kotlin.math.log
 
 class StartKktSession(commonPort: CommonPort) : Usecase<StartKktSession.Input, StartKktSession.Output>(commonPort) {
-    class Input : Usecase.Input
-    class Output : Usecase.Output
+    class Input
+    class Output
 
     override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
 

@@ -7,10 +7,8 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.action.PrintAction
 import ru.kidesoft.ticketplace.adapter.application.usecase.web.GetWebPort
 
 class ClickProcess(commonPort: CommonPort) : Usecase<ClickProcess.Input, ClickProcess.Output>(commonPort) {
-    class Input : Usecase.Input {
-
-    }
-    class Output : Usecase.Output {
+    class Input
+    class Output {
         var orderId: Int? = null
     }
 

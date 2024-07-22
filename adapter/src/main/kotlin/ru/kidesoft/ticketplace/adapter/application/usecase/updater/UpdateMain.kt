@@ -14,21 +14,21 @@ import java.lang.Exception
 class UpdateMain(commonPort: CommonPort) :
     Usecase<UpdateMain.Input, UpdateMain.Output>(commonPort) {
 
-        class Input : Usecase.Input {}
-    class Output() : Usecase.Output {
+    class Input
+    class Output {
         var profile: Profile? = null
         lateinit var status: GetStates.Output
     }
 
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        var output = Output()
+        val output = Output()
 
         output.profile = commonPort.databasePort.getProfile().getByCurrent()
             ?: throw NullPointerException("Current user profile is null")
 
         try {
-            var states = GetStates(commonPort).invoke()
+            val states = GetStates(commonPort).invoke()
             output.status = states
         } catch (e: Exception) {
             logger.error("Во время получения статусов главного окна произошла ошибка: $e")
@@ -49,15 +49,15 @@ class UpdateMain(commonPort: CommonPort) :
             presenter.setProfile(it)
         }
 
-        output.status.shiftState?.let {
+        output.status.shiftState.let {
             presenter.setShiftState(it)
         }
 
-        output.status.connectionIsOpened?.let {
+        output.status.connectionIsOpened.let {
             presenter.setKktConnectionStatus(it)
         }
 
-        output.status.isPoolingServiceStarted?.let {
+        output.status.isPoolingServiceStarted.let {
             presenter.setPoolingStatus(it)
         }
 

@@ -9,7 +9,7 @@ import ru.kidesoft.ticketplace.adapter.domain.session.Session
 import ru.kidesoft.ticketplace.adapter.domain.setting.Setting
 
 class ReactivateAuthorization(commonPort: CommonPort) : Usecase<ReactivateAuthorization.Input, Login.Output>(commonPort) {
-    class Input : Usecase.Input {}
+    class Input
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Login.Output {
         val currentLogin = commonPort.databasePort.getLogin().getByCurrent()?: throw NullPointerException("current login is null")

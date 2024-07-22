@@ -8,10 +8,10 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
 class CashIncomeAction(commonPort: CommonPort) : Usecase<CashIncomeAction.Input, CashIncomeAction.Output>(commonPort) {
-    class Input : Usecase.Input {
+    class Input {
         var float: Float = 0.0f
     }
-    class Output : Usecase.Output
+    class Output
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val output = Output()

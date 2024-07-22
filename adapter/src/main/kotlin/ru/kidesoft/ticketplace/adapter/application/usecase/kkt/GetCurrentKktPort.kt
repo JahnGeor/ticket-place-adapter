@@ -5,9 +5,8 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
 class GetCurrentKktPort(commonPort: CommonPort): Usecase<GetCurrentKktPort.Input, GetCurrentKktPort.Output>(commonPort) {
-    class Input : Usecase.Input {}
-    class Output(val kktPort: KktPort) : Usecase.Output {
-    }
+    class Input
+    class Output(val kktPort: KktPort)
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val login = commonPort.databasePort.getLogin().getByCurrent() ?: throw IllegalArgumentException("Не найдены данные авторизации текущего пользователя")

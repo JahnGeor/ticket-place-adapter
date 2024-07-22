@@ -10,13 +10,11 @@ import ru.kidesoft.ticketplace.adapter.domain.session.Session
 import java.time.ZonedDateTime
 
 class GetWebPort(commonPort: CommonPort): Usecase<GetWebPort.Input, GetWebPort.Output>(commonPort) {
-    class Input : Usecase.Input {
+    class Input {
         val reactivate: Boolean = true
     }
 
-    class Output(var webPort : ApiPort) : Usecase.Output {
-
-    }
+    class Output(var webPort : ApiPort)
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val reactivate = input?.reactivate ?: false

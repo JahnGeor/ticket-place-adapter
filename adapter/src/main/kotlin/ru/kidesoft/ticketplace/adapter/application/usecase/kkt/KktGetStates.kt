@@ -14,8 +14,8 @@ import ru.kidesoft.ticketplace.adapter.infrastructure.repository.memory.JobRepos
  */
 class GetStates(commonPort: CommonPort): Usecase<GetStates.Input, GetStates.Output>(commonPort) {
 
-    class Input : Usecase.Input
-    class Output : Usecase.Output {
+    class Input
+    class Output {
         var shiftState = ShiftState.UNDEFINED
         var connectionIsOpened: Boolean = false
         var isPoolingServiceStarted: Boolean = false

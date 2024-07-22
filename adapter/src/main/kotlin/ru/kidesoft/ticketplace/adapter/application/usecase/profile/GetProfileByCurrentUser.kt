@@ -7,10 +7,8 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
 
 class GetProfileByCurrentUser(commonPort: CommonPort) : Usecase<GetProfileByCurrentUser.Input, GetProfileByCurrentUser.Output>(commonPort) {
-    class Input : Usecase.Input {}
-    class Output(val profile: Profile) : Usecase.Output {
-
-    }
+    class Input
+    class Output(val profile: Profile)
 
     override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
         val profile = commonPort.databasePort.getProfile().getByCurrent()?: throw IllegalArgumentException("Профиль текущего пользователя не найден")

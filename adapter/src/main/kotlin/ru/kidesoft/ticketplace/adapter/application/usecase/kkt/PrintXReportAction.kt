@@ -6,8 +6,8 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
 class PrintXReportAction(commonPort: CommonPort) : Usecase<PrintXReportAction.Input, PrintXReportAction.Output>(commonPort) {
-    class Input : Usecase.Input
-    class Output : Usecase.Output
+    class Input
+    class Output
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         GetCurrentKktPort(commonPort).invoke().kktPort.printXReport()

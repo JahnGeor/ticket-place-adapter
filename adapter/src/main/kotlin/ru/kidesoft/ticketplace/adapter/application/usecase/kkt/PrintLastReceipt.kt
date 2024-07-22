@@ -9,8 +9,8 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
 class PrintLastReceipt(commonPort: CommonPort) : Usecase<PrintLastReceipt.Input, PrintLastReceipt.Output>(commonPort) {
-    class Input : Usecase.Input
-    class Output : Usecase.Output
+    class Input
+    class Output
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val kktPort = GetCurrentKktPort(commonPort).invoke().kktPort

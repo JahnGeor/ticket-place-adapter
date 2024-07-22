@@ -65,64 +65,65 @@ class Main : Application() {
             val jobRepository = JobRepository()
             val printerRepository = JavaFXPrinterRepository()
 
-            val commonPort = CommonPort(h2DatabaseRepository, kktFactory, apiFactory, applicationRepository, jobRepository, printerRepository)
+            UsecaseExecutor.commonPort = CommonPort(h2DatabaseRepository, kktFactory, apiFactory, applicationRepository, jobRepository, printerRepository)
 
 
-            val login = Login(commonPort)
-            val logout = Logout(commonPort)
-            val getAllLoginUsecase = GetAllLoginUsecase(commonPort)
-            val getCashierListUsecase = GetCashierListUsecase(commonPort)
-            val isActiveSessionUsecase = IsActiveSessionUsecase(commonPort)
-            val getProfileByCurrentUser = GetProfileByCurrentUser(commonPort)
-            val startKktSession = StartKktSession(commonPort)
-            val startApplication = StartApplication(commonPort)
-            val loginAction = LoginAction(commonPort)
-            val saveSettingAction = SaveSettingAction(commonPort)
-            val printAction = PrintAction(commonPort)
-            val kktSyncTime = KktSyncTime(commonPort)
-            val changeShift = ChangeShift(commonPort)
-            val diagnosticAction = DiagnosticAction(commonPort)
-            val printLastReceipt = PrintLastReceipt(commonPort)
-            val printXReportAction = PrintXReportAction(commonPort)
-            val cashIncomeAction = CashIncomeAction(commonPort)
-//            val poolingServiceStart = PoolingServiceStart(commonPort)
-//            val poolingServiceStop = PoolingServiceStop(commonPort)
-            val poolingService = PoolingService(commonPort)
-            val saveHistory = SaveHistory(commonPort)
-            val getWebPort = GetWebPort(commonPort)
 
-            // COMM: Варианты использования обновления сцены
-            val updateMain = UpdateMain(commonPort) // COMM: обновление главного окна
-            val updateAbout = UpdateAbout(commonPort) // COMM: обновление окна о программе
-            val updateSetting = UpdateSetting(commonPort) // COMM: обновление окна настроек
-            val updateHistory = UpdateHistory(commonPort) // COMM: обновление окна истории
-            val updateAuth = UpdateAuth(commonPort) // COMM: обновление окна авторизации
-
-            UsecaseExecutor.registerUsecase( // FIXME: Необходимо переделать данный метод, в него нужно передавать лишь port implementation
-                login, // FIXME:
-                logout, // FIXME:
-                getAllLoginUsecase, // FIXME:
-                getCashierListUsecase, // FIXME:
-                isActiveSessionUsecase, // FIXME:
-                getProfileByCurrentUser, // FIXME:
-                startKktSession, // FIXME:
-                startApplication, // FIXME:
-                updateAuth, // FIXME:
-                updateHistory, // FIXME:
-                updateSetting, // FIXME:
-                updateAbout, // FIXME:
-                updateMain, // FIXME:
-                loginAction,
-                saveSettingAction,
-                printAction,
-                kktSyncTime,
-                changeShift,
-                diagnosticAction,
-                printLastReceipt,
-                cashIncomeAction,
-                printXReportAction,
-                poolingService
-            ) // FIXME:
+//            val login = Login(commonPort)
+//            val logout = Logout(commonPort)
+//            val getAllLoginUsecase = GetAllLoginUsecase(commonPort)
+//            val getCashierListUsecase = GetCashierListUsecase(commonPort)
+//            val isActiveSessionUsecase = IsActiveSessionUsecase(commonPort)
+//            val getProfileByCurrentUser = GetProfileByCurrentUser(commonPort)
+//            val startKktSession = StartKktSession(commonPort)
+//            val startApplication = StartApplication(commonPort)
+//            val loginAction = LoginAction(commonPort)
+//            val saveSettingAction = SaveSettingAction(commonPort)
+//            val printAction = PrintAction(commonPort)
+//            val kktSyncTime = KktSyncTime(commonPort)
+//            val changeShift = ChangeShift(commonPort)
+//            val diagnosticAction = DiagnosticAction(commonPort)
+//            val printLastReceipt = PrintLastReceipt(commonPort)
+//            val printXReportAction = PrintXReportAction(commonPort)
+//            val cashIncomeAction = CashIncomeAction(commonPort)
+////            val poolingServiceStart = PoolingServiceStart(commonPort)
+////            val poolingServiceStop = PoolingServiceStop(commonPort)
+//            val poolingService = PoolingService(commonPort)
+//            val saveHistory = SaveHistory(commonPort)
+//            val getWebPort = GetWebPort(commonPort)
+//
+//            // COMM: Варианты использования обновления сцены
+//            val updateMain = UpdateMain(commonPort) // COMM: обновление главного окна
+//            val updateAbout = UpdateAbout(commonPort) // COMM: обновление окна о программе
+//            val updateSetting = UpdateSetting(commonPort) // COMM: обновление окна настроек
+//            val updateHistory = UpdateHistory(commonPort) // COMM: обновление окна истории
+//            val updateAuth = UpdateAuth(commonPort) // COMM: обновление окна авторизации
+//
+//            UsecaseExecutor.registerUsecase( // FIXME: Необходимо переделать данный метод, в него нужно передавать лишь port implementation
+//                login, // FIXME:
+//                logout, // FIXME:
+//                getAllLoginUsecase, // FIXME:
+//                getCashierListUsecase, // FIXME:
+//                isActiveSessionUsecase, // FIXME:
+//                getProfileByCurrentUser, // FIXME:
+//                startKktSession, // FIXME:
+//                startApplication, // FIXME:
+//                updateAuth, // FIXME:
+//                updateHistory, // FIXME:
+//                updateSetting, // FIXME:
+//                updateAbout, // FIXME:
+//                updateMain, // FIXME:
+//                loginAction,
+//                saveSettingAction,
+//                printAction,
+//                kktSyncTime,
+//                changeShift,
+//                diagnosticAction,
+//                printLastReceipt,
+//                cashIncomeAction,
+//                printXReportAction,
+//                poolingService
+//            ) // FIXME:
 
             // COMM: Инициализация View/Presenter окна авторизации
             val authViewController = AuthViewController()

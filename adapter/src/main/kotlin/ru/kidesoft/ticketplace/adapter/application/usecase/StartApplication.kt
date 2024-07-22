@@ -10,8 +10,8 @@ import java.time.ZonedDateTime
 
 class StartApplication(commonPort: CommonPort) : Usecase<StartApplication.Input, StartApplication.Output>(commonPort) {
 
-    class Input : Usecase.Input {}
-    class Output : Usecase.Output {
+    class Input
+    class Output {
         var isActive : Boolean = false
     }
 

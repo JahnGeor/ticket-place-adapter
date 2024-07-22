@@ -8,8 +8,8 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 class GetAllLoginUsecase(commonPort: CommonPort) :
     Usecase<GetAllLoginUsecase.Input, GetAllLoginUsecase.Output>(commonPort) {
 
-    class Input : Usecase.Input {}
-    class Output : Usecase.Output {
+    class Input
+    class Output {
         var emails = listOf<String>()
         var urls = listOf<String>()
     }

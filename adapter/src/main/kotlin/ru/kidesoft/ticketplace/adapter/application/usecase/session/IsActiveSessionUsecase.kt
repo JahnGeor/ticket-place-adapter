@@ -9,9 +9,9 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
 class IsActiveSessionUsecase(commonPort: CommonPort) : Usecase<IsActiveSessionUsecase.Input, IsActiveSessionUsecase.Output>(commonPort) {
 
-    class Input : Usecase.Input {}
+    class Input
 
-    class Output(val isActive : Boolean) : Usecase.Output {}
+    class Output(val isActive : Boolean)
 
     override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
         return Output(isActive = commonPort.databasePort.getSession().getActive() != null )

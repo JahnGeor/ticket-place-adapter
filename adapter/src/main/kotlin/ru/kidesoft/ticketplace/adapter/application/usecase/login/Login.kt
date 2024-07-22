@@ -17,13 +17,13 @@ import java.time.LocalDateTime
 class Login(commonPort: CommonPort) :
     Usecase<Login.Input, Login.Output>(commonPort) {
 
-    class Input : Usecase.Input {
+    class Input {
         lateinit var email: String
         lateinit var password: String
         lateinit var url: String
     }
 
-    class Output(var session: Session, var profile: Profile, var setting: Setting) : Usecase.Output {
+    class Output(var session: Session, var profile: Profile, var setting: Setting) {
 
     }
 

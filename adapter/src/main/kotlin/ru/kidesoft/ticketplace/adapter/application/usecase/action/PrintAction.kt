@@ -21,7 +21,7 @@ class PrintAction(commonPort: CommonPort) :
         var sourceType: SourceType,
         var isPrintTicket: Boolean? = null,
         var isPrintCheck: Boolean? = null
-    ) : Usecase.Input {
+    ) {
         var operationType: OperationType = when(sourceType) {
             SourceType.ORDER -> OperationType.ORDER
             SourceType.REFUND -> OperationType.REFUND
@@ -35,7 +35,7 @@ class PrintAction(commonPort: CommonPort) :
         }
     }
 
-    class Output : Usecase.Output {
+    class Output {
         var checkPrinted = false
         var ticketPrinted = false
     }

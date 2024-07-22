@@ -7,8 +7,8 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.domain.setting.Setting
 
 class UpdateSetting(commonPort: CommonPort) : Usecase<UpdateSetting.Input, UpdateSetting.Output>(commonPort) {
-    class Input : Usecase.Input
-    class Output(val setting : Setting) : Usecase.Output {}
+    class Input
+    class Output(val setting : Setting)
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val setting = commonPort.databasePort.getSetting().getByCurrent()?: throw NullPointerException("Setting of current user not found")

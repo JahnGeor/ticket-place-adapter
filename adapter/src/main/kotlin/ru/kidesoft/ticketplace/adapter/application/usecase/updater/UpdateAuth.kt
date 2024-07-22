@@ -12,11 +12,9 @@ import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 
 class UpdateAuth(commonPort: CommonPort) :
     Usecase<UpdateAuth.Input, UpdateAuth.Output>(commonPort) {
-    class Input : Usecase.Input {
+    class Input
 
-    }
-
-    class Output : Usecase.Output {
+    class Output {
 
         var emails = listOf<String>()
         var urls = listOf<String>()

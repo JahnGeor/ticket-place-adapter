@@ -2,6 +2,7 @@ package ru.kidesoft.ticketplace.adapter.ui
 
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
+import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.ui.handler.DefaultHandler
@@ -10,6 +11,8 @@ import kotlin.reflect.KClass
 import kotlin.system.measureTimeMillis
 
 object UsecaseExecutor {
+    lateinit var commonPort: CommonPort
+
     lateinit var defaultHandler: DefaultHandler
 
     private val logger = LogManager.getLogger(this.javaClass)
@@ -24,26 +27,12 @@ object UsecaseExecutor {
         var handler: Handler? = defaultHandler
         var maxAttempts: Int = 1
 
-        fun <I : Usecase.Input, O : Usecase.Output, UC : Usecase<I, O>> execute(
-            usecaseClass: KClass<UC>,
-            input: I? = null,
-            sceneManager: SceneManager? = null
-        ): O? {
-            val useCase: UC = usecaseMap[usecaseClass] as? UC ?: run {
-                val usecaseClassName = usecaseClass.qualifiedName
-                val errorMessage = "Usecase is not registered: $usecaseClassName"
-                logger.error("Во время выполнения метода варианта использования $usecaseClassName произошла ошибка: $errorMessage")
-                throw RuntimeException(errorMessage)
-            }
-
-            measureTimeMillis {
-                return execute(useCase, input, sceneManager)
-            }.let {
-                logger.trace("Время выполнения метода варианта использования: ${usecaseClass.qualifiedName} через executor = $it милисекунд")
-            }
+        fun <I,O> execute(clazz: KClass<out Usecase<I, O>>, input : I? = null, sceneManager: SceneManager? = null) : O? {
+            val usecase = clazz.java.getConstructor(CommonPort::class.java).newInstance(commonPort)
+            return execute(usecase, input, sceneManager)
         }
 
-        private fun <I : Usecase.Input, O : Usecase.Output, UC : Usecase<I, O>> execute(
+        private fun <I, O> execute(
             usecase: Usecase<I, O>,
             input: I? = null, sceneManager: SceneManager? = null
         ): O? {

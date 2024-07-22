@@ -12,9 +12,9 @@ import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 class GetCashierListUsecase(commonPort: CommonPort) :
     Usecase<GetCashierListUsecase.GetCashierListInput, GetCashierListUsecase.GetCashierListOutput>(commonPort) {
 
-    data class GetCashierListOutput(val cashierList : List<Cashier>) : Usecase.Output {}
+    data class GetCashierListOutput(val cashierList : List<Cashier>)
 
-    class GetCashierListInput : Usecase.Input {}
+    class GetCashierListInput
 
     override suspend fun invoke(inputValues: GetCashierListInput?, sceneManager: SceneManager?): GetCashierListOutput {
         val cashiers = commonPort.databasePort.getProfile().getCashierList()

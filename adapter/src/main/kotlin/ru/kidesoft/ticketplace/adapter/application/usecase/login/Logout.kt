@@ -11,11 +11,11 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 class Logout(commonPort: CommonPort) :
     Usecase<Logout.Input, Logout.Output>(commonPort) {
 
-    class Input : Usecase.Input {
+    class Input {
         val closeShift = true
     }
 
-    class Output : Usecase.Output {}
+    class Output
 
     override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
         commonPort.databasePort.execTransaction {

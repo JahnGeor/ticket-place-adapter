@@ -12,8 +12,8 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.updater.UpdateMain
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.kkt.KktFactory
 
 class DiagnosticAction(commonPort: CommonPort): Usecase<DiagnosticAction.Input, DiagnosticAction.Output>(commonPort) {
-    class Input : Usecase.Input
-    class Output : Usecase.Output
+    class Input
+    class Output
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val output = Output()

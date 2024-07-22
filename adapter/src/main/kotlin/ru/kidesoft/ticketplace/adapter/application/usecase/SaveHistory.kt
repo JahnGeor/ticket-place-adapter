@@ -8,12 +8,12 @@ import ru.kidesoft.ticketplace.adapter.domain.history.Step
 class SaveHistory(commonPort: CommonPort) : Usecase<SaveHistory.Input, SaveHistory.Output>(commonPort) {
 
 
-    class Input : Usecase.Input {
+    class Input {
         var orderId: Int? = null
         var historyPayload: HistoryPayload? = null
         var step: Step = Step.UNDEFINED
     }
-    class Output : Usecase.Output
+    class Output
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val output = Output()

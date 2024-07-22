@@ -8,8 +8,8 @@ import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
 class RefreshSession(commonPort: CommonPort) : Usecase<RefreshSession.Input, RefreshSession.Output>(commonPort) {
-    class Input : Usecase.Input
-    class Output : Usecase.Output
+    class Input
+    class Output
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         return Output()

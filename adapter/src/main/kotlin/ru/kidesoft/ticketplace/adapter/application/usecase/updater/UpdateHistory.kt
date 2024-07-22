@@ -8,13 +8,13 @@ import ru.kidesoft.ticketplace.adapter.domain.history.History
 import java.time.ZonedDateTime
 
 class UpdateHistory(commonPort: CommonPort) : Usecase<UpdateHistory.Input, UpdateHistory.Output>(commonPort) {
-    class Input(var from: ZonedDateTime? = null) : Usecase.Input {
+    class Input(var from: ZonedDateTime? = null)
 
-    }
-    class Output(val historyList: List<History>) : Usecase.Output {}
+
+    class Output(val historyList: List<History>)
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val from = input?.from?: null
+        val from = input?.from
 
         val list = commonPort.databasePort.getHistory().getListByCurrent(from)
 

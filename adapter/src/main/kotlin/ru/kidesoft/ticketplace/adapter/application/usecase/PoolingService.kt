@@ -58,8 +58,8 @@ const val PoolingServiceJobName = "poolingServiceJob"
 //}
 
 class PoolingService(commonPort: CommonPort) : Usecase<PoolingService.Input, PoolingService.Output>(commonPort) {
-    class Input(var forceState: Boolean = false) : Usecase.Input {}
-    class Output : Usecase.Output {
+    class Input(var forceState: Boolean = false) {}
+    class Output {
         var state: Boolean? = null
     }
 

@@ -7,8 +7,8 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import java.time.ZonedDateTime
 
 class KktSyncTime(commonPort: CommonPort) : Usecase<KktSyncTime.Input, KktSyncTime.Output>(commonPort) {
-    data class Output(var time: ZonedDateTime) : Usecase.Output
-    class Input : Usecase.Input
+    data class Output(var time: ZonedDateTime)
+    class Input
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
         val login = commonPort.databasePort.getLogin().getByCurrent() ?: throw IllegalArgumentException("Не найдены данные авторизации текущего пользователя")

@@ -14,7 +14,7 @@ import ru.kidesoft.ticketplace.adapter.application.usecase.login.Login
 
 class LoginAction(commonPort: CommonPort)
     : Usecase<Login.Input, LoginAction.Output>(commonPort) {
-    class Output : Usecase.Output {}
+    class Output
 
     override suspend fun invoke(input: Login.Input?, sceneManager: SceneManager?): Output {
         Login(commonPort).invoke(inputValues = input)

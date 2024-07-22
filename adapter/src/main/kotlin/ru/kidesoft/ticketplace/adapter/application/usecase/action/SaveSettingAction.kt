@@ -11,9 +11,9 @@ import java.util.*
 
 class SaveSettingAction(commonPort: CommonPort) : Usecase<SaveSettingAction.Input, SaveSettingAction.Output>(commonPort) {
 
-    class Input(val setting : SettingExposed) : Usecase.Input {}
+    class Input(val setting : SettingExposed)
 
-    class Output(val savedId : UUID) : Usecase.Output {}
+    class Output(val savedId : UUID)
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
       try {
