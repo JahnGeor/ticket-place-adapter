@@ -6,6 +6,8 @@ import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
 import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
+import ru.kidesoft.ticketplace.adapter.application.usecase.PoolingService
+import ru.kidesoft.ticketplace.adapter.application.usecase.PoolingServiceJobName
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartKktSession
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.Login
@@ -19,7 +21,9 @@ class LoginAction(commonPort: CommonPort)
 
         StartKktSession(commonPort).invoke()
 
-        var output = Output()
+        PoolingService(commonPort).invoke(PoolingService.Input(true))
+
+        val output = Output()
 
         sceneManager?.let {
             present(output, it)

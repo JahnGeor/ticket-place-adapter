@@ -58,22 +58,35 @@ const val PoolingServiceJobName = "poolingServiceJob"
 //}
 
 class PoolingService(commonPort: CommonPort) : Usecase<PoolingService.Input, PoolingService.Output>(commonPort) {
-    class Input : Usecase.Input {
-        var tumbler: Boolean? = null
-    }
+    class Input(var forceState: Boolean = false) : Usecase.Input {}
     class Output : Usecase.Output {
         var state: Boolean? = null
     }
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        var output = Output()
+        val output = Output()
 
-        commonPort.jobPort.getJob(PoolingServiceJobName)?.let {
-            if (it.isActive) {
-                stop(it).also { output.state = false }
+        if (input != null) {
+            when (input.forceState) {
+                true -> {
+                    commonPort.jobPort.getJob(PoolingServiceJobName)?.let { restart(it, sceneManager) } ?: start(
+                        sceneManager
+                    )
+                    output.state = true
+                }
+                false -> {
+                    commonPort.jobPort.getJob(PoolingServiceJobName)?.let { stop(it) }
+                    output.state = false
+                }
             }
-            else restart(it, sceneManager).also { output.state = true }
-        } ?: start(sceneManager).also { output.state = true }
+        } else {
+            commonPort.jobPort.getJob(PoolingServiceJobName)?.let {
+                if (it.isActive) {
+                    stop(it).also { output.state = false }
+                }
+                else restart(it, sceneManager).also { output.state = true }
+            } ?: start(sceneManager).also { output.state = true }
+        }
 
         sceneManager?.let {
             present(output, it)
@@ -82,17 +95,20 @@ class PoolingService(commonPort: CommonPort) : Usecase<PoolingService.Input, Poo
         return output
     }
 
-    fun start(sceneManager: SceneManager?) {
+    private fun start(sceneManager: SceneManager?) {
         val job = CoroutineScope(Dispatchers.Default).launch {
             var counter = 0
 
             // Получаем настройки
+            val setting = commonPort.databasePort.getSetting().getByCurrent() ?: run {
+                throw IllegalArgumentException("Не найдены настройки по текущему пользователю")
+            }
 
             while (isActive) {
                 kotlin.runCatching {
                     ClickProcess(commonPort).invoke(sceneManager = sceneManager)
                     println("Hello $counter")
-                    delay(2000)
+                    delay(setting.server.requestInterval.toMillis())
                 }.onFailure {
                     if (counter >= 5) {
                         this.cancel("Превышено количество попыток", it)

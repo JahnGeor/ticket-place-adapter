@@ -1,9 +1,11 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.login
 
+import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
 import ru.kidesoft.ticketplace.adapter.application.port.*
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
+import ru.kidesoft.ticketplace.adapter.application.usecase.PoolingService
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 
 class Logout(commonPort: CommonPort) :
@@ -28,6 +30,10 @@ class Logout(commonPort: CommonPort) :
             }
 
             commonPort.databasePort.getSession().deleteById(session.id)
+
+            runBlocking {
+                PoolingService(commonPort).invoke(PoolingService.Input(forceState = false))
+            }
 
             return@execTransaction true
         }
