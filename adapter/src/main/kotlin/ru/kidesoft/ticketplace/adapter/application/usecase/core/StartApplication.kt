@@ -1,9 +1,10 @@
-package ru.kidesoft.ticketplace.adapter.application.usecase
+package ru.kidesoft.ticketplace.adapter.application.usecase.core
 
 import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
+import ru.kidesoft.ticketplace.adapter.application.presenter.AlertType
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.StartKktSession
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.ReactivateAuthorization
 import ru.kidesoft.ticketplace.adapter.application.usecase.web.GetWebPort
 import java.time.ZonedDateTime
@@ -24,9 +25,8 @@ class StartApplication(commonPort: CommonPort) : Usecase<StartApplication.Input,
             if (sessionActive == null) { // COMM: если сеанс нулевой, значит, выставляем isActive = false
                 output.isActive = false
             } else { // COMM: если сеанс существует в базе, нужно проверить время истечения
-                sessionActive.token?.expiredTime?.isBefore(ZonedDateTime.now())?.let { // COMM: если сеанс истек, то...
-                    commonPort.databasePort.getSetting().getByCurrent() ?:
-                    let { commonPort.databasePort.getSetting().createDefault(sessionActive.loginId) } // TODO: в дальнейшем - вынести в handler
+                sessionActive.token.expiredTime.isBefore(ZonedDateTime.now()).let { // COMM: если сеанс истек, то...
+                    commonPort.databasePort.getSetting().getByCurrent() ?: let { commonPort.databasePort.getSetting().setDefault(sessionActive.loginId) } // TODO: в дальнейшем - вынести в handler
 
                     if (it) {
                         ReactivateAuthorization(
@@ -50,25 +50,17 @@ class StartApplication(commonPort: CommonPort) : Usecase<StartApplication.Input,
 
         if (output.isActive) {
             val click = GetWebPort(commonPort).invoke(sceneManager = sceneManager).webPort.getClick().mapToEntity()
-            commonPort.databasePort.getClick().save(click)
+            commonPort.databasePort.getClick().saveByCurrent(click)
 
-            try {
-                StartKktSession(commonPort).invoke()
-            } catch (e : Exception) {
-                logger.error("Во время активации сессии ККТ произошла ошибка: $e")
+            kotlin.runCatching {
+                StartSession(commonPort).invoke()
+                PoolingServiceControl(commonPort).invoke(PoolingServiceControl.PoolingCommand.START)
+            }.onFailure {
+                logger.error("Во время активации сессии ККТ и/или службы опроса сервера произошла ошибка: $it")
+                sceneManager?.showAlert(AlertType.ERROR, "Ошибка начала сеанса", "Во время активации сессии ККТ и/или службы опроса сервера произошла ошибка", it)
             }
-
-            try {
-                PoolingService(commonPort).invoke()
-            } catch (e: Throwable) {
-                logger.error("Во время старта службы прослушивания удаленного сервера произошла ошибка: $e")
-            }
-
 
         }
-
-
-        
 
         sceneManager?.let {
             present(output, it)

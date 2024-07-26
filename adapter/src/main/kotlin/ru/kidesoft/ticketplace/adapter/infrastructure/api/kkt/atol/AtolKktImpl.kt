@@ -4,10 +4,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import ru.atol.drivers10.fptr.Fptr
 import ru.atol.drivers10.fptr.IFptr
+import ru.atol.drivers10.fptr.IFptr.*
 import ru.kidesoft.ticketplace.adapter.application.port.KktPort
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 import ru.kidesoft.ticketplace.adapter.domain.order.OperationType
-import ru.kidesoft.ticketplace.adapter.domain.order.OrderExposed
+import ru.kidesoft.ticketplace.adapter.domain.order.Order
 import ru.kidesoft.ticketplace.adapter.domain.order.PaymentType
 import ru.kidesoft.ticketplace.adapter.domain.order.Ticket
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
@@ -40,7 +41,7 @@ class AtolKktImpl(val cashier : Cashier) : KktPort {
         ifptr = driverDir?.let { Fptr(it.canonicalPath) } ?: Fptr()
 
         kktSetting?.let {
-            ifptr!!.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_RECONNECT, it.autoRecconect.toString())
+            ifptr!!.setSingleSetting(IFptr.LIBFPTR_SETTING_AUTO_RECONNECT, it.autoReconnect.toString())
             ifptr!!.applySingleSettings()
         }
     }
@@ -56,13 +57,13 @@ class AtolKktImpl(val cashier : Cashier) : KktPort {
     }
 
     override fun getConnection(): Boolean {
-        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_DATA_TYPE, IFptr.LIBFPTR_DT_STATUS)
+        ifptr!!.setParam(LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_STATUS);
 
-        ifptr!!.queryData().takeIf { it != 0 }?.let {
-            return@getConnection false
-        }
+        ifptr!!.queryData()
 
-        return ifptr!!.isOpened
+        val isOpened = ifptr!!.getParamBool(LIBFPTR_PARAM_PRINTER_CONNECTION_LOST)
+
+        return ifptr!!.isOpened && !isOpened
     }
 
     override fun openConnection() {
@@ -114,7 +115,7 @@ class AtolKktImpl(val cashier : Cashier) : KktPort {
         }
     }
 
-    override fun print(orderExposed: OrderExposed, operationType: OperationType) {
+    override fun print(order: Order, operationType: OperationType) {
         setOperator()
 
         when(operationType) {
@@ -138,20 +139,20 @@ class AtolKktImpl(val cashier : Cashier) : KktPort {
             }
         }
 
-        for (ticket in orderExposed.tickets) {
+        for (ticket in order.tickets) {
             registerPosition(ticket).takeIf { it != 0 }?.let { _cancelAndProcessError(it) }
         }
 
-        val sum = orderExposed.tickets.sumOf {it.amount.toDouble()}
+        val sum = order.tickets.sumOf {it.amount.toDouble()}
 
         ifptr!!.setParam(IFptr.LIBFPTR_PARAM_SUM, sum)
 
         ifptr!!.receiptTotal()
 
-        when (orderExposed.paymentType) {
+        when (order.paymentType) {
             PaymentType.CASH -> ifptr!!.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_CASH)
             PaymentType.CARD, PaymentType.ACCOUNT_INDIVIDUAL -> ifptr!!.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_TYPE, IFptr.LIBFPTR_PT_ELECTRONICALLY)
-            else -> _cancelAndProcessException(throw IllegalArgumentException("Unprocessed payment type ${orderExposed.paymentType}"))
+             else -> _cancelAndProcessException(throw IllegalArgumentException("Unprocessed payment type ${order.paymentType}"))
         }
 
         ifptr!!.setParam(IFptr.LIBFPTR_PARAM_PAYMENT_SUM, sum)
@@ -227,10 +228,10 @@ class AtolKktImpl(val cashier : Cashier) : KktPort {
     private fun registerPosition(ticket: Ticket) : Int {
         val commodityName = "" +
                 "${ticket.number}, " +
-                "Шоу: ${ticket.showName} " +
+                "${ticket.showName} " +
                 "${ticket.ageLimit}, " +
-                "Дата проведения: ${ticket.dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))}, " +
-                "Зона: ${ticket.zone}, " +
+                "${ticket.dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))}, " +
+//                "Зона: ${ticket.zone}, " +
                 "Ряд: ${ticket.rowSector}, " +
                 "Место: ${ticket.seatNumber}"
 

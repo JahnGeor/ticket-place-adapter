@@ -1,23 +1,34 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.kkt
 
-import ru.kidesoft.ticketplace.adapter.application.port.ApiPortFactory
-import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
-import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
-import ru.kidesoft.ticketplace.adapter.application.port.KktPortFactory
+import ru.kidesoft.ticketplace.adapter.application.port.*
 import ru.kidesoft.ticketplace.adapter.application.presenter.NotificationType
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
+import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
+import java.util.UUID
 
 class PrintLastReceipt(commonPort: CommonPort) : Usecase<PrintLastReceipt.Input, PrintLastReceipt.Output>(commonPort) {
-    class Input
+    class Input(val cashier: Cashier) {
+
+    }
     class Output
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val kktPort = GetCurrentKktPort(commonPort).invoke().kktPort
+        val cashier = input?.cashier
+
+        val kktPort = if (cashier == null) {
+            GetKktPort(commonPort).invoke().kktPort
+        } else {
+            GetKktPort(commonPort).invoke(GetKktPort.Input(cashier)).kktPort
+        }
 
         val output = Output()
 
         kktPort.printLastReceipt()
+
+        if (cashier != null) {
+            commonPort.kktPortFactory.deleteInstance(KktType.ATOL)
+        }
 
         sceneManager?.let {
             present(output, it)

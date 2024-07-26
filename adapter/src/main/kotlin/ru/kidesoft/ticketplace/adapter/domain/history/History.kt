@@ -5,18 +5,6 @@ import ru.kidesoft.ticketplace.adapter.domain.order.SourceType
 import java.time.ZonedDateTime
 import java.util.UUID
 
-data class History(
-    var id: UUID,
-    var loginId: UUID,
-    var orderId: Int,
-    var step: Step,
-    var historyExposed: HistoryPayload,
-)
+data class History(var id: UUID, var loginId: UUID, var orderId: Int, var stepType: Step, var historyExposed: HistoryInfo)
 
-data class HistoryPayload(
-    var sourceType: SourceType,
-    var createdAt: ZonedDateTime,
-    var error: String,
-    var statusType: ErrorStatus,
-    var operationType: OperationType
-)
+data class HistoryInfo(var sourceType: SourceType, var createdAt: ZonedDateTime, var error: String, var errorStatus: ErrorStatus, var operationType: OperationType)

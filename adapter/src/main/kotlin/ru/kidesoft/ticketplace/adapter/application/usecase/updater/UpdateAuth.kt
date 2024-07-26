@@ -6,6 +6,7 @@ import ru.kidesoft.ticketplace.adapter.application.port.DatabasePort
 import ru.kidesoft.ticketplace.adapter.application.presenter.AuthPresenter
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.GetKktPort
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetCashierListUsecase
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier

@@ -1,114 +1,88 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.login
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import ru.kidesoft.ticketplace.adapter.application.dto.LoginData
 
 import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
+import ru.kidesoft.ticketplace.adapter.domain.exception.AuthorizationException
+import ru.kidesoft.ticketplace.adapter.domain.exception.ValidationException
 
-import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
+import ru.kidesoft.ticketplace.adapter.domain.login.LoginInfo
 import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
+import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileInfo
 import ru.kidesoft.ticketplace.adapter.domain.session.Session
+import ru.kidesoft.ticketplace.adapter.domain.session.SessionInfo
 import ru.kidesoft.ticketplace.adapter.domain.setting.Setting
+import ru.kidesoft.ticketplace.adapter.domain.setting.SettingInfo
 
-import java.time.LocalDateTime
-
+/**
+ * @exception ru.kidesoft.ticketplace.adapter.domain.exception.AuthorizationException
+ */
 class Login(commonPort: CommonPort) :
     Usecase<Login.Input, Login.Output>(commonPort) {
 
-    class Input {
-        lateinit var email: String
-        lateinit var password: String
-        lateinit var url: String
-    }
+    class Input(var email: String,
+                var password: String,
+                var url: String)
+
 
     class Output(var session: Session, var profile: Profile, var setting: Setting) {
 
     }
 
-    override suspend fun invoke(inputValues: Input?, sceneManager: SceneManager?): Output {
+    override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
+        return kotlin.runCatching {
+            validate(input)
+            val loginInfo = LoginInfo(url = input!!.url, email = input.email, password = input.password)
 
+            val loginData = authorization(loginInfo)
+
+            val output = save(loginInfo, loginData.mapToSession(), loginData.mapToProfile())
+
+            output
+        }.onFailure {
+            throw AuthorizationException("Во время попытки авторизации произошла ошибка", it)
+        }.getOrThrow()
+    }
+
+    private suspend fun authorization(loginInfo: LoginInfo) : LoginData {
+        return commonPort.apiPortFactory.getInstance(loginInfo.url).login(loginInfo.email, loginInfo.password)
+    }
+
+    // Transaction func
+    private fun save(loginInfo: LoginInfo, sessionInfo: SessionInfo, profileInfo: ProfileInfo) : Output {
+
+        var output : Output? = null
+
+        commonPort.databasePort.execTransaction {
+            val loginId = commonPort.databasePort.getLogin().save(loginInfo)
+            val profileId = commonPort.databasePort.getProfile().saveByLoginId(loginId, profileInfo)
+            val sessionId = commonPort.databasePort.getSession().saveByLoginId(loginId, sessionInfo)
+
+            val setting = commonPort.databasePort.getSetting().getByLoginId(loginId) ?: run {
+                val id = commonPort.databasePort.getSetting().setDefault(loginId)
+                Setting(id, loginId, SettingInfo.getDefault())
+            }
+
+            commonPort.databasePort.getSession().setActive(sessionId)
+            val session = Session(sessionId, loginId, sessionInfo)
+            val profile = Profile(profileId,loginId, profileInfo)
+
+
+            output = Output(session, profile, setting)
+
+            true
+        }
+
+
+        return output?: throw NullPointerException("Output of Login Usecase is null")
+    }
+
+    private fun validate(inputValues: Input?) {
         if (inputValues == null) {
-            throw NullPointerException("${this::class.simpleName} Input cannot be null.")
+            throw ValidationException()
         }
-
-        // TODO: Сделать валидацию внутри метода
-
-        val async = GlobalScope.async {
-            logger.trace("Начато выполнение метода async@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-            commonPort.apiPortFactory.getInstance(inputValues.url).login(inputValues.email, inputValues.password)
-        }
-
-        async.invokeOnCompletion {
-            logger.trace("Завершено выполнение метода async@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-        }
-
-        val loginExposed = LoginExposed().apply {
-            email = inputValues.email
-            password = inputValues.password
-            url = inputValues.url
-        }
-
-        val asyncLogin = GlobalScope.async {
-            logger.trace("Начато выполнение метода asyncLogin@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-
-            commonPort.databasePort.getLogin().getLoginId(inputValues.email, inputValues.url)?.let {
-                commonPort.databasePort.getLogin()
-                    .update(it, loginExposed)
-            } ?: run {
-                commonPort.databasePort.getLogin()
-                    .create(loginExposed)
-            }
-        }
-
-        asyncLogin.invokeOnCompletion {
-            logger.trace("Завершено выполнение метода asyncLogin@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-        }
-
-        val loginId = asyncLogin.await().id
-
-        val profileExposed = async.await().mapToProfile().apply {
-            this.loginId = loginId
-        }
-
-        val profileAsync = GlobalScope.async {
-            logger.trace("Начато выполнение метода profileAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-
-            commonPort.databasePort.getProfile().getByLoginId(loginId)?.let {
-                commonPort.databasePort.getProfile().update(it.id, profileExposed)
-            } ?: commonPort.databasePort.getProfile().create(profileExposed)
-        }
-
-        profileAsync.invokeOnCompletion {
-            logger.trace("Завершено выполнение метода profileAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-        }
-
-        val sessionAsync = GlobalScope.async {
-            logger.trace("Начато выполнение метода sessionAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-
-            val sessionExposed = async.await().mapToSession().apply {
-                this.loginId = loginId
-            }
-
-            commonPort.databasePort.getSession().getByLoginId(loginId)?.let {
-                commonPort.databasePort.getSession().update(it.id, sessionExposed)
-            } ?: let {
-                commonPort.databasePort.getSession().create(sessionExposed)
-            }
-        }
-
-        sessionAsync.invokeOnCompletion {
-            logger.trace("Завершено выполнение метода sessionAsync@${this::class.simpleName} : ${LocalDateTime.now().toLocalTime()}")
-        }
-
-        commonPort.databasePort.getSession().setActive(sessionAsync.await().id)
-
-        var setting = commonPort.databasePort.getSetting().getByLoginId(loginId) ?: commonPort.databasePort.getSetting().createDefault(loginId) // Инициализация настроек по-умолчанию
-
-        var output = Output(sessionAsync.getCompleted(), profileAsync.getCompleted(), setting)
-
-        return output
     }
 
 

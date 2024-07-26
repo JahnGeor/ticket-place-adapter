@@ -1,17 +1,17 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.action
 
-import org.apache.logging.log4j.LogManager
 import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.NotificationType
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
-import ru.kidesoft.ticketplace.adapter.domain.setting.SettingExposed
+import ru.kidesoft.ticketplace.adapter.application.usecase.core.PoolingServiceControl
+import ru.kidesoft.ticketplace.adapter.domain.setting.SettingInfo
 import java.util.*
 
 class SaveSettingAction(commonPort: CommonPort) : Usecase<SaveSettingAction.Input, SaveSettingAction.Output>(commonPort) {
 
-    class Input(val setting : SettingExposed)
+    class Input(val setting : SettingInfo, val restartListener: Boolean = true)
 
     class Output(val savedId : UUID)
 
@@ -21,17 +21,15 @@ class SaveSettingAction(commonPort: CommonPort) : Usecase<SaveSettingAction.Inpu
               throw IllegalArgumentException("${SaveSettingAction::class.simpleName} требует наличие данных во входном наборе ${Input::class.qualifiedName}")
           }
 
-          val currentLogin = commonPort.databasePort.getLogin().getByCurrent()?: throw NullPointerException("Не обнаружен текущий пользователь")
+          val settingId = commonPort.databasePort.getSetting().saveByCurrent(setting = input.setting)
 
-          input.setting.loginId = currentLogin.id
+          logger.trace("Настройки сохранены под id: {}", settingId)
 
-          val setting = commonPort.databasePort.getSetting().getByCurrent()?.let {
-              commonPort.databasePort.getSetting().update(id = it.id, setting = input.setting)
-          } ?: commonPort.databasePort.getSetting().create(setting = input.setting)
+          if (input.restartListener) {
+              PoolingServiceControl(commonPort).invoke(PoolingServiceControl.PoolingCommand.RESTART, sceneManager)
+          }
 
-          logger.trace("Настройки сохранены под id: ${setting.id}")
-
-          val output = Output(savedId = setting.id)
+          val output = Output(savedId = settingId)
 
           sceneManager?.let {
               present(output, it)

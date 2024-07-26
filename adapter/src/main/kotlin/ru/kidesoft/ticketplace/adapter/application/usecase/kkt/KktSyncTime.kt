@@ -11,13 +11,13 @@ class KktSyncTime(commonPort: CommonPort) : Usecase<KktSyncTime.Input, KktSyncTi
     class Input
 
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Output {
-        val login = commonPort.databasePort.getLogin().getByCurrent() ?: throw IllegalArgumentException("Не найдены данные авторизации текущего пользователя")
-        val setting = commonPort.databasePort.getSetting().getByCurrent() ?: throw IllegalArgumentException("Не найдены данные настроек текущего пользователя")
-        val profile = commonPort.databasePort.getProfile().getByCurrent() ?: throw IllegalArgumentException("Не найдены данные профиля текущего пользователя")
+//        val login = commonPort.databasePort.getLogin().getByCurrent() ?: throw IllegalArgumentException("Не найдены данные авторизации текущего пользователя")
+//        val setting = commonPort.databasePort.getSetting().getByCurrent() ?: throw IllegalArgumentException("Не найдены данные настроек текущего пользователя")
+//        val cashier = commonPort.databasePort.getProfile().getCurrentCashier() ?: throw IllegalArgumentException("Не найдены данные оператора текущего пользователя")
 
-        var kktPort = commonPort.kktPortFactory.getInstance(KktType.ATOL, login.id) ?: commonPort.kktPortFactory.createInstance(KktType.ATOL, profile.cashier, setting.kkt, login.id)
+        val kktPort = GetKktPort(commonPort).invoke().kktPort
 
-        var currentTime = ZonedDateTime.now()
+        val currentTime = ZonedDateTime.now()
 
         kktPort.setTime(currentTime)
 

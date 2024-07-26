@@ -39,7 +39,7 @@ class GetWebPort(commonPort: CommonPort): Usecase<GetWebPort.Input, GetWebPort.O
             activeLogin.url,
             token = activeSession?.token?.value,
             tokenType = activeSession?.token?.type,
-            timeout = currentSetting.server.requestTimeout,
+            timeout = currentSetting.serverSetting.requestTimeout,
             userId = profile.userId.toInt()
         )
 

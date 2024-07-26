@@ -1,13 +1,11 @@
 package ru.kidesoft.ticketplace.adapter.application.dto
 
-import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
-import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileExposed
-import ru.kidesoft.ticketplace.adapter.domain.session.Session
-import ru.kidesoft.ticketplace.adapter.domain.session.SessionExposed
+import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileInfo
+import ru.kidesoft.ticketplace.adapter.domain.session.SessionInfo
 
 interface LoginData {
-    fun mapToProfile() : ProfileExposed
-    fun mapToSession() : SessionExposed
+    fun mapToProfile() : ProfileInfo
+    fun mapToSession() :  SessionInfo
 }
 
 interface Mapper<I> {

@@ -1,20 +1,30 @@
 package ru.kidesoft.ticketplace.adapter.ui.view
 
+import atlantafx.base.controls.PasswordTextField
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
-
-import javafx.scene.control.Menu
-import javafx.scene.control.MenuItem
+import javafx.geometry.Pos
+import javafx.scene.Cursor
+import javafx.scene.control.*
+import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
-
+import javafx.scene.paint.Color
+import javafx.scene.shape.Circle
+import javafx.stage.Stage
+import org.kordamp.ikonli.javafx.FontIcon
+import org.kordamp.ikonli.materialdesign2.MaterialDesignE
+import org.kordamp.ikonli.materialdesign2.MaterialDesignP
+import ru.kidesoft.ticketplace.adapter.application.presenter.NotificationType
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
-import ru.kidesoft.ticketplace.adapter.application.usecase.action.DiagnosticAction
+import ru.kidesoft.ticketplace.adapter.application.usecase.action.main.DiagnosticAction
 import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.KktSyncTime
 import ru.kidesoft.ticketplace.adapter.application.usecase.login.Logout
+import ru.kidesoft.ticketplace.adapter.ui.StageManager
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import java.net.URL
 import java.util.*
 
+const val TICKET_ADMIN_PASSWORD = "ticket_admin" // FIXME: Временное решение
 
 @FxmlView("base.fxml", Scene.BASE)
 class BaseViewController() : ViewController() {
@@ -75,9 +85,8 @@ class BaseViewController() : ViewController() {
         settingMenuItem.setOnAction(::onSettingMenuItemAction)
         homeMenuItem.setOnAction(::onHomeMenuItemAction)
         historyMenuItem.setOnAction(::onHistoryMenuItemAction)
-        adminMenuItem.setOnAction (::onAdminMenuItemAction)
+        adminMenuItem.setOnAction(::onAdminMenuItemAction)
         aboutMenuItem.setOnAction(::onAboutMenuItemAction)
-        diagnosticMenuItem.setOnAction(::onDiagnosticMenuItemAction)
         syncKktMenuItem.setOnAction(::syncKktMenuItemAction)
     }
 
@@ -96,6 +105,7 @@ class BaseViewController() : ViewController() {
     private fun onExitMenuItemAction(actionEvent: ActionEvent) {
         getApplicationManager().closeApplication(0)
     }
+
     private fun onSettingMenuItemAction(actionEvent: ActionEvent) {
         getSceneManager().openScene(Scene.SETTING)
     }
@@ -109,7 +119,20 @@ class BaseViewController() : ViewController() {
     }
 
     private fun onAdminMenuItemAction(actionEvent: ActionEvent) {
-        getSceneManager().openScene(Scene.ADMIN)
+        val result = showPasswordDialog()
+
+        if (result.isPresent) {
+            if (result.get() == TICKET_ADMIN_PASSWORD) {
+                getSceneManager().openScene(Scene.ADMIN)
+            } else {
+                getSceneManager().showNotification(
+                    NotificationType.WARN,
+                    "Попытка входа в раздел неудачна",
+                    "Неверный пароль, повторите попытку снова."
+                )
+
+            }
+        }
     }
 
     private fun onAboutMenuItemAction(actionEvent: ActionEvent) {
@@ -121,30 +144,46 @@ class BaseViewController() : ViewController() {
     }
 
 
+    private fun showPasswordDialog() : Optional<String>{
+        val dialog: Dialog<String> = Dialog()
 
-    // --- View section
+        StageManager.setOwnerProperties(dialog.dialogPane.scene.window as Stage)
 
+        dialog.headerText =
+            "Для входа в раздел \"Дополнительные возможности\", пожалуйста, введите пароль администратора."
 
+        val enterButton = ButtonType("Войти", ButtonBar.ButtonData.OK_DONE)
+        val cancelButton = ButtonType("Отменить", ButtonBar.ButtonData.CANCEL_CLOSE)
 
+        dialog.dialogPane.buttonTypes.addAll(enterButton, cancelButton)
 
-//    override fun showPasswordRequest() {
-////        var dialog = javafx.scene.control.Dialog<Node>()
-////
-////        dialog.graphic = VBox().apply {
-////            children.addAll(
-////                Label("Hello"), Label("Text")
-////            )
-////        }
-//
-//
-//            stageManager.createNewStage().apply {}
-//
-//
-//
-//        //dialog.initOwner(stageManager.createNewStage())
-//
-//
-//        //dialog.showAndWait()
-//    }
+        val pwd = PasswordTextField()
+        pwd.minWidth = 450.0
+        pwd.prefWidth = 450.0
+
+        val fontEyeIcon = FontIcon(MaterialDesignE.EYE_OUTLINE)
+
+        pwd.right = fontEyeIcon
+        fontEyeIcon.cursor = Cursor.HAND
+        fontEyeIcon.setOnMouseClicked {
+            pwd.revealPassword = !pwd.revealPassword
+        }
+
+        val content = HBox()
+        content.alignment = Pos.CENTER_LEFT
+        content.spacing = 10.0
+        content.children.addAll(Label("Введите пароль:"), pwd)
+        dialog.dialogPane.content = content
+        dialog.setResultConverter { dialogButton ->
+            if (dialogButton === enterButton) {
+                return@setResultConverter pwd.password
+            }
+            return@setResultConverter null
+        }
+
+        return dialog.showAndWait()
+    }
 
 }
+
+

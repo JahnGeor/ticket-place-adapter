@@ -13,20 +13,15 @@ import javafx.scene.control.cell.CheckBoxTableCell
 import javafx.scene.layout.VBox
 import javafx.stage.Modality
 import javafx.stage.Stage
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import net.datafaker.Faker
-import org.controlsfx.dialog.ProgressDialog
+import ru.kidesoft.ticketplace.adapter.application.presenter.NotificationType
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.usecase.action.PrintAction
 import ru.kidesoft.ticketplace.adapter.application.usecase.updater.UpdateHistory
 import ru.kidesoft.ticketplace.adapter.domain.history.ErrorStatus
 import ru.kidesoft.ticketplace.adapter.domain.history.History
-import ru.kidesoft.ticketplace.adapter.domain.history.HistoryPayload
 import ru.kidesoft.ticketplace.adapter.domain.history.Step
 import ru.kidesoft.ticketplace.adapter.domain.order.OperationType
 import ru.kidesoft.ticketplace.adapter.domain.order.SourceType
-import ru.kidesoft.ticketplace.adapter.domain.order.StatusType
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import java.net.URL
 import java.time.ZonedDateTime
@@ -151,13 +146,14 @@ class HistoryViewController() : ViewController(),
                 when (it.value.history.historyExposed.operationType) {
                     OperationType.REFUND -> "Возврат"
                     OperationType.ORDER -> "Заказ"
+                    OperationType.UNDEFINED -> "Неопределена"
                 }
             )
         }
 
         stepTypeCol.setCellValueFactory {
             SimpleStringProperty(
-                when (it.value.history.step) {
+                when (it.value.history.stepType) {
                     Step.PRINT_CHECK -> "Печать чека"
                     Step.GET_ORDER -> "Запрос данных"
                     Step.PRINT_TICKET -> "Печать билета"
@@ -170,9 +166,10 @@ class HistoryViewController() : ViewController(),
 
         statusTypeCol.setCellValueFactory {
             SimpleStringProperty(
-                when (it.value.history.historyExposed.statusType) {
+                when (it.value.history.historyExposed.errorStatus) {
                     ErrorStatus.ERROR -> "Ошибка"
                     ErrorStatus.SUCCESS -> "Успешно"
+                    ErrorStatus.UNDEFINED -> "Неопределен"
                 }
             )
         }
@@ -216,6 +213,8 @@ class HistoryViewController() : ViewController(),
                 task.cancel()
             }
 
+            UsecaseExecutor.Executor().execute(UpdateHistory::class, sceneManager = getSceneManager())
+
             progressStage.close()
         }
 
@@ -246,10 +245,31 @@ class HistoryViewController() : ViewController(),
     }
 
     private fun onPrintButtonAction(actionEvent: ActionEvent) {
-        callDialog(histories = historyTable.items.filter { it.check.value })
+        if (validateStartPrinting()) {
+            callDialog(histories = historyTable.items.filter { it.check.value })
+        }
+    }
+
+
+
+
+    fun validateStartPrinting() : Boolean {
+        if (!(printTicketBox.isSelected || printCheckBox.isSelected)) {
+            getSceneManager().showNotification(NotificationType.WARN, "Предупреждение во время печати", "Необходимо выбрать хотя бы один параметр печати")
+            return false
+        }
+
+        if (historyTable.items.none { it.check.value }) {
+            getSceneManager().showNotification(NotificationType.WARN, "Предупреждение во время печати", "Необходимо выбрать хотя бы один заказ для печати")
+            return false
+        }
+
+        return true
     }
 
     override fun setHistory(history: List<History>) {
+
+        runCatching { (checkCol.graphic as CheckBox).isSelected = false }
 
         val uniqueOrderIds = history.groupBy { it.orderId }.mapValues { (_, history) ->
             history.sortedByDescending { it.historyExposed.createdAt }.drop(1)

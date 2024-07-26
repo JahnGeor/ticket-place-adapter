@@ -10,9 +10,8 @@ import io.ktor.serialization.gson.*
 import ru.kidesoft.ticketplace.adapter.application.dto.LoginData
 import ru.kidesoft.ticketplace.adapter.application.dto.Mapper
 import ru.kidesoft.ticketplace.adapter.application.port.ApiPort
-import ru.kidesoft.ticketplace.adapter.domain.click.Click
-import ru.kidesoft.ticketplace.adapter.domain.click.ClickExposed
-import ru.kidesoft.ticketplace.adapter.domain.order.OrderExposed
+import ru.kidesoft.ticketplace.adapter.domain.click.ClickInfo
+import ru.kidesoft.ticketplace.adapter.domain.order.Order
 import ru.kidesoft.ticketplace.adapter.domain.order.SourceType
 import java.time.Duration
 
@@ -54,7 +53,7 @@ class TicketPlaceApiImpl(val url: String) : ApiPort {
         }.body<ru.kidesoft.ticketplace.adapter.infrastructure.api.web.ticketplace.LoginData>()
     }
 
-    override suspend fun getOrder(orderId: Int, sourceType: SourceType): Mapper<OrderExposed> {
+    override suspend fun getOrder(orderId: Int, sourceType: SourceType): Mapper<Order> {
         validate()
 
         val client = HttpClient(CIO) {
@@ -90,7 +89,7 @@ class TicketPlaceApiImpl(val url: String) : ApiPort {
         }.body<OrderData>()
     }
 
-    override suspend fun getClick(): Mapper<Click> {
+    override suspend fun getClick(): Mapper<ClickInfo> {
         validate()
 
         val client = HttpClient(CIO) {

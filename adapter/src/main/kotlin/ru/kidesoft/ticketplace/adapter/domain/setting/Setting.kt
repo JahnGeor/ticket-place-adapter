@@ -1,61 +1,87 @@
 package ru.kidesoft.ticketplace.adapter.domain.setting
 
+import net.datafaker.providers.base.Bool
+import ru.kidesoft.ticketplace.adapter.domain.session.SessionInfo
+import java.time.Duration
 import java.util.UUID
 import kotlin.properties.Delegates
 
 enum class PageSize {
-    A4, A5
+    A4, A5, UNDEFINED
 }
 
 enum class PageOrientation {
-    PORTRAIT, LANDSCAPE
+    PORTRAIT, LANDSCAPE, UNDEFINED
 }
 
-class Setting(): SettingExposed() {
-    var id by Delegates.notNull<UUID>()
+data class Setting(
+    val id: UUID,
+    val loginId: UUID,
+    val kktSetting: KktSetting,
+    val serverSetting: ServerSetting,
+    val updateSetting: UpdateSetting,
+    val print: PrintSetting
+) {
+    constructor(id: UUID, loginId: UUID, settingInfo: SettingInfo) : this(
+        id,
+        loginId,
+        settingInfo.kkt,
+        settingInfo.server,
+        settingInfo.update,
+        settingInfo.print
+    )
+}
 
-    constructor(settingExposed: SettingExposed) : this() {
-        this.loginId = settingExposed.loginId
-        this.kkt = settingExposed.kkt
-        this.print = settingExposed.print
-        this.update = settingExposed.update
-        this.server = settingExposed.server
+data class SettingInfo(
+    val kkt: KktSetting,
+    val server: ServerSetting,
+    val update: UpdateSetting,
+    val print: PrintSetting
+) {
+    companion object {
+        fun getDefault(): SettingInfo {
+            return SettingInfo(
+                KktSetting.getDefault(),
+                ServerSetting.getDefault(),
+                UpdateSetting.getDefault(),
+                PrintSetting.getDefault())
+        }
     }
+}
 
-    constructor(id : UUID, settingExposed: SettingExposed) : this(settingExposed) {
-        this.id = id
+data class KktSetting(val path: String, val autoReconnect: Boolean) {
+    companion object {
+        fun getDefault(): KktSetting = KktSetting(path = "./driver/kkt/atol", autoReconnect = true)
     }
-
 }
 
-open class SettingExposed {
-    lateinit var loginId : UUID
-    var kkt = KktSetting()
-    var server = ServerSetting()
-    var update = UpdateSetting()
-    var print = PrintSetting()
+class UpdateSetting(val isAuto: Boolean, val updateUrl: String) {
+    companion object {
+        fun getDefault(): UpdateSetting = UpdateSetting(isAuto = false, updateUrl = "")
+    }
 }
 
-class KktSetting {
-    lateinit var path: String
-    var autoRecconect by Delegates.notNull<Boolean>()
+class PrintSetting(
+    val isPrintingCheck: Boolean,
+    val isPrintingTicket: Boolean,
+    val pageSize: PageSize,
+    val pageOrientation: PageOrientation,
+    val printerName: String
+) {
+    companion object {
+        fun getDefault(): PrintSetting = PrintSetting(
+            isPrintingCheck = true,
+            isPrintingTicket = false,
+            pageSize = PageSize.A4,
+            pageOrientation = PageOrientation.LANDSCAPE,
+            printerName = ""
+        )
+    }
 }
 
-class UpdateSetting {
-    var isAuto by Delegates.notNull<Boolean>()
-    lateinit var repositoryUrl: String
+class ServerSetting(val requestInterval: java.time.Duration, val requestTimeout: java.time.Duration) {
+    companion object {
+        fun getDefault(): ServerSetting =
+            ServerSetting(requestInterval = Duration.ofSeconds(5), requestTimeout = Duration.ofSeconds(30))
+    }
 }
-
-class PrintSetting {
-    var isPrintingCheck by Delegates.notNull<Boolean>()
-    var isPrintingTicket by Delegates.notNull<Boolean>()
-    lateinit var pageSize: PageSize
-    lateinit var pageOrientation: PageOrientation
-    lateinit var printerName: String
-}
-
-class ServerSetting {
-    lateinit var requestInterval: java.time.Duration
-    lateinit var requestTimeout: java.time.Duration
-}
-

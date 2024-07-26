@@ -1,12 +1,12 @@
 package ru.kidesoft.ticketplace.adapter.application.usecase.login
 
 import kotlinx.coroutines.runBlocking
-import org.apache.logging.log4j.LogManager
 import ru.kidesoft.ticketplace.adapter.application.port.*
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
-import ru.kidesoft.ticketplace.adapter.application.usecase.PoolingService
 import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
+import ru.kidesoft.ticketplace.adapter.application.usecase.core.PoolingServiceControl
+import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 
 class Logout(commonPort: CommonPort) :
     Usecase<Logout.Input, Logout.Output>(commonPort) {
@@ -21,10 +21,9 @@ class Logout(commonPort: CommonPort) :
         commonPort.databasePort.execTransaction {
             val session = commonPort.databasePort.getSession().getActive()?: throw NullPointerException("Active session cannot be null")
 
-            commonPort.kktPortFactory.getInstance(KktType.ATOL, session.loginId)?.let {
+            commonPort.kktPortFactory.getInstance()?.let {
                 if (it.getConnection()) {
-                    val profile = commonPort.databasePort.getProfile().getByCurrent() ?: throw NullPointerException("Profile can not be null")
-                    it.closeShift()
+                    if (it.getShiftState() == ShiftState.OPENED || it.getShiftState() == ShiftState.EXPIRED) it.closeShift()
                     it.closeConnection()
                 }
             }
@@ -32,7 +31,7 @@ class Logout(commonPort: CommonPort) :
             commonPort.databasePort.getSession().deleteById(session.id)
 
             runBlocking {
-                PoolingService(commonPort).invoke(PoolingService.Input(forceState = false))
+                PoolingServiceControl(commonPort).invoke(PoolingServiceControl.PoolingCommand.STOP)
             }
 
             return@execTransaction true

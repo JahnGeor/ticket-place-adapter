@@ -24,7 +24,10 @@
                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
                 <TableView fx:id="historyTable" editable="true" prefHeight="350.0" prefWidth="600.0"
-                           BorderPane.alignment="CENTER">
+                            BorderPane.alignment="CENTER">
+                    <placeholder>
+                        <Label text="Нет записей в таблице"/>
+                    </placeholder>
                     <columns>
                         <TableColumn fx:id="checkCol" prefWidth="50.0" sortable="false"/>
                         <TableColumn fx:id="dateCol" prefWidth="200.0" text="Дата"/>
@@ -66,7 +69,9 @@
                             <children>
                                 <Label text="Чек">
                                     <graphic>
-                                        <CheckBox fx:id="printCheckBox"></CheckBox>
+                                        <CheckBox selected="true" fx:id="printCheckBox">
+
+                                        </CheckBox>
                                     </graphic>
                                 </Label>
                                 <Label text="Билет">

@@ -19,7 +19,7 @@ enum class PaymentType(val value: String) {
 }
 
 enum class OperationType {
-    REFUND, ORDER
+    REFUND, ORDER, UNDEFINED
 }
 
 enum class StatusType(val value: String) {

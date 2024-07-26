@@ -4,18 +4,15 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import ru.kidesoft.ticketplace.adapter.application.dto.Mapper
-import ru.kidesoft.ticketplace.adapter.domain.order.OrderExposed
+import ru.kidesoft.ticketplace.adapter.domain.order.Order
 import ru.kidesoft.ticketplace.adapter.domain.order.PaymentType
 import ru.kidesoft.ticketplace.adapter.domain.order.StatusType
 import ru.kidesoft.ticketplace.adapter.domain.order.Ticket
 import java.lang.reflect.Type
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 import kotlin.properties.Delegates
-import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Local
 
 val formatterForeign = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -23,7 +20,7 @@ val longFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
 val shortFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
 val zoneId = ZoneId.of("Europe/Moscow")
 
-class OrderData: Mapper<OrderExposed> {
+class OrderData: Mapper<Order> {
     var id by Delegates.notNull<Int>()
     var kassirName: String? = null
     var clientName: String? = null
@@ -32,7 +29,7 @@ class OrderData: Mapper<OrderExposed> {
     lateinit var createdAt: String
     var tickets = mutableListOf<TicketData>()
 
-    override fun mapToEntity(): OrderExposed {
+    override fun mapToEntity(): Order {
         val ticketsEntityMap = mutableListOf<Ticket>()
 
         for (ticket in tickets) {
@@ -60,7 +57,7 @@ class OrderData: Mapper<OrderExposed> {
 
         val cashierName = kassirName?.let { it } ?: clientName?.let { it }?: userName?.let { it } ?: null
 
-        return OrderExposed(this.id, paymentType, createdAt, ticketsEntityMap, cashierName)
+        return Order(this.id, paymentType, createdAt, ticketsEntityMap, cashierName)
     }
 }
 

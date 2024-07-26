@@ -1,29 +1,11 @@
 package ru.kidesoft.ticketplace.adapter.domain.profile
 
 import java.util.UUID
-import kotlin.properties.Delegates
 
-class Profile {
-    lateinit var id : UUID
-    lateinit var loginId : UUID
-    var cashier : Cashier = Cashier()
-    lateinit var avatar : String
-    lateinit var userName : String
-    var userId by Delegates.notNull<Long>()
-    lateinit var roleType : RoleType
+data class Profile(var id : UUID, var loginId : UUID, val fullName: String, val inn: Long, val avatar: String, val userName: String, val userId: Int, val roleType: RoleType) {
+    constructor(id: UUID, loginId: UUID, profileInfo: ProfileInfo) : this(id, loginId, profileInfo.fullName, profileInfo.inn, profileInfo.avatar, profileInfo.userName, profileInfo.userId, profileInfo.roleType)
 }
 
-class Cashier {
-    lateinit var fullName : String
-    var inn by Delegates.notNull<Long>()
-}
+open class ProfileInfo(val fullName: String, val inn: Long, val avatar: String, val userName: String, val userId: Int, val roleType: RoleType)
 
-
-class ProfileExposed() {
-    lateinit var loginId : UUID
-    lateinit var cashier : Cashier
-    lateinit var avatar : String
-    lateinit var userName : String
-    var userId by Delegates.notNull<Long>()
-    lateinit var roleType : RoleType
-}
+class Cashier(val fullName: String, val inn: Long)

@@ -4,12 +4,9 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import ru.kidesoft.ticketplace.adapter.application.dto.LoginData
-import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
-import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
-import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileExposed
+import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileInfo
 import ru.kidesoft.ticketplace.adapter.domain.profile.RoleType
-import ru.kidesoft.ticketplace.adapter.domain.session.Session
-import ru.kidesoft.ticketplace.adapter.domain.session.SessionExposed
+import ru.kidesoft.ticketplace.adapter.domain.session.SessionInfo
 import ru.kidesoft.ticketplace.adapter.domain.session.Token
 import java.lang.reflect.Type
 import java.time.ZonedDateTime
@@ -27,31 +24,25 @@ class LoginData : LoginData {
     var inn by Delegates.notNull<Long>();
 
 
-    override fun mapToProfile(): ProfileExposed {
-        return ProfileExposed().apply {
-            this.avatar = this@LoginData.avatar
-            this.roleType = RoleType.fromName(this@LoginData.role)
-            this.userId = this@LoginData.userId
-            this.userName = this@LoginData.username
-
-            this.cashier = Cashier().apply {
-                this.inn = this@LoginData.inn
-                this.fullName = this@LoginData.fullName
-            }
+    override fun mapToProfile(): ProfileInfo {
+        return ProfileInfo(
+            this@LoginData.fullName,
+            this@LoginData.inn,
+            this@LoginData.avatar,
+            this@LoginData.username,
+            this@LoginData.userId.toInt(),
+            RoleType.fromName(this@LoginData.role),
+        )
         }
-    }
 
-    override fun mapToSession(): SessionExposed {
-        return SessionExposed().apply {
-            this.token = Token().apply {
-                this.type = this@LoginData.tokenType
-                this.value = this@LoginData.accessToken
-                this.createdTime = ZonedDateTime.now() // TODO: добавить чтение даты из строки по формату
-                this.expiredTime = ZonedDateTime.now().plusDays(1) // TODO: добавить чтение даты из строки по формату
-            }
-        }
+
+    override fun mapToSession() :  SessionInfo {
+        return SessionInfo(
+            token = Token(this@LoginData.tokenType, accessToken, ZonedDateTime.now(), ZonedDateTime.now().plusDays(1)),
+        )
     }
 }
+
 
 class LoginDataTypeAdapter :
     JsonDeserializer<ru.kidesoft.ticketplace.adapter.infrastructure.api.web.ticketplace.LoginData> {

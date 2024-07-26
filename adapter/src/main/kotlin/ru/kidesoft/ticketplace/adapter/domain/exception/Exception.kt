@@ -1,15 +1,71 @@
 package ru.kidesoft.ticketplace.adapter.domain.exception
 
-class DbException(message : String) : Exception(message) {
+class DbException : Exception {
+    constructor() : super()
 
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(cause: Throwable) : super(cause)
 }
 
-class WebException() : Exception() {
-    var statusCode = 0
-    override var cause : Throwable? = null
-    override var message : String? = null
+class WebException : Exception {
+    constructor() : super()
+
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(cause: Throwable) : super(cause)
 }
 
-class ValidationException : Exception() {
+class ValidationException : Exception {
+    constructor() : super()
 
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(cause: Throwable) : super(cause)
+}
+
+class BusinessException : Exception {
+    constructor() : super()
+
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(cause: Throwable) : super(cause)
+}
+
+class KktException: Exception {
+    constructor() : super()
+
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(cause: Throwable) : super(cause)
+}
+
+class PoolerException: Exception {
+    constructor() : super()
+
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(cause: Throwable) : super(cause)
+}
+
+class AuthorizationException : Exception {
+    constructor() : super()
+
+    constructor(message: String) : super(message)
+
+    constructor(message: String, cause: Throwable) : super(message, cause)
+
+    constructor(cause: Throwable) : super(cause)
 }

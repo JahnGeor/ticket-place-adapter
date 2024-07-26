@@ -6,40 +6,29 @@ import javafx.application.Platform
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
 import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
-import ru.kidesoft.ticketplace.adapter.application.usecase.*
-import ru.kidesoft.ticketplace.adapter.application.usecase.action.*
-import ru.kidesoft.ticketplace.adapter.application.usecase.kkt.*
+import ru.kidesoft.ticketplace.adapter.application.usecase.core.StartApplication
 
 
-import ru.kidesoft.ticketplace.adapter.application.usecase.login.GetAllLoginUsecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.login.Login
-import ru.kidesoft.ticketplace.adapter.application.usecase.login.Logout
-import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetCashierListUsecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.profile.GetProfileByCurrentUser
-import ru.kidesoft.ticketplace.adapter.application.usecase.session.IsActiveSessionUsecase
-import ru.kidesoft.ticketplace.adapter.application.usecase.updater.*
-import ru.kidesoft.ticketplace.adapter.application.usecase.web.GetWebPort
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.kkt.KktFactory
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.printer.JavaFXPrinterRepository
 import ru.kidesoft.ticketplace.adapter.infrastructure.api.web.WebServerApiPortFactory
+import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2.jdbc.DatabaseRepositoryJdbc
 import ru.kidesoft.ticketplace.adapter.ui.StageManager
 
-import ru.kidesoft.ticketplace.adapter.infrastructure.repository.database.h2.Database
 import ru.kidesoft.ticketplace.adapter.infrastructure.repository.memory.JobRepository
 import ru.kidesoft.ticketplace.adapter.infrastructure.repository.properties.ApplicationProperties
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import ru.kidesoft.ticketplace.adapter.ui.handler.DefaultHandler
 import ru.kidesoft.ticketplace.adapter.ui.view.*
 
-
 // Класс-наследник JavaFX Application, выполняет все в потоке JavaFX
-class Main : Application() {
+class MainApplication : Application() {
     override fun start(stage: Stage) {
         StageManager.setOwnerProperties(stage)
 
         setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)
 
-        var lock = SocketLock(12111)
+        val lock = SocketLock(12111)
 
         if (!lock.tryLock()) {
                 StageManager.showErrorAlert(
@@ -59,14 +48,13 @@ class Main : Application() {
 
             val applicationRepository = ApplicationProperties()
             val apiFactory = WebServerApiPortFactory()
-            val h2DatabaseRepository = Database(appProps.database)
-            // val mock = DatabaseMock() // COMM: Mock-database
+
+            val h2Database = DatabaseRepositoryJdbc(appProps.database)
             val kktFactory = KktFactory()
             val jobRepository = JobRepository()
             val printerRepository = JavaFXPrinterRepository()
 
-            UsecaseExecutor.commonPort = CommonPort(h2DatabaseRepository, kktFactory, apiFactory, applicationRepository, jobRepository, printerRepository)
-
+            UsecaseExecutor.commonPort = CommonPort(h2Database, kktFactory, apiFactory, applicationRepository, jobRepository, printerRepository)
 
 
 //            val login = Login(commonPort)
@@ -182,7 +170,7 @@ class Launcher {
 
             logger.trace("Запуск приложения: ${args.joinToString { " " }}")
 
-            Application.launch(Main::class.java)
+            Application.launch(MainApplication::class.java)
         }
     }
 }

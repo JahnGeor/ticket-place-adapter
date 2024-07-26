@@ -5,26 +5,16 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.properties.Delegates
 
-class Session {
-    lateinit var id : UUID
-    lateinit var loginId: UUID
-    var active = false
-    var token : Token = Token()
+data class Session(val id : UUID, val loginId : UUID, val token: Token, val active: Boolean) {
+
+    constructor(id: UUID, loginId : UUID, sessionInfo: SessionInfo, active: Boolean = false) : this(id, loginId, sessionInfo.token, active) {}
 
     fun isExpired() : Boolean {
         return this.token.expiredTime.isBefore(ZonedDateTime.now())
     }
 }
 
-class Token {
-    lateinit var type : String
-    lateinit var value : String
-    lateinit var expiredTime : ZonedDateTime
-    lateinit var createdTime : ZonedDateTime
-}
+data class Token(val type : String, val value: String, val createdTime : ZonedDateTime, val expiredTime : ZonedDateTime)
 
-class SessionExposed {
-    lateinit var loginId: UUID
-    lateinit var token : Token
-    var active = false
-}
+data class SessionInfo(var token: Token)
+

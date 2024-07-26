@@ -1,20 +1,20 @@
 package ru.kidesoft.ticketplace.adapter.application.port
 
 import kotlinx.coroutines.Job
-import ru.kidesoft.ticketplace.adapter.domain.click.ClickDatabase
-import ru.kidesoft.ticketplace.adapter.domain.click.ClickExposed
+import ru.kidesoft.ticketplace.adapter.domain.click.Click
+import ru.kidesoft.ticketplace.adapter.domain.click.ClickInfo
 import ru.kidesoft.ticketplace.adapter.domain.history.History
-import ru.kidesoft.ticketplace.adapter.domain.history.HistoryPayload
+import ru.kidesoft.ticketplace.adapter.domain.history.HistoryInfo
 import ru.kidesoft.ticketplace.adapter.domain.history.Step
 import ru.kidesoft.ticketplace.adapter.domain.login.Login
-import ru.kidesoft.ticketplace.adapter.domain.login.LoginExposed
+import ru.kidesoft.ticketplace.adapter.domain.login.LoginInfo
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 import ru.kidesoft.ticketplace.adapter.domain.profile.Profile
-import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileExposed
+import ru.kidesoft.ticketplace.adapter.domain.profile.ProfileInfo
 import ru.kidesoft.ticketplace.adapter.domain.session.Session
-import ru.kidesoft.ticketplace.adapter.domain.session.SessionExposed
+import ru.kidesoft.ticketplace.adapter.domain.session.SessionInfo
 import ru.kidesoft.ticketplace.adapter.domain.setting.Setting
-import ru.kidesoft.ticketplace.adapter.domain.setting.SettingExposed
+import ru.kidesoft.ticketplace.adapter.domain.setting.SettingInfo
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -31,53 +31,52 @@ interface DatabasePort {
 
 interface LoginPort {
     fun getLoginId(email: String, url: String): UUID?
-    fun create(login: LoginExposed): Login
-    fun update(id: UUID, login: LoginExposed): Login
+    fun save(login: LoginInfo) : UUID
     fun getAll(): List<Login>
     fun getByCurrent(): Login?
+    fun deleteAll() : Int
+    fun deleteById(vararg id: UUID) : Int
 }
 
 interface SessionPort {
+    fun saveByCurrent(sessionInfo: SessionInfo, active: Boolean) : UUID
+    fun saveByLoginId(loginId: UUID, sessionInfo: SessionInfo, active: Boolean = true): UUID
+    fun deactivateExcept(loginId: UUID) : Int
     fun getActive() : Session?
-    fun create(session: SessionExposed) : Session
-    fun update(sessionId: UUID, sessionExposed: SessionExposed) : Session
     fun getByLoginId(loginId: UUID): Session?
-    fun setActive(sessionId: UUID)
-    fun setDeactive()
-    fun deleteById(id: UUID)
-    fun deleteAll()
-    fun deleteActive()
+    fun setActive(sessionId: UUID) : Int
+    fun setDeactive() : Int
+    fun deleteById(id: UUID) : Int
+    fun deleteAll() : Int
+    fun deleteActive() : Int
 }
 
 interface ClickPort {
-//    fun saveByCurrent(clickExposed: ClickExposed): ClickDatabase
-//
-//    fun getLastByCurrent(): ClickDatabase?
-
-    fun save(clickExposed: ClickExposed): UUID
-    fun getByCurrent(): ClickDatabase?
+    fun saveByCurrent(clickInfo: ClickInfo): UUID
+    fun getByCurrent(): Click?
 }
 
 interface ProfilePort {
     fun getCashierList() : List<Cashier>
-    fun create(profile: ProfileExposed): Profile
-    fun update(id: UUID, profile: ProfileExposed): Profile
+    fun saveByLoginId(loginId: UUID, profileInfo: ProfileInfo) : UUID
     fun getByLoginId(loginId : UUID) : Profile?
     fun getByCurrent(): Profile?
     fun getCurrentCashier() : Cashier?
+    fun getCashierByLoginId(loginId: UUID) : Cashier?
 }
 
 interface SettingPort {
+    fun saveByLoginId(loginId: UUID, setting : SettingInfo) : UUID
+    fun saveByCurrent(setting: SettingInfo): UUID
     fun getByCurrent(): Setting?
-    fun create(setting: SettingExposed): Setting
-    fun update(id: UUID, setting: SettingExposed): Setting
+    fun setDefault(loginId: UUID): UUID
     fun getById(id: UUID): Setting?
     fun getByLoginId(loginId: UUID): Setting?
-    fun createDefault(loginId: UUID): Setting
 }
 
+
 interface HistoryPort {
-    fun save(orderId: Int, step: Step, historyPayload: HistoryPayload): History
+    fun saveByCurrent(orderId: Int, step: Step, historyInfo: HistoryInfo): UUID?
     fun getListByCurrent(from: ZonedDateTime? = null): List<History>
 }
 

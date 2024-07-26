@@ -14,11 +14,7 @@ class ReactivateAuthorization(commonPort: CommonPort) : Usecase<ReactivateAuthor
     override suspend fun invoke(input: Input?, sceneManager: SceneManager?): Login.Output {
         val currentLogin = commonPort.databasePort.getLogin().getByCurrent()?: throw NullPointerException("current login is null")
 
-        var loginOutput = Login(commonPort).invoke(Login.Input().apply {
-            url = currentLogin.url
-            password = currentLogin.password
-            email = currentLogin.email
-        })
+        val loginOutput = Login(commonPort).invoke(Login.Input(currentLogin.email, currentLogin.password, currentLogin.url))
 
         logger.info("Текущая сессия переактивирована: ${loginOutput.profile.userId} ${loginOutput.session.token.createdTime} -> ${loginOutput.session.token.expiredTime}")
 

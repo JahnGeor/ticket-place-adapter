@@ -1,8 +1,9 @@
-package ru.kidesoft.ticketplace.adapter.application.usecase
+package ru.kidesoft.ticketplace.adapter.application.usecase.core
 
 import ru.kidesoft.ticketplace.adapter.application.port.CommonPort
 import ru.kidesoft.ticketplace.adapter.application.presenter.NotificationType
 import ru.kidesoft.ticketplace.adapter.application.presenter.SceneManager
+import ru.kidesoft.ticketplace.adapter.application.usecase.Usecase
 import ru.kidesoft.ticketplace.adapter.application.usecase.action.PrintAction
 import ru.kidesoft.ticketplace.adapter.application.usecase.web.GetWebPort
 
@@ -19,21 +20,25 @@ class ClickProcess(commonPort: CommonPort) : Usecase<ClickProcess.Input, ClickPr
 
         val click = webPort.getClick().mapToEntity()
 
-        logger.trace("От сервера получен клик №${click.clickId} - заказ №${click.orderId}, ${click.sourceType}")
+        logger.trace("От сервера получен клик №{} - заказ №{}, {}", click.clickId, click.orderId, click.sourceType)
         val storedClick = commonPort.databasePort.getClick().getByCurrent()
 
         storedClick?.let {
             if (it.clickId == click.clickId) {
                 logger.trace("Заказ №${click.orderId} с номером клика №${click.clickId} уже хранится в базе данных")
             } else {
-                logger.trace("Совершаем печать заказа №${click.orderId} с номером клика ${click.clickId}")
-                PrintAction(commonPort).invoke(PrintAction.Input(click.orderId, click.sourceType))
-                commonPort.databasePort.getClick().save(click)
-                logger.trace("Сохраняем текущий клик")
-                output.orderId = click.orderId
+                if (it.orderId == click.orderId) {
+                    logger.warn("Заказ №${click.orderId} с номером клика №${it.clickId} уже хранится в базе данных. Текущий номер клика №${click.clickId}")
+                } else {
+                    logger.trace("Совершаем печать заказа №${click.orderId} с номером клика ${click.clickId}")
+                    PrintAction(commonPort).invoke(PrintAction.Input(click.orderId, click.sourceType))
+                    commonPort.databasePort.getClick().saveByCurrent(click)
+                    logger.trace("Сохраняем текущий клик")
+                    output.orderId = click.orderId
+                }
             }
         }?: run {
-            commonPort.databasePort.getClick().save(click)
+            commonPort.databasePort.getClick().saveByCurrent(click)
             logger.trace("Не найден сохраненный заказ, сохраняем данные по текущему заказу")
         }
 

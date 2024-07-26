@@ -2,11 +2,10 @@ package ru.kidesoft.ticketplace.adapter.application.port
 
 import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 import ru.kidesoft.ticketplace.adapter.domain.order.OperationType
-import ru.kidesoft.ticketplace.adapter.domain.order.OrderExposed
+import ru.kidesoft.ticketplace.adapter.domain.order.Order
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 import ru.kidesoft.ticketplace.adapter.domain.setting.KktSetting
 import java.time.ZonedDateTime
-import java.util.UUID
 
 enum class KktType {
     ATOL
@@ -40,10 +39,11 @@ interface KktOperation {
 }
 
 interface KktPrinter {
-    fun print(orderExposed: OrderExposed, operationType: OperationType)
+    fun print(order: Order, operationType: OperationType)
 }
 
 interface KktPortFactory {
-    fun getInstance(kktType: KktType, loginId : UUID) : KktPort?
-    fun createInstance(kktType: KktType, cashierData : Cashier, kktSetting: KktSetting, loginId: UUID) : KktPort
+    fun getInstance() : KktPort?
+    fun createInstance(kktType: KktType, cashierData : Cashier, kktSetting: KktSetting? = null): KktPort
+    fun deleteInstance(kktType: KktType)
 }

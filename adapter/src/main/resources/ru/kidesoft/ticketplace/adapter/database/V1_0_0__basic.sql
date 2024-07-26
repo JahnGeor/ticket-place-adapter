@@ -17,6 +17,8 @@ create table CLICK
         constraint CLICK_PK_U
             unique,
     CLICK_ID INTEGER                    not null,
+    ORDER_ID INTEGER                    not null,
+    SOURCE_TYPE SMALLINT not null,
     constraint CLICK_PK
         primary key (ID),
     constraint CLICK_LOGIN_ID_FK
@@ -29,7 +31,7 @@ create table HISTORY
     ID             UUID default RANDOM_UUID() not null,
     LOGIN_ID       UUID                       not null,
     CREATED_AT     TIMESTAMP WITH TIME ZONE   not null,
-    STATUS         TINYINT                    not null,
+    ERROR_STATUS         TINYINT                    not null,
     ERROR          CHARACTER VARYING,
     ORDER_ID       INTEGER                    not null,
     OPERATION_TYPE TINYINT                    not null,
@@ -76,14 +78,12 @@ create table SESSION
         foreign key (LOGIN_ID) references LOGIN
             on update cascade on delete cascade,
     constraint SESSION_LOGIN_ID_UNIQ
-        unique (LOGIN_ID),
-    check ((SELECT COUNT(*)
-            WHERE ACTIVE = TRUE) <= 1)
+        unique (LOGIN_ID)
 );
 
 create table SETTING
 (
-    ID                      UUID              not null,
+    ID                      UUID    default RANDOM_UUID() not null,
     KKT_AUTO_RECONNECT      BOOLEAN           not null,
     KKT_DRIVER_PATH         CHARACTER VARYING not null,
     PRINTER_NAME            CHARACTER VARYING,

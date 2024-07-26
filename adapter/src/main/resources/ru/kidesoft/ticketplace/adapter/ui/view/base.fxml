@@ -61,7 +61,7 @@
                             <graphic><FontIcon iconLiteral="fltral-arrow-sync-circle-24"></FontIcon></graphic>
                         </MenuItem>
 
-                        <MenuItem fx:id="diagnosticMenuItem" mnemonicParsing="false" text="Диагностика">
+                        <MenuItem disable="true" fx:id="diagnosticMenuItem" mnemonicParsing="false" text="Диагностика">
                             <graphic><FontIcon iconLiteral="fltral-error-circle-24"></FontIcon></graphic>
                         </MenuItem>
 

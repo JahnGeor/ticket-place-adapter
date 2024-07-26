@@ -12,43 +12,53 @@ import kotlin.math.log
 class KktFactory : KktPortFactory {
     var _kktInstance: _KktInstance = _KktInstance()
 
-    override fun getInstance(kktType: KktType, loginId: UUID): KktPort? {
-        if (_kktInstance.kktPort == null) {
-            return null
-        }
-
-        if (_kktInstance.loginId == null || _kktInstance.loginId != loginId) {
-            return null
-        }
-
-        if (_kktInstance.kktType != kktType || _kktInstance.kktPort == null) {
-            return null
-        }
+    override fun getInstance(): KktPort? {
+//        if (_kktInstance.kktPort == null) {
+//            return null
+//        }
+//
+//        if (_kktInstance.loginId == null || _kktInstance.loginId != loginId) {
+//            return null
+//        }
+//
+//        if (_kktInstance.kktType != kktType || _kktInstance.kktPort == null) {
+//            return null
+//        }
 
         return _kktInstance.kktPort
     }
 
-    override fun createInstance(kktType: KktType, cashierData : Cashier, kktSetting: KktSetting, loginId: UUID): KktPort { // TODO: Добавить сюда сразу пользователя, чтобы каждый раз не лазить в базу данных
-        _kktInstance?.kktPort?.destroy()
+    override fun createInstance(kktType: KktType, cashierData : Cashier, kktSetting: KktSetting?): KktPort { // TODO: Добавить сюда сразу пользователя, чтобы каждый раз не лазить в базу данных
+        _kktInstance.kktPort?.destroy()
+
+        val setting = kktSetting?: KktSetting.getDefault()
 
         val kktPort = when(kktType) {
-            KktType.ATOL -> AtolKktImpl(cashierData, kktSetting)
+            KktType.ATOL -> AtolKktImpl(cashierData, setting)
         }
+
+        kktPort.openConnection()
 
         _kktInstance = _KktInstance().apply {
             this.kktPort = kktPort
             this.kktType = kktType
-            this.loginId = loginId
         }
 
         return kktPort
     }
 
 
+    // TODO: с заделом на несколько активных сеансов
+    override fun deleteInstance(kktType: KktType) {
+        _kktInstance.kktPort?.destroy()
+
+        _kktInstance.kktPort = null
+        _kktInstance.kktType = null
+    }
+
 }
 
 class _KktInstance {
     var kktPort: KktPort? = null
-    var loginId: UUID? = null
     var kktType: KktType? = null
 }

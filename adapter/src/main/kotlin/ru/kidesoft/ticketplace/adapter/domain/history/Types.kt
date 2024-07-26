@@ -5,5 +5,5 @@ enum class Step {
 }
 
 enum class ErrorStatus {
-    ERROR, SUCCESS
+    ERROR, SUCCESS, UNDEFINED
 }
