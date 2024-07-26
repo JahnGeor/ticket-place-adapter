@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import org.kordamp.ikonli.fluentui.FluentUiFilledAL?>
+<BorderPane maxHeight="375.0" maxWidth="600.0" minHeight="375.0" minWidth="600.0" prefHeight="375.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <MenuBar prefHeight="25.0" BorderPane.alignment="CENTER">
+            <menus>
+                <Menu fx:id="fileMenu" mnemonicParsing="false" text="Файл">
+                    <graphic>
+                        <FontIcon iconLiteral="fltral-document-24"></FontIcon>
+                    </graphic>
+                    <items>
+                        <MenuItem fx:id="homeMenuItem" mnemonicParsing="false" text="Главная">
+                            <graphic>
+                                <FontIcon iconLiteral="fltral-home-24"></FontIcon>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="settingMenuItem" mnemonicParsing="false" text="Настройки">
+                            <graphic>
+                                <FontIcon iconLiteral="fltral-launcher-settings-24"></FontIcon>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="logoutMenuItem" mnemonicParsing="false" text="Выйти из профиля">
+                            <graphic>
+                                <FontIcon iconLiteral="fltrmz-person-arrow-left-24">
+                                </FontIcon>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" text="Закрыть">
+                            <graphic>
+                                <FontIcon iconLiteral="fltrmz-share-stop-24"></FontIcon>
+                            </graphic>
+                        </MenuItem>
+                    </items>
+                </Menu>
+                <Menu fx:id="serviceMenu" mnemonicParsing="false" text="Сервис">
+                    <graphic>
+                        <FontIcon iconLiteral="fltral-grid-24"></FontIcon>
+                    </graphic>
+                    <items>
+                        <MenuItem fx:id="historyMenuItem" mnemonicParsing="false" text="История печати">
+                        <graphic>
+                            <FontIcon iconLiteral="fltfal-history-24"></FontIcon>
+                        </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="adminMenuItem" mnemonicParsing="false" text="Дополнительные возможности">
+                            <graphic>
+                                <FontIcon iconLiteral="fltrmz-shield-keyhole-24"></FontIcon>
+                            </graphic>
+                        </MenuItem>
+
+                        <MenuItem fx:id="syncKktMenuItem" mnemonicParsing="false" text="Синхронизировать время ККТ">
+                            <graphic><FontIcon iconLiteral="fltral-arrow-sync-circle-24"></FontIcon></graphic>
+                        </MenuItem>
+
+                        <MenuItem disable="true" fx:id="diagnosticMenuItem" mnemonicParsing="false" text="Диагностика">
+                            <graphic><FontIcon iconLiteral="fltral-error-circle-24"></FontIcon></graphic>
+                        </MenuItem>
+
+                    </items>
+                </Menu>
+                <Menu fx:id="helpMenu" mnemonicParsing="false" text="Помощь">
+                    <graphic>
+                        <FontIcon iconLiteral="fltral-chat-help-24">
+                        </FontIcon>
+                    </graphic>
+                    <items>
+                        <MenuItem fx:id="updateMenuItem" mnemonicParsing="false" text="Обновления">
+                            <graphic>
+                                <FontIcon iconLiteral="fltral-cloud-download-24"></FontIcon>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="О программе">
+                            <graphic>
+                                <FontIcon iconLiteral="fltrmz-question-circle-24"></FontIcon>
+                            </graphic>
+                        </MenuItem>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <StackPane fx:id="mainPane" maxHeight="350.0" maxWidth="600.0" minHeight="350.0" minWidth="600.0"
+                   prefHeight="350.0" prefWidth="600.0" BorderPane.alignment="CENTER"/>
+    </center>
+</BorderPane>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import atlantafx.base.controls.Card?>
+<?import atlantafx.base.controls.Spacer?>
+<?import atlantafx.base.layout.InputGroup?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<AnchorPane maxHeight="350.0" maxWidth="600.0" minHeight="350.0" minWidth="600.0" prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <HBox alignment="CENTER" layoutX="60.0" layoutY="131.0" prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Card fx:id="card" maxWidth="270.0" minWidth="270.0" prefHeight="350.0" prefWidth="270.0">
+
+                    <header>
+                        <HBox alignment="CENTER">
+                            <VBox spacing="10.0">
+                                <Label fx:id="fullNameLabel">
+                                    <font>
+                                        <Font name="Arial" size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="innLabel" text="ИНН: ">
+                                    <font>
+                                        <Font name="Arial" size="16.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+                            <Spacer />
+                            <Button fx:id="refreshButton" ellipsisString="" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2r-refresh" />
+                                </graphic>
+                            </Button>
+                        </HBox>
+                    </header>
+
+                    <body>
+                        <Separator />
+                        <VBox alignment="CENTER_LEFT" spacing="15.0">
+<!--                            alignment="CENTER"-->
+                            <Label fx:id="kktStateLabel" text="Кассовое оборудование: ">
+                                <font>
+                                    <Font name="Arial" size="16.0" />
+                                </font>
+                            </Label>
+
+                            <Label fx:id="kktShiftStateLabel" text="Состояние смены: ">
+                                <font>
+                                    <Font name="Arial" size="16.0" />
+                                </font>
+                            </Label>
+
+                            <Label fx:id="listenStateLabel" text="Опрос сервера: ">
+                                <font>
+                                    <Font name="Arial" size="16.0" />
+                                </font>
+                            </Label>
+                        </VBox>
+
+                    </body>
+
+                    <HBox.margin>
+                        <Insets bottom="25.0" top="25.0" />
+                    </HBox.margin>
+                </Card>
+                <Spacer />
+                <VBox alignment="CENTER" maxWidth="270.0" minWidth="270.0" prefHeight="200.0" prefWidth="270.0" spacing="30.0">
+                    <children>
+                        <ImageView fx:id="logoImage" fitHeight="83.0" fitWidth="270.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/logo.png" />
+                            </image>
+                        </ImageView>
+                        <Label fx:id="timeLabel" style="-fx-text-fill: #6E62E5;" text="08.05.2024 21:53:00">
+                            <font>
+                                <Font name="Arial Bold" size="24.0" />
+                            </font>
+                        </Label>
+                        <HBox prefHeight="40.0" prefWidth="200.0">
+                            <children>
+                                <Button fx:id="shiftButton" ellipsisString="" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button">
+                                    <graphic>
+                                        <FontIcon iconLiteral="mdi2p-printer-search" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Открыть/Закрыть смену" />
+                                    </tooltip>
+                                </Button>
+                                <Spacer />
+                                <Button fx:id="printLastCheck" ellipsisString="" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button">
+                                    <graphic>
+                                        <FontIcon iconLiteral="fltral-document-arrow-left-24" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Распечатать последний чек" />
+                                    </tooltip>
+                                </Button>
+
+                                <Spacer />
+                                <Button fx:id="printXReport" ellipsisString="" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button">
+                                    <graphic>
+                                        <FontIcon iconLiteral="mdi2a-alpha-x-circle-outline" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Распечатать Х-отчет" />
+                                    </tooltip>
+                                </Button>
+
+
+                                <Spacer />
+                                <Button fx:id="listenerButton" ellipsisString="" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="button-icon" text="Button">
+                                    <graphic>
+                                        <FontIcon iconLiteral="mdi2h-help-circle-outline" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Включить/Отключить прослушивание сервера" />
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </HBox>
+                        <InputGroup maxHeight="40.0" maxWidth="270.0" minHeight="40.0" minWidth="270.0" prefHeight="40.0" prefWidth="270.0">
+                            <children>
+                                <TextField fx:id="incomeField" maxHeight="40.0" maxWidth="230.0" minHeight="40.0" minWidth="230.0" prefHeight="40.0" prefWidth="230.0" />
+                                <Button fx:id="incomeButton" ellipsisString="" maxHeight="40.0" maxWidth="40.0" minHeight="40.0" minWidth="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" text="Button">
+                                    <graphic>
+                                        <FontIcon iconLiteral="mdi2c-cash-plus" />
+                                    </graphic>
+                                </Button>
+                            </children>
+                        </InputGroup>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</AnchorPane>
