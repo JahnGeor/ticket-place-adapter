@@ -8,7 +8,11 @@ import ru.kidesoft.ticketplace.adapter.domain.click.Click
 import ru.kidesoft.ticketplace.adapter.domain.click.ClickInfo
 import ru.kidesoft.ticketplace.adapter.domain.order.SourceType
 import java.lang.reflect.Type
+import java.time.*
+import java.time.format.DateTimeFormatter
 import java.util.*
+
+val clickDateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
 class ClickData(
     var id: Int,
@@ -21,7 +25,12 @@ class ClickData(
         ClickInfo(
             this@ClickData.id,
             this@ClickData.orderId,
-            when(this@ClickData.type) {"refund" -> SourceType.REFUND "order" -> SourceType.ORDER else -> SourceType.UNDEFINED}
+            when (this@ClickData.type) {
+                "refund" -> SourceType.REFUND
+                "order" -> SourceType.ORDER
+                else -> SourceType.UNDEFINED
+            },
+            Instant.from(clickDateFormatter.parse(this@ClickData.createdAt)).atZone(ZoneId.of("Europe/Moscow"))
         )
 }
 

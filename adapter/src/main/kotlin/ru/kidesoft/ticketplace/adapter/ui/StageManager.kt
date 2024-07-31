@@ -6,26 +6,17 @@ import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.control.Alert
-import javafx.scene.control.ButtonBar
-import javafx.scene.control.ButtonType
-import javafx.scene.control.Hyperlink
-import javafx.scene.control.Label
-import javafx.scene.control.TextArea
 import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.Priority
 import javafx.scene.layout.StackPane
 import javafx.stage.Modality
 import javafx.stage.Stage
 import org.controlsfx.control.Notifications
 import org.controlsfx.dialog.ExceptionDialog
-import org.kordamp.ikonli.javafx.FontIcon
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
+import ru.kidesoft.ticketplace.adapter.ui.view.DialogController
 import ru.kidesoft.ticketplace.adapter.ui.view.FxmlView
 import ru.kidesoft.ticketplace.adapter.ui.view.ViewController
-import java.io.PrintWriter
-import java.io.StringWriter
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -33,11 +24,14 @@ import kotlin.system.exitProcess
 class StageManager(var stage: Stage, baseViewController: ViewController) : SceneManager, ApplicationManager,
     Notification, ru.kidesoft.ticketplace.adapter.application.presenter.Alert {
     private val viewControllers: MutableList<ViewController> = mutableListOf()
+    private val dialogControllerControllers: MutableList<DialogController> = mutableListOf()
 
     override fun <P : Presenter> getPresenter(presenter: KClass<P>): P? {
         return viewControllers.firstOrNull { presenter.java.isAssignableFrom(it.javaClass) }?.let {
             presenter.java.cast(it)
-        }
+        } ?: dialogControllerControllers.firstOrNull {
+            presenter.java.isAssignableFrom(it.javaClass)
+        }?.let { presenter.java.cast(it) }
     }
 
     init {
@@ -57,6 +51,11 @@ class StageManager(var stage: Stage, baseViewController: ViewController) : Scene
     ) {
         viewController.stageManager = this
         viewControllers.add(viewController)
+    }
+
+    fun addDialog(dialogController: DialogController) {
+        dialogController.stageManager = this
+        dialogControllerControllers.add(dialogController)
     }
 
 

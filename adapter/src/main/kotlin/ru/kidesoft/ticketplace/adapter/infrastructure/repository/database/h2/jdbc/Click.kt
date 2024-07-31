@@ -7,6 +7,7 @@ import ru.kidesoft.ticketplace.adapter.domain.click.ClickInfo
 import ru.kidesoft.ticketplace.adapter.domain.order.SourceType
 import java.sql.Connection
 import java.sql.SQLException
+import java.time.ZonedDateTime
 import java.util.*
 
 class ClickRepositoryJdbc(private val connection: Connection, private val sessionPort : SessionPort) : ClickPort {
@@ -15,13 +16,14 @@ class ClickRepositoryJdbc(private val connection: Connection, private val sessio
 
         val loginId = sessionPort.getActive()?.loginId ?: throw SQLException("LOGIN_ID can't be null")
 
-        val sql = "SELECT ID FROM FINAL TABLE(MERGE INTO $CLICK_TABLE(LOGIN_ID, CLICK_ID, ORDER_ID, SOURCE_TYPE) KEY(LOGIN_ID) VALUES(?,?,?,?))"
+        val sql = "SELECT ID FROM FINAL TABLE(MERGE INTO $CLICK_TABLE(LOGIN_ID, CLICK_ID, ORDER_ID, SOURCE_TYPE, CREATED_AT) KEY(LOGIN_ID) VALUES(?,?,?,?, ?))"
 
         connection.prepareStatement(sql).use { preparedStatement ->
             preparedStatement.setObject(1, loginId)
             preparedStatement.setInt(2, clickInfo.clickId)
             preparedStatement.setInt(3, clickInfo.orderId)
             preparedStatement.setInt(4, clickInfo.sourceType.ordinal)
+            preparedStatement.setObject(5, clickInfo.createdAt)
             preparedStatement.executeQuery().use { resultSet ->
                 if (resultSet.next()) {
                     return resultSet.getObject("ID", UUID::class.java)
@@ -43,7 +45,9 @@ class ClickRepositoryJdbc(private val connection: Connection, private val sessio
                         resultSet.getObject("ID", UUID::class.java),
                         resultSet.getInt("ORDER_ID"),
                         resultSet.getInt("CLICK_ID"),
-                        SourceType.entries.find { it.ordinal == resultSet.getInt("SOURCE_TYPE")} ?: SourceType.UNDEFINED)
+                        SourceType.entries.find { it.ordinal == resultSet.getInt("SOURCE_TYPE")} ?: SourceType.UNDEFINED,
+                        resultSet.getObject("CREATED_AT", ZonedDateTime::class.java)
+                    )
                 } else return null
             }
         }

@@ -8,12 +8,9 @@ import javafx.scene.Cursor
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
-import javafx.scene.shape.Circle
 import javafx.stage.Stage
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.materialdesign2.MaterialDesignE
-import org.kordamp.ikonli.materialdesign2.MaterialDesignP
 import ru.kidesoft.ticketplace.adapter.application.presenter.NotificationType
 import ru.kidesoft.ticketplace.adapter.application.presenter.Scene
 import ru.kidesoft.ticketplace.adapter.application.usecase.action.main.DiagnosticAction

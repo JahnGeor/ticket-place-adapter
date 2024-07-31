@@ -19,6 +19,7 @@ create table CLICK
     CLICK_ID INTEGER                    not null,
     ORDER_ID INTEGER                    not null,
     SOURCE_TYPE SMALLINT not null,
+    CREATED_AT  TIMESTAMP WITH TIME ZONE not null,
     constraint CLICK_PK
         primary key (ID),
     constraint CLICK_LOGIN_ID_FK

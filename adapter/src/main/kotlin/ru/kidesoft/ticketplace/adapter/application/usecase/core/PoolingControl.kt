@@ -102,7 +102,7 @@ class PoolingServiceControl(commonPort: CommonPort) :
             stop()
         }
 
-        start()
+        start(sceneManager)
 
         sceneManager?.showNotification(
             NotificationType.INFO,

@@ -20,6 +20,7 @@ import ru.kidesoft.ticketplace.adapter.infrastructure.repository.properties.Appl
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
 import ru.kidesoft.ticketplace.adapter.ui.handler.DefaultHandler
 import ru.kidesoft.ticketplace.adapter.ui.view.*
+import ru.kidesoft.ticketplace.adapter.ui.view.dialog.ClickDialogController
 
 // Класс-наследник JavaFX Application, выполняет все в потоке JavaFX
 class MainApplication : Application() {
@@ -145,6 +146,10 @@ class MainApplication : Application() {
             stageManager.addScene(settingViewController)
             stageManager.addScene(adminViewController)
             stageManager.addScene(updateViewController)
+
+            val clickDialog = ClickDialogController()
+
+            stageManager.addDialog(clickDialog)
 
             // COMM: stage -> делаем окно видимым
             stage.show()

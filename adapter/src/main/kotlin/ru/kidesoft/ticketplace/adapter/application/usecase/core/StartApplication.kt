@@ -54,7 +54,7 @@ class StartApplication(commonPort: CommonPort) : Usecase<StartApplication.Input,
 
             kotlin.runCatching {
                 StartSession(commonPort).invoke()
-                PoolingServiceControl(commonPort).invoke(PoolingServiceControl.PoolingCommand.START)
+                PoolingServiceControl(commonPort).invoke(PoolingServiceControl.PoolingCommand.START, sceneManager)
             }.onFailure {
                 logger.error("Во время активации сессии ККТ и/или службы опроса сервера произошла ошибка: $it")
                 sceneManager?.showAlert(AlertType.ERROR, "Ошибка начала сеанса", "Во время активации сессии ККТ и/или службы опроса сервера произошла ошибка", it)
