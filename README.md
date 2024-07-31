@@ -1,4 +1,4 @@
-# Приложение-адаптер Ticket Place Adapter
+# Приложение-адаптер Ticket Place
 
 ## Версия 2.0.0 Dev Version:
 
