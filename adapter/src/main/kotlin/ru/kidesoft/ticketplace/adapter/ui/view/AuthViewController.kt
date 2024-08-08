@@ -4,12 +4,16 @@ import atlantafx.base.controls.PasswordTextField
 import atlantafx.base.theme.Styles
 import atlantafx.base.theme.Tweaks
 import javafx.event.ActionEvent
+import javafx.event.EventHandler
+import javafx.event.EventType
 import javafx.fxml.FXML
 import javafx.scene.Cursor
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
 import javafx.scene.control.TextField
 import javafx.scene.control.Tooltip
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.util.StringConverter
 import org.apache.logging.log4j.LogManager
 import org.controlsfx.control.textfield.TextFields
@@ -102,6 +106,13 @@ class AuthViewController : ViewController(), ru.kidesoft.ticketplace.adapter.app
                 }
             }
         }
+
+        passwordField.addEventHandler(KeyEvent.KEY_RELEASED, EventHandler {
+            keyEvent ->
+            if (keyEvent.code == KeyCode.ENTER) {
+                onLoginButtonClick(ActionEvent(keyEvent.source, keyEvent.target))
+            }
+        })
 
         setActions()
     }

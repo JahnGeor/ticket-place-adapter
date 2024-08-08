@@ -14,15 +14,20 @@ import ru.kidesoft.ticketplace.adapter.domain.order.Ticket
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 import ru.kidesoft.ticketplace.adapter.domain.setting.KktSetting
 import java.io.File
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
+
 class AtolKktImpl(val cashier : Cashier) : KktPort {
     private var ifptr : IFptr? = null
-
+    private lateinit var kktSetting: KktSetting
     constructor(cashier: Cashier, kktSetting: KktSetting) : this(cashier) {
         setConnection(kktSetting)
+        this.kktSetting = kktSetting
     }
 
     override fun setConnection(kktSetting: KktSetting?) {
@@ -218,11 +223,57 @@ class AtolKktImpl(val cashier : Cashier) : KktPort {
     override fun setTime(zonedDateTime: ZonedDateTime) {
         val dateTime: Date = ifptr!!.getParamDateTime(IFptr.LIBFPTR_PARAM_DATE_TIME)
 
-        println("$dateTime")
-
         ifptr!!.setParam(IFptr.LIBFPTR_PARAM_DATE_TIME, Date.from(zonedDateTime.toInstant()))
 
         ifptr!!.writeDateTime().takeIf { it != 0 }?.let { _processError() }
+
+        if (kktSetting.printTimeCheck) {
+            printTicketTime()
+        }
+    }
+
+    private fun printTicketTime() {
+        ifptr!!.setParam(LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_STATUS)
+        ifptr!!.queryData()
+
+        val dateTime: Date = ifptr!!.getParamDateTime(LIBFPTR_PARAM_DATE_TIME)
+
+        ifptr!!.beginNonfiscalDocument()
+
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_HEIGHT, true)
+        ifptr!!.printText()
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_HEIGHT, true)
+        ifptr!!.printText()
+
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_TEXT, "Установлено время:")
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_ALIGNMENT, IFptr.LIBFPTR_ALIGNMENT_CENTER)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT, 2)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH, true)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_HEIGHT, true)
+
+        ifptr!!.printText()
+        ifptr!!.printText()
+
+        val dateTimeText = dateTime.toInstant().atZone(ZoneId.of("Europe/Moscow")).toOffsetDateTime().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh:mm:ss"))
+
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_TEXT, dateTimeText)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_ALIGNMENT, LIBFPTR_ALIGNMENT_CENTER)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT, 2)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_WIDTH, true)
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_HEIGHT, true)
+        ifptr!!.printText()
+
+
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_HEIGHT, true)
+        ifptr!!.printText()
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_HEIGHT, true)
+        ifptr!!.printText()
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_FONT_DOUBLE_HEIGHT, true)
+        ifptr!!.printText()
+
+
+        ifptr!!.setParam(IFptr.LIBFPTR_PARAM_PRINT_FOOTER, false)
+        ifptr!!.endNonfiscalDocument()
     }
 
     private fun registerPosition(ticket: Ticket) : Int {
