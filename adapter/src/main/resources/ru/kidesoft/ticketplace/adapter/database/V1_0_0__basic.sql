@@ -12,14 +12,14 @@ create table LOGIN
 
 create table CLICK
 (
-    ID       UUID default RANDOM_UUID() not null,
-    LOGIN_ID UUID                       not null
+    ID          UUID default RANDOM_UUID() not null,
+    LOGIN_ID    UUID                       not null
         constraint CLICK_PK_U
             unique,
-    CLICK_ID INTEGER                    not null,
-    ORDER_ID INTEGER                    not null,
-    SOURCE_TYPE SMALLINT not null,
-    CREATED_AT  TIMESTAMP WITH TIME ZONE not null,
+    CLICK_ID    INTEGER                    not null,
+    ORDER_ID    INTEGER                    not null,
+    SOURCE_TYPE SMALLINT                   not null,
+    CREATED_AT  TIMESTAMP WITH TIME ZONE   not null,
     constraint CLICK_PK
         primary key (ID),
     constraint CLICK_LOGIN_ID_FK
@@ -32,7 +32,7 @@ create table HISTORY
     ID             UUID default RANDOM_UUID() not null,
     LOGIN_ID       UUID                       not null,
     CREATED_AT     TIMESTAMP WITH TIME ZONE   not null,
-    ERROR_STATUS         TINYINT                    not null,
+    ERROR_STATUS   TINYINT                    not null,
     ERROR          CHARACTER VARYING,
     ORDER_ID       INTEGER                    not null,
     OPERATION_TYPE TINYINT                    not null,
@@ -84,19 +84,20 @@ create table SESSION
 
 create table SETTING
 (
-    ID                      UUID    default RANDOM_UUID() not null,
-    KKT_AUTO_RECONNECT      BOOLEAN           not null,
-    KKT_DRIVER_PATH         CHARACTER VARYING not null,
+    ID                      UUID default RANDOM_UUID() not null,
+    KKT_AUTO_RECONNECT      BOOLEAN                    not null,
+    KKT_DRIVER_PATH         CHARACTER VARYING          not null,
+    KKT_PRINT_TIME_CHECK    BOOLEAN                    not null,
     PRINTER_NAME            CHARACTER VARYING,
-    PAGE_SIZE               TINYINT           not null,
-    PAGE_ORIENTATION        TINYINT           not null,
-    PRINT_CHECK             BOOLEAN           not null,
-    PRINT_TICKET            BOOLEAN           not null,
-    UPDATE_REPOSITORY_URL   CHARACTER VARYING not null,
-    UPDATE_AUTOMATICALLY    BOOLEAN           not null,
-    SERVER_REQUEST_TIMEOUT  NUMERIC           not null,
-    SERVER_REQUEST_INTERVAL NUMERIC           not null,
-    LOGIN_ID                UUID              not null,
+    PAGE_SIZE               TINYINT                    not null,
+    PAGE_ORIENTATION        TINYINT                    not null,
+    PRINT_CHECK             BOOLEAN                    not null,
+    PRINT_TICKET            BOOLEAN                    not null,
+    UPDATE_REPOSITORY_URL   CHARACTER VARYING          not null,
+    UPDATE_AUTOMATICALLY    BOOLEAN                    not null,
+    SERVER_REQUEST_TIMEOUT  NUMERIC                    not null,
+    SERVER_REQUEST_INTERVAL NUMERIC                    not null,
+    LOGIN_ID                UUID                       not null,
     constraint SETTING_PK
         primary key (ID),
     constraint SETTING_LOGIN_ID_FK

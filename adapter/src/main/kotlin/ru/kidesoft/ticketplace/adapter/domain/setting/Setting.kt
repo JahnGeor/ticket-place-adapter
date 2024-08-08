@@ -49,9 +49,9 @@ data class SettingInfo(
     }
 }
 
-data class KktSetting(val path: String, val autoReconnect: Boolean) {
+data class KktSetting(val path: String, val autoReconnect: Boolean, val printTimeCheck: Boolean) {
     companion object {
-        fun getDefault(): KktSetting = KktSetting(path = "./driver/kkt/atol", autoReconnect = true)
+        fun getDefault(): KktSetting = KktSetting(path = "./driver/kkt/atol", autoReconnect = true, printTimeCheck = false)
     }
 }
 

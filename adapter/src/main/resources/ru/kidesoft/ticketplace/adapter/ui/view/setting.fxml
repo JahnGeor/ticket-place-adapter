@@ -71,11 +71,18 @@
                                     </InputGroup>
                                     <InputGroup maxWidth="560.0" minWidth="560.0" prefWidth="560.0">
                                        <children>
-                                          <Label fx:id="autoReconnectLabel" maxHeight="32.0" maxWidth="560.0" minHeight="32.0" minWidth="560.0" prefHeight="32.0" prefWidth="560.0" text="Автоматическое переподключение к кассе">
+                                          <Label fx:id="autoReconnectLabel" maxHeight="32.0" maxWidth="280.0" minHeight="32.0" minWidth="280.0" prefHeight="32.0" prefWidth="280.0" text="Автоматическое переподключение к кассе">
                                           <graphic>
-                                             <CheckBox fx:id="kktAutoReconnectBox"></CheckBox>
+                                             <CheckBox fx:id="kktAutoReconnectBox"/>
                                           </graphic>
                                           </Label>
+
+                                          <Label fx:id="printTimeCheckLabel" maxHeight="32.0" maxWidth="280.0" minHeight="32.0" minWidth="280.0" prefHeight="32.0" prefWidth="280.0" text="Печатать чек синхронизации">
+                                             <graphic>
+                                                <CheckBox fx:id="printTimeCheckBox"/>
+                                             </graphic>
+                                          </Label>
+
                                           <Spacer />
                                        </children>
                                     </InputGroup>

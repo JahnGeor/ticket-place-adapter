@@ -1,13 +1,18 @@
 package ru.kidesoft.ticketplace.adapter.ui.view
 
 import atlantafx.base.controls.PasswordTextField
+import atlantafx.base.theme.Styles
+import atlantafx.base.theme.Tweaks
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.Cursor
 import javafx.scene.control.Button
 import javafx.scene.control.ComboBox
+import javafx.scene.control.TextField
+import javafx.scene.control.Tooltip
 import javafx.util.StringConverter
 import org.apache.logging.log4j.LogManager
+import org.controlsfx.control.textfield.TextFields
 import org.kordamp.ikonli.javafx.FontIcon
 import ru.kidesoft.ticketplace.adapter.application.presenter.*
 import ru.kidesoft.ticketplace.adapter.application.usecase.action.auth.LoginAction
@@ -19,6 +24,7 @@ import ru.kidesoft.ticketplace.adapter.domain.ShiftState
 import ru.kidesoft.ticketplace.adapter.domain.profile.Cashier
 
 import ru.kidesoft.ticketplace.adapter.ui.UsecaseExecutor
+import ru.kidesoft.ticketplace.adapter.ui.view.event.handler.ComboBoxAutoComplete
 import java.net.URL
 import java.util.*
 
@@ -80,6 +86,22 @@ class AuthViewController : ViewController(), ru.kidesoft.ticketplace.adapter.app
         }
 
         UsecaseExecutor.Executor().execute(UpdateAuth::class, sceneManager = stageManager)
+        ComboBoxAutoComplete(emailFields)
+
+        emailFields.styleClass.add(Tweaks.ALT_ICON)
+
+        emailFields.editor.textProperty().addListener{
+                observable, oldValue, newValue ->
+            if (newValue != null) {
+                if (newValue.matches(Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"))) {
+                    emailFields.pseudoClassStateChanged(Styles.STATE_DANGER, false)
+                    emailFields.pseudoClassStateChanged(Styles.STATE_SUCCESS, true)
+                } else {
+                    emailFields.pseudoClassStateChanged(Styles.STATE_SUCCESS, false)
+                    emailFields.pseudoClassStateChanged(Styles.STATE_DANGER, true)
+                }
+            }
+        }
 
         setActions()
     }

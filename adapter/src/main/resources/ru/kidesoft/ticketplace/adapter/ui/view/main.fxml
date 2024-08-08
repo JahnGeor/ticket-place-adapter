@@ -83,9 +83,9 @@
                                 <Image url="@../../assets/logo.png" />
                             </image>
                         </ImageView>
-                        <Label fx:id="timeLabel" style="-fx-text-fill: #6E62E5;" text="08.05.2024 21:53:00">
+                        <Label fx:id="timeLabel" style="-fx-text-fill: #6E62E5;" text="01.01.1970 00:00:00">
                             <font>
-                                <Font name="Arial Bold" size="24.0" />
+                                <Font name="Arial Bold" size="20.0" />
                             </font>
                         </Label>
                         <HBox prefHeight="40.0" prefWidth="200.0">

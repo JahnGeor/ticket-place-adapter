@@ -14,7 +14,7 @@ class SettingRepositoryJdbc(private val connection: Connection, private val sess
             Setting(
                 this.getObject("ID", UUID::class.java),
                 this.getObject("LOGIN_ID", UUID::class.java),
-                KktSetting(this.getString("KKT_DRIVER_PATH"), this.getBoolean("KKT_AUTO_RECONNECT")),
+                KktSetting(this.getString("KKT_DRIVER_PATH"), this.getBoolean("KKT_AUTO_RECONNECT"), this.getBoolean("KKT_PRINT_TIME_CHECK")),
                 ServerSetting(Duration.ofNanos(this.getLong("SERVER_REQUEST_INTERVAL")), Duration.ofNanos(this.getLong("SERVER_REQUEST_TIMEOUT"))),
                 UpdateSetting(this.getBoolean("UPDATE_AUTOMATICALLY"), this.getString("UPDATE_REPOSITORY_URL")),
                 PrintSetting(
@@ -33,25 +33,26 @@ class SettingRepositoryJdbc(private val connection: Connection, private val sess
 
     override fun saveByLoginId(loginId: UUID, setting: SettingInfo) : UUID {
         val sql = "SELECT ID FROM FINAL TABLE(MERGE INTO $SETTING_TABLE" +
-                "(KKT_AUTO_RECONNECT, KKT_DRIVER_PATH, PRINTER_NAME, " +
+                "(KKT_AUTO_RECONNECT, KKT_DRIVER_PATH, KKT_PRINT_TIME_CHECK, PRINTER_NAME, " +
                 "PAGE_SIZE, PAGE_ORIENTATION, PRINT_CHECK, PRINT_TICKET, " +
                 "UPDATE_REPOSITORY_URL, UPDATE_AUTOMATICALLY, " +
                 "SERVER_REQUEST_TIMEOUT, SERVER_REQUEST_INTERVAL, LOGIN_ID)  " +
-                "KEY(LOGIN_ID) VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?))"
+                "KEY(LOGIN_ID) VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?))"
 
         connection.prepareStatement(sql).use { statement ->
             statement.setBoolean(1, setting.kkt.autoReconnect)
             statement.setString(2, setting.kkt.path)
-            statement.setString(3, setting.print.printerName)
-            statement.setInt(4, setting.print.pageSize.ordinal)
-            statement.setInt(5, setting.print.pageOrientation.ordinal)
-            statement.setBoolean(6, setting.print.isPrintingCheck)
-            statement.setBoolean(7, setting.print.isPrintingTicket)
-            statement.setString(8, setting.update.updateUrl)
-            statement.setBoolean(9, setting.update.isAuto)
-            statement.setLong(10, setting.server.requestTimeout.toNanos())
-            statement.setLong(11, setting.server.requestInterval.toNanos())
-            statement.setObject(12, loginId)
+            statement.setBoolean(3, setting.kkt.printTimeCheck)
+            statement.setString(4, setting.print.printerName)
+            statement.setInt(5, setting.print.pageSize.ordinal)
+            statement.setInt(6, setting.print.pageOrientation.ordinal)
+            statement.setBoolean(7, setting.print.isPrintingCheck)
+            statement.setBoolean(8, setting.print.isPrintingTicket)
+            statement.setString(9, setting.update.updateUrl)
+            statement.setBoolean(10, setting.update.isAuto)
+            statement.setLong(11, setting.server.requestTimeout.toNanos())
+            statement.setLong(12, setting.server.requestInterval.toNanos())
+            statement.setObject(13, loginId)
 
             statement.executeQuery().use { resultSet ->
                 if (resultSet.next()) {

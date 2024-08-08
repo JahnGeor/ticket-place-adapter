@@ -83,6 +83,8 @@ class SettingViewController() : ViewController(), SettingPresenter {
     @FXML
     private lateinit var kktDriverPathField: TextField
 
+    @FXML private lateinit var printTimeCheckBox: CheckBox
+
     @FXML
     private lateinit var kktPathLabel: Label
 
@@ -141,7 +143,7 @@ class SettingViewController() : ViewController(), SettingPresenter {
     private fun onSaveButtonClick(actionEvent: ActionEvent) {
         val input = SaveSettingAction.Input(
             SettingInfo(
-                kkt = KktSetting(path = kktDriverPathField.text, autoReconnect = kktAutoReconnectBox.isSelected),
+                kkt = KktSetting(path = kktDriverPathField.text, autoReconnect = kktAutoReconnectBox.isSelected, printTimeCheck = printTimeCheckBox.isSelected),
                 server = ServerSetting(intervalBox.selectionModel.selectedItem, timeoutBox.selectionModel.selectedItem),
                 print = PrintSetting(
                     isPrintingCheck = printCheckBox.isSelected,
@@ -199,6 +201,7 @@ class SettingViewController() : ViewController(), SettingPresenter {
         pageSizeBox.items.addAll(PageSize.A4, PageSize.A5)
         printCheckBox.isSelected = setting.print.isPrintingCheck
         printTicketBox.isSelected = setting.print.isPrintingTicket
+        printTimeCheckBox.isSelected = setting.kktSetting.printTimeCheck
 
         val printers = Printer.getAllPrinters().map { it.name }
 
