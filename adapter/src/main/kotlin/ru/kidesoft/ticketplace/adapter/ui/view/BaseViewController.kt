@@ -69,8 +69,6 @@ class BaseViewController() : ViewController() {
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         setActions()
-
-        updateMenuItem.isDisable = true // TODO: pre-release version
     }
 
     // --- Action section
@@ -85,6 +83,7 @@ class BaseViewController() : ViewController() {
         adminMenuItem.setOnAction(::onAdminMenuItemAction)
         aboutMenuItem.setOnAction(::onAboutMenuItemAction)
         syncKktMenuItem.setOnAction(::syncKktMenuItemAction)
+        diagnosticMenuItem.setOnAction(::onDiagnosticMenuItemAction)
     }
 
     private fun syncKktMenuItemAction(event: ActionEvent) {
@@ -137,7 +136,7 @@ class BaseViewController() : ViewController() {
     }
 
     private fun onDiagnosticMenuItemAction(actionEvent: ActionEvent) {
-        UsecaseExecutor.Executor().execute(DiagnosticAction::class, sceneManager = stageManager)
+        getSceneManager().openScene(Scene.DIAGNOSTIC)
     }
 
 

@@ -61,7 +61,7 @@
                             <graphic><FontIcon iconLiteral="fltral-arrow-sync-circle-24"></FontIcon></graphic>
                         </MenuItem>
 
-                        <MenuItem disable="true" fx:id="diagnosticMenuItem" mnemonicParsing="false" text="Диагностика">
+                        <MenuItem fx:id="diagnosticMenuItem" mnemonicParsing="false" text="Диагностика">
                             <graphic><FontIcon iconLiteral="fltral-error-circle-24"></FontIcon></graphic>
                         </MenuItem>
 
@@ -73,7 +73,7 @@
                         </FontIcon>
                     </graphic>
                     <items>
-                        <MenuItem fx:id="updateMenuItem" mnemonicParsing="false" text="Обновления">
+                        <MenuItem  disable="true" fx:id="updateMenuItem" mnemonicParsing="false" text="Обновления">
                             <graphic>
                                 <FontIcon iconLiteral="fltral-cloud-download-24"></FontIcon>
                             </graphic>

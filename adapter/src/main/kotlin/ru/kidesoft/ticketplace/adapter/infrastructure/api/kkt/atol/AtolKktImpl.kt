@@ -254,7 +254,7 @@ class AtolKktImpl(val cashier : Cashier) : KktPort {
         ifptr!!.printText()
         ifptr!!.printText()
 
-        val dateTimeText = dateTime.toInstant().atZone(ZoneId.of("Europe/Moscow")).toOffsetDateTime().format(DateTimeFormatter.ofPattern("dd-MM-YYYY hh:mm:ss"))
+        val dateTimeText = dateTime.toInstant().atZone(ZoneId.of("Europe/Moscow")).toOffsetDateTime().format(DateTimeFormatter.ofPattern("dd-MM-YYYY HH:mm:ss"))
 
         ifptr!!.setParam(IFptr.LIBFPTR_PARAM_TEXT, dateTimeText)
         ifptr!!.setParam(IFptr.LIBFPTR_PARAM_ALIGNMENT, LIBFPTR_ALIGNMENT_CENTER)

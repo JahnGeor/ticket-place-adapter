@@ -27,7 +27,12 @@ class MainApplication : Application() {
     override fun start(stage: Stage) {
         StageManager.setOwnerProperties(stage)
 
-        setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)
+//        setUserAgentStylesheet(CupertinoLight().userAgentStylesheet)
+
+        //CupertinoLight().userAgentStylesheet
+
+        setUserAgentStylesheet(javaClass.getResource("/ru/kidesoft/ticketplace/adapter/assets/css/themes/atlantafx/2.0.1/cupertino-light.css")
+            ?.toExternalForm() ?: throw IllegalArgumentException("Theme isn't found"))
 
         val lock = SocketLock(12111)
 
@@ -130,6 +135,9 @@ class MainApplication : Application() {
             // COMM: Инициализация ViewController сцены обновления приложения
             val updateViewController = UpdateViewController()
 
+            // COMM: Инициализация ViewController сцены диагностики
+            val diagnosticViewController = DiagnosticViewController()
+
             // COMM: Инициализация View/Presenter базовой формы сцены
             val baseViewController = BaseViewController()
 
@@ -146,6 +154,7 @@ class MainApplication : Application() {
             stageManager.addScene(settingViewController)
             stageManager.addScene(adminViewController)
             stageManager.addScene(updateViewController)
+            stageManager.addScene(diagnosticViewController)
 
             val clickDialog = ClickDialogController()
 
